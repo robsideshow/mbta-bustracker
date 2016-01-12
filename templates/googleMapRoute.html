@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Bus Route Map</title>
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+
+
+function initMap() {
+  var map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 13,
+    center: {lat: {{centerLatLon[0]}}, lng: {{centerLatLon[1]}} }, 
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+	//travelMode: google.maps.TravelMode.TRANSIT
+  });
+    var transitLayer = new google.maps.TransitLayer();
+    transitLayer.setMap(map);  
+	  
+  	{% for path in paths %}	
+	  var routeCoordinates = [
+
+		{% for latlon in path %}
+			{lat: {{latlon[0]}}, lng: {{latlon[1]}} },
+		{% endfor %}
+		   ];
+
+		  var routePath = new google.maps.Polyline({
+			path: routeCoordinates,
+			geodesic: true,
+			strokeColor: '#990066',
+			strokeOpacity: 0.6,
+			strokeWeight: 3
+		  });
+
+		  routePath.setMap(map);
+		
+	{% endfor %}
+}
+
+    </script>
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD1SmWti0oIiSwT23aNcQtandgrrPfgBVU&signed_in=true&callback=initMap"></script>
+  </body>
+</html>

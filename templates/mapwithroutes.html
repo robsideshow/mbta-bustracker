@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+
+<div style="width:1px; height:1px; visibility:hidden; overflow:hidden">
+    <img id = "largemap" src="\static\{{map_id}}.jpg" />
+</div>
+
+
+<canvas id="myCanvas" width="775" height="708"
+style="border:1px solid #d3d3d3;">
+Your browser does not support the HTML5 canvas tag.
+</canvas>
+
+<script>
+window.onload = function() {
+    var canvas = document.getElementById("myCanvas");
+	var img = document.getElementById("largemap"); 
+	var ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+	ctx.lineWidth="2";
+	{% for path in paths %}	
+		ctx.beginPath();
+		ctx.strokeStyle="indigo";
+		ctx.moveTo({{path[0][0]}},{{path[0][1]}});
+		{% for xy in path %}
+			ctx.lineTo({{xy[0]}},{{xy[1]}});
+		{% endfor %}
+		ctx.stroke();
+	{% endfor %}
+};
+</script>
+
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<!-- <img src="{{ url_for('static', filename='route1.png') }}"> -->
+</head>
+
+<body>
+    <div>
+	<a href='{{backLink}}'>&lt;&lt; Back to Route List</a>
+		
+        <p>
+		Route: {{routeTitle}} -- {{varTitles[var][1]}} : {{varTitles[var][0]}}
+		</p>
+    </div>
+    <div>
+        Here are the stops:
+		<br>
+	   {% for stop in stops %}
+	     <a href='{{url_for("stopVar", routenum = routenum,
+                                var = var, stoptag = stop["tag"])}}'>{{stop['title']}}</a>
+		 <br>
+	   {% endfor %}
+		
+    </div>
+	
+
+</body>
+</html>
+
+</html>

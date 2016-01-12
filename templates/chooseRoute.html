@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<style>
+		.route-link {
+			float: left;
+			display: inline-block;
+			padding: 0.5em 1em;
+			background: #222;
+			color: white;
+			margin: 10px;
+			text-decoration: none;
+		}
+		.route-link:hover {
+			text-decoration: none;
+			background: red;
+		}
+		.clearfix {
+			clear: both;
+		}
+	</style>
+</head>
+
+<body>
+    <div>
+        Enter a route:
+    </div>
+    <form method="post">
+        <div>
+            Route:<input type="text" name="routenum" />
+        </div>
+        <div>
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+	<div>
+	<br>
+	Or select your route from this list:
+	<br>
+	{% for rt in rnums %}
+	     <a class="route-link" href='{{url_for("routes", routenum = rt)}}'>{{routeTtitles[rt]}}</a>
+	{% endfor %}
+	
+	<div class="clearfix"></div>
+	Lorem ips
+
+	</div>
+</body>
+</html>
+
+</html>

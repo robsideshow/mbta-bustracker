@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+</head>
+
+<body>
+    <div>
+	<a href='{{backLink}}'>&lt;&lt; Back to Route List</a>
+		
+        <p>
+		Route -- {{routeTtitle}}
+		</p>
+    </div>
+
+    <div>
+        Choose a direction/variation:
+		<br>
+		<br>
+    </div>
+		{% for varchoice in varTitles %}
+		 <a href='{{url_for("routeVar", routenum = routenum, 
+		                     var = varchoice)}}'>{{varTitles[varchoice][1]}} : {{varTitles[varchoice][0]}}</a>
+		 <br>
+		 <br>
+	    {% endfor %}
+
+</body>
+</html>
+
+</html>

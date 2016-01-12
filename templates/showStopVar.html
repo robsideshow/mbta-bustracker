@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<!-- <img src="{{ url_for('static', filename='route1.png') }}"> -->
+</head>
+
+<body>
+    <div>
+	<a href='{{backLink}}'>&lt;&lt; Back to Route List</a>
+		
+        <p>
+		Route: {{routeTitle}}, {{varTitles[var][1]}} -- {{varTitles[var][0]}}
+		</p>
+    </div>
+    <div>
+        You have chosen stop {{allstops[stoptag]['title']}}		
+    </div>
+    <div>
+        Here are the predictions:
+		<br>
+		{% for route in preds %}
+			{% for pred in preds[route] %}
+				Route {{route}}: {{pred['minutes']}} min {{pred['secremainder']}} sec
+				<br>
+			{% endfor %}
+		 <br>
+		{% endfor %}
+		
+    </div>	
+	<br>
+    <div>
+        Here are the buses:
+		<br>
+	   {% for bus in buses %}
+	     {{bus}}
+		 <br>
+	   {% endfor %}
+		
+    </div>	
+
+</body>
+</html>
+
+</html>

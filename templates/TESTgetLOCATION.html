@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+</head>
+<body>
+
+<p>Click the button to see stops and routes near you.</p>
+
+<button onclick="getLocation()">Find Nearby Stops Using My Current Location</button>
+
+<p id="demo"></p>
+
+<script>
+//var x = document.getElementById("demo");
+
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(postPosition);
+		window.location.replace("/maplocation");
+    } else { 
+        //x.innerHTML = "Geolocation is not supported by this browser.";
+    }
+}
+
+function postPosition(position) {
+    //x.innerHTML = "Latitude: " + position.coords.latitude + 
+    //"<br>Longitude: " + position.coords.longitude;	
+	$.ajax({
+    type: 'POST',
+    url: '/testlocation',
+    data: JSON.stringify({'latitude': position.coords.latitude, 'longitude': position.coords.longitude}, null, '\t'),
+    contentType: 'application/json;charset=UTF-8'
+});
+
+}
+
+
+
+</script>
+
+</body>
+</html>
