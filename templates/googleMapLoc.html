@@ -17,20 +17,33 @@
   </head>
   <body>
     <div id="map"></div>
+	
     <script>
 
-
-function initMap() {
-  var map = new google.maps.Map(document.getElementById('map'), {
-    zoom: 16,
-    center: {lat: {{centerLatLon[0]}}, lng: {{centerLatLon[1]}} }, 
-    mapTypeId: google.maps.MapTypeId.ROADMAP
+	function initMap() {
+		var map = new google.maps.Map(document.getElementById('map'), {
+			zoom: 16,
+			center: {lat: {{centerLatLon[0]}}, lng: {{centerLatLon[1]}} }, 
+			mapTypeId: google.maps.MapTypeId.ROADMAP
 
 	});
 	
     var transitLayer = new google.maps.TransitLayer();
     transitLayer.setMap(map);  
-	  
+	
+	var stop_img = document.getElementById('stopimage');
+	
+	{% for stop in stoplist %}
+		var marker = new google.maps.Marker({
+		  position: {lat: {{stop['stop_lat']}}, lng: {{stop['stop_lon']}}},
+		  map: map,
+		  icon: '{{ url_for('static', filename = 'busstop.png')}}',
+		  title: '{{stop['stop_name']}}'
+		});
+ 
+	
+	
+	{% endfor %}
   	
 }
 

@@ -96,6 +96,7 @@ def mapByRoute(route_id, map_id):
 @app.route("/googmaproute/<string:route_id>", methods=["GET","POST"])
 def googleMapByRoute(route_id):
     routepaths, centerLatLon = btr.getLatLonPathsByRoute(route_id)
+    routepaths = [btr.shapepathdict[shape_id] for shape_id in btr.routeshapedict[route_id]]
     if request.method == 'GET':
         return render_template('googleMapRoute.html', paths = routepaths,
                                centerLatLon = centerLatLon);
@@ -135,9 +136,10 @@ def testlocation():
 @app.route("/maplocation", methods=["GET","POST"])
 def mapLocation():
     if request.method == 'GET':
-        
-        return render_template('googleMapLoc.html', centerLatLon = (42.362392, -71.084301) )
-        #return render_template('googleMapLoc.html', centerLatLon = (session['lat'], session['lon']));
+        nearby_stops = btr.getNearbyStops(session['lat'], session['lon'])
+        #return render_template('googleMapLoc.html', centerLatLon = (42.362392, -71.084301) )
+        return render_template('googleMapLoc.html', centerLatLon = (session['lat'], session['lon']),
+                               stoplist = nearby_stops);
 
 
 if __name__ == "__main__":

@@ -12,26 +12,28 @@
 <p id="demo"></p>
 
 <script>
-//var x = document.getElementById("demo");
+var x = document.getElementById("demo");
 
 function getLocation() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(postPosition);
-		window.location.replace("/maplocation");
+		
     } else { 
         //x.innerHTML = "Geolocation is not supported by this browser.";
     }
 }
 
 function postPosition(position) {
-    //x.innerHTML = "Latitude: " + position.coords.latitude + 
-    //"<br>Longitude: " + position.coords.longitude;	
+    x.innerHTML = "Latitude: " + position.coords.latitude + 
+    "<br>Longitude: " + position.coords.longitude;	
+	
 	$.ajax({
     type: 'POST',
     url: '/testlocation',
     data: JSON.stringify({'latitude': position.coords.latitude, 'longitude': position.coords.longitude}, null, '\t'),
     contentType: 'application/json;charset=UTF-8'
-});
+	});
+	window.location.replace("/maplocation");
 
 }
 

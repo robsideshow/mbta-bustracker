@@ -41,8 +41,17 @@ h = open('routeshapedict', 'r')
 routeshapedict = pk.load(h)
 h.close()
 #dict of (route_id : [list of shape_ids for that route])
+#but note that the 'route_ids' are only correct for 
 
+f1 = open('shapestopsdict', 'r')
+shapestopsdict = pk.load(f1)
+f1.close()
+#dict of 
 
+g1 = open('routestopsdict', 'r')
+routestopsdict = pk.load(g1)
+g1.close()
+#dict of 
 
 
 class Bus(object):
@@ -507,3 +516,36 @@ def makeRouteShapeDict(filename):
             routeshapedict[route_id] = [shape_id]
     return routeshapedict    
     
+
+def makeStopsDicts(filename):
+    #reads the 'stop_times.txt' file and returns two dictionaries of 
+    # shapestopsdict shape_id : [list of stops in order] 
+    # routestopsdict route_id : {set of stops for that route}
+    f = open(filename, 'r')
+    line = f.readline()
+    rawlines = f.readlines()
+    f.close()
+    splitlines = [l.split(',') for l in rawlines if l[:2] == '"2']
+    tripstopsdict = dict()
+    for l in splitlines:
+        trip_id = l[0].strip('"')
+        stop_id = l[3].strip('"')
+        if trip_id in tripstopsdict:
+            tripstopsdict[trip_id].append(stop_id)
+        else:
+            tripstopsdict[trip_id] = [stop_id]
+    shapestopsdict = dict()    
+    for trip_id in tripstopsdict:
+        shape_id = tripshapedict[trip_id]
+        if shape_id not in shapestopsdict:
+            shapestopsdict[shape_id] = tripstopsdict[trip_id]  
+    routestopsdict = dict()
+    for shape_id in shapestopsdict:
+        route_id = decodeRouteFromShape(shape_id)
+        if route_id in routestopsdict:
+            routestopsdict[route_id] = routestopsdict[route_id].union(shapestopsdict[shape_id])
+        else:
+            routestopsdict[route_id] = set(shapestopsdict[shape_id])
+    return shapestopsdict, routestopsdict
+    
+

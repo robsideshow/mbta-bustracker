@@ -28,8 +28,10 @@ function initMap() {
 	//travelMode: google.maps.TravelMode.TRANSIT
   });
     var transitLayer = new google.maps.TransitLayer();
-    transitLayer.setMap(map);  
-	  
+    transitLayer.setMap(map); 
+
+	var colors = ["#007fff", "#ff0000", "#00ff00", "#0000ff", "#ff9900", "#ff0099"];
+	//var i = 0;
   	{% for path in paths %}	
 	  var routeCoordinates = [
 
@@ -38,16 +40,16 @@ function initMap() {
 		{% endfor %}
 		   ];
 
-		  var routePath = new google.maps.Polyline({
-			path: routeCoordinates,
-			geodesic: true,
-			strokeColor: '#990066',
-			strokeOpacity: 0.6,
-			strokeWeight: 3
-		  });
+	  var routePath = new google.maps.Polyline({
+		path: routeCoordinates,
+		geodesic: true,
+		strokeColor: "#ff0099", //colors[i],
+		strokeOpacity: 0.6,
+		strokeWeight: 3
+	  });
 
-		  routePath.setMap(map);
-		
+	  routePath.setMap(map);
+	  //i++;
 	{% endfor %}
 }
 
