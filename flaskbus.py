@@ -96,7 +96,7 @@ def mapByRoute(route_id, map_id):
 @app.route("/googmaproute/<string:route_id>", methods=["GET","POST"])
 def googleMapByRoute(route_id):
     routepaths, centerLatLon = btr.getLatLonPathsByRoute(route_id)
-    routepaths = [btr.shapepathdict[shape_id] for shape_id in btr.routeshapedict[route_id]]
+   # routepaths = [btr.shapepathdict[shape_id] for shape_id in btr.routeshapedict[route_id]]
     if request.method == 'GET':
         return render_template('googleMapRoute.html', paths = routepaths,
                                centerLatLon = centerLatLon);
@@ -130,6 +130,8 @@ def testlocation():
         lon = request.json.get('longitude')
         session['lat'] = lat
         session['lon'] = lon
+#        session['lat'] = 42.362392
+#        session['lon'] = -71.084301
         return redirect(url_for('mapLocation'));#,lat = lat, lon = lon));
 
 
@@ -137,9 +139,14 @@ def testlocation():
 def mapLocation():
     if request.method == 'GET':
         nearby_stops = btr.getNearbyStops(session['lat'], session['lon'])
-        #return render_template('googleMapLoc.html', centerLatLon = (42.362392, -71.084301) )
+        routelist = list(set([stop_id  for stop in nearby_stops for stop_id in btr.stoproutesdict[stop['stop_id']]]))
+        print routelist
+        routepathdict = dict()
+        for route_id in routelist:
+            #routepathdict[route_id] = btr.getLatLonPathsByRoute(route_id)[0]
+            routepathdict[route_id] = [btr.shapepathdict[shape_id] for shape_id in btr.routeshapedict[route_id]]
         return render_template('googleMapLoc.html', centerLatLon = (session['lat'], session['lon']),
-                               stoplist = nearby_stops);
+                               stoplist = nearby_stops, routepathdict = routepathdict);
 
 
 if __name__ == "__main__":

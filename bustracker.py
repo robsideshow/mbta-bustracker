@@ -41,17 +41,24 @@ h = open('routeshapedict', 'r')
 routeshapedict = pk.load(h)
 h.close()
 #dict of (route_id : [list of shape_ids for that route])
-#but note that the 'route_ids' are only correct for 
+#but note that the 'route_ids' are only correct for BUS ROUTES
 
 f1 = open('shapestopsdict', 'r')
 shapestopsdict = pk.load(f1)
 f1.close()
-#dict of 
+#dict of (shape_id : [LIST of stops (in order) for that shape])
 
 g1 = open('routestopsdict', 'r')
 routestopsdict = pk.load(g1)
 g1.close()
-#dict of 
+#dict of route_id : {SET of all stops for that route}
+
+h1 = open('stoproutesdict', 'r')
+stoproutesdict = pk.load(h1)
+h1.close()
+#dict of route_id : {SET of all stops for that route}
+
+
 
 
 class Bus(object):
@@ -353,7 +360,6 @@ def trackbusesStop(stopid = '2297'):
     tree = et.parse('http://webservices.nextbus.com/service/publicXMLFeed?command=predictions&a=mbta&stopId=' + str(stopid))
     root = tree.getroot()
     routes = root.getchildren() #called 'predictions'
-    numrts = len(routes)
     for rt in routes:
         #print rt.attrib
         if len(rt.getchildren())>0:
@@ -369,7 +375,6 @@ def trackbusesStop(stopid = '2297'):
             rttree = et.parse('http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&r=' + str(rtnum) + '&t=0')
             rtroot = rttree.getroot()
             rtbuses = rtroot.getchildren()
-            numrtbuses = len(rtbuses) - 1
             for bus in rtbuses[:-1]:
                 #print rtbuses[i].attrib
                 blat = float(bus.attrib['lat'])
@@ -460,7 +465,7 @@ def getPixRoutePaths(rtnum, map_id):
 def getNearbyStops(lat, lon):
     stops = json.load(urllib.urlopen('http://realtime.mbta.com/developer/api/v2/stopsbylocation?api_key=' 
                 + api_key + '&lat=' + str(lat) +'&lon=' + str(lon) + '&format=json'))['stop']
-    return stops
+    return [stop for stop in stops if stop['stop_id'][0] != 'p']
         
     
     
@@ -548,4 +553,15 @@ def makeStopsDicts(filename):
             routestopsdict[route_id] = set(shapestopsdict[shape_id])
     return shapestopsdict, routestopsdict
     
+def makeStopRoutesDict():
+    # inverts the routestopsdict to create a dict of stop_id : {set of routes for that stop}
+    stoproutesdict = dict()
+    for route_id in routestopsdict:
+        for stop_id in routestopsdict[route_id]:
+            if stop_id in stoproutesdict:
+                stoproutesdict[stop_id].add(route_id)
+            else:
+                stoproutesdict[stop_id] = set([route_id])
+    return stoproutesdict
 
+            
