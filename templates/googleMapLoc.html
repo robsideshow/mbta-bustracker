@@ -44,7 +44,7 @@
 		  position: {lat: {{stop['stop_lat']}}, lng: {{stop['stop_lon']}}},
 		  map: map,
 		  icon: '{{ url_for('static', filename = 'busstop.png')}}',
-		  title: '{{stop['stop_name']}}'
+		  title: '{{stop['stop_name']}} - Routes: {{stop['routes']}}'
 		});
 	{% endfor %}
 	

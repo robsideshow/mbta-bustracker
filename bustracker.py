@@ -465,7 +465,11 @@ def getPixRoutePaths(rtnum, map_id):
 def getNearbyStops(lat, lon):
     stops = json.load(urllib.urlopen('http://realtime.mbta.com/developer/api/v2/stopsbylocation?api_key=' 
                 + api_key + '&lat=' + str(lat) +'&lon=' + str(lon) + '&format=json'))['stop']
-    return [stop for stop in stops if stop['stop_id'][0] != 'p']
+    stops = [stop for stop in stops if stop['stop_id'][0] != 'p']
+    for stop in stops:
+        stop['routes'] = ', '.join(stoproutesdict[stop['stop_id']])
+            
+    return stops
         
     
     
