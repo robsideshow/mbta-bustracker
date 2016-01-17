@@ -24,8 +24,10 @@ function getLocation() {
 }
 
 function postPosition(position) {
-    x.innerHTML = "Latitude: " + position.coords.latitude + 
-    "<br>Longitude: " + position.coords.longitude;	
+	var lat = position.coords.latitude
+	var lon = position.coords.longitude
+    x.innerHTML = "Latitude: " + lat + 
+    "<br>Longitude: " + lon;	
 	
 	$.ajax({
     type: 'POST',
@@ -33,7 +35,7 @@ function postPosition(position) {
     data: JSON.stringify({'latitude': position.coords.latitude, 'longitude': position.coords.longitude}, null, '\t'),
     contentType: 'application/json;charset=UTF-8'
 	});
-	window.location.replace("/maplocation");
+	window.location.replace("/maplocation?lat=" + lat + "&lon=" + lon);
 
 }
 

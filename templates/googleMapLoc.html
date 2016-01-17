@@ -22,60 +22,84 @@
 
 	function initMap() {
 		var map = new google.maps.Map(document.getElementById('map'), {
-			zoom: 16,
+			zoom: 14,
 			center: {lat: {{centerLatLon[0]}}, lng: {{centerLatLon[1]}} }, 
 			mapTypeId: google.maps.MapTypeId.ROADMAP
 
-	});
-	
-    var transitLayer = new google.maps.TransitLayer();
-    transitLayer.setMap(map);  
-	
-	var marker = new google.maps.Marker({
-	  position: {lat: {{centerLatLon[0]}}, lng: {{centerLatLon[1]}} },
-	  map: map,
-	  title: 'YOU ARE HERE'
-	});
-	
-	var stop_img = document.getElementById('stopimage');
-	
-	{% for stop in stoplist %}
-		var marker = new google.maps.Marker({
-		  position: {lat: {{stop['stop_lat']}}, lng: {{stop['stop_lon']}}},
-		  map: map,
-		  icon: '{{ url_for('static', filename = 'busstop.png')}}',
-		  title: '{{stop['stop_name']}} - Routes: {{stop['routes']}}'
 		});
-	{% endfor %}
 	
-	var colors = ["#007fff", "#ff0000", "#00ff00", "#0000ff", "#ff9900", "#ff0099", "#4B0082",
-					"#2E8B57", "#663300", "#cc0000"];
-	var i = 0;
-	{% for route in routepathdict %}
+		var transitLayer = new google.maps.TransitLayer();
+		transitLayer.setMap(map);  
 	
-		{% for path in routepathdict[route] %}	
-		  var routeCoordinates = [
-
-			{% for latlon in path %}
-				{lat: {{latlon[0]}} + .000002*(-2 + i%4), lng: {{latlon[1]}} + .000002*(-2 + i%3) },
-			{% endfor %}
-			   ];
-
-		  var routePath = new google.maps.Polyline({
-			path: routeCoordinates,
-			geodesic: true,
-			strokeColor: colors[i], //"#ff0099",
-			strokeOpacity: 0.6,
-			strokeWeight: 3
-		  });
-
-		  routePath.setMap(map);
+		var marker = new google.maps.Marker({
+		  position: {lat: {{centerLatLon[0]}}, lng: {{centerLatLon[1]}} },
+		  map: map,
+		  title: 'YOU ARE HERE'
+		});
+	
+//		var stop_img = document.getElementById('stopimage');
+//		var bus_img = document.getElementById('busimage');
+	
+		{% for stop in stoplist %}
+			var marker = new google.maps.Marker({
+			  position: {lat: {{stop['stop_lat']}}, lng: {{stop['stop_lon']}}},
+			  map: map,
+			  icon: '{{ url_for('static', filename = 'busstop.png')}}',
+			  title: '{{stop['stop_name']}} - Routes: {{stop['routes']}}'
+			});
+			
+			var infowindow = new google.maps.InfoWindow({
+			content: '{{stop['stop_name']}} - Routes: {{stop['routes']}}'
+			});
+			
+			marker.addListener('click', function() {
+				infowindow.open(map, marker);
+			});
+			
 		{% endfor %}
-		i++;
-	{% endfor %}
+
+
+		{% for bus in buses %}
+			var marker = new google.maps.Marker({
+			  position: {lat: {{bus['lat']}}, lng: {{bus['lon']}}},
+			  map: map,
+			  icon: '{{ url_for('static', filename = 'bus.png')}}',
+			  title: 'Route: {{bus['route']}} - Bearing: {{bus['bearing']}}'
+			});
+			
+			
+		{% endfor %}
+
+		
+		
+		var colors = ["#007fff", "#ff0000", "#00ff00", "#0000ff", "#ff9900", "#ff0099", "#4B0082",
+						"#2E8B57", "#663300", "#cc0000"];
+		var i = 0;
+		{% for route in routepathdict %}
+		
+			{% for path in routepathdict[route] %}	
+			  var routeCoordinates = [
+
+				{% for latlon in path %}
+					{lat: {{latlon[0]}} + .000002*(-2 + i%4), lng: {{latlon[1]}} + .000002*(-2 + i%3) },
+				{% endfor %}
+				   ];
+
+			  var routePath = new google.maps.Polyline({
+				path: routeCoordinates,
+				geodesic: true,
+				strokeColor: colors[i], //"#ff0099",
+				strokeOpacity: 0.6,
+				strokeWeight: 3
+			  });
+
+			  routePath.setMap(map);
+			{% endfor %}
+			i++;
+		{% endfor %}
 
   	
-}
+	}
 
     </script>
     <script async defer

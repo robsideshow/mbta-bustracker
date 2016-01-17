@@ -467,10 +467,21 @@ def getNearbyStops(lat, lon):
                 + api_key + '&lat=' + str(lat) +'&lon=' + str(lon) + '&format=json'))['stop']
     stops = [stop for stop in stops if stop['stop_id'][0] != 'p']
     for stop in stops:
-        stop['routes'] = ', '.join(stoproutesdict[stop['stop_id']])
-            
+        stop['routes'] = ', '.join(stoproutesdict[stop['stop_id']])            
     return stops
         
+        
+def getBusesOnRoutes(routelist):
+    vehicles = getAllVehiclesGTFS()
+    return [veh for veh in vehicles if veh['route'] in routelist]        
+        
+        
+        
+        
+        
+        
+        
+    
     
     
     

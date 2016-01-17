@@ -130,23 +130,27 @@ def testlocation():
         lon = request.json.get('longitude')
         session['lat'] = lat
         session['lon'] = lon
-#        session['lat'] = 42.362392
-#        session['lon'] = -71.084301
-        return redirect(url_for('mapLocation'));#,lat = lat, lon = lon));
+        return redirect(url_for('mapLocation'))
 
 
 @app.route("/maplocation", methods=["GET","POST"])
 def mapLocation():
     if request.method == 'GET':
-        nearby_stops = btr.getNearbyStops(session['lat'], session['lon'])
+        lat = request.args['lat']
+        lon = request.args['lon']
+        #lat = 42.362392
+        #lon = -71.084301
+        nearby_stops = btr.getNearbyStops(lat, lon)
         routelist = list(set([stop_id  for stop in nearby_stops for stop_id in btr.stoproutesdict[stop['stop_id']]]))
         print routelist
+        buses = btr.getBusesOnRoutes(routelist)
         routepathdict = dict()
         for route_id in routelist:
             #routepathdict[route_id] = btr.getLatLonPathsByRoute(route_id)[0]
             routepathdict[route_id] = [btr.shapepathdict[shape_id] for shape_id in btr.routeshapedict[route_id]]
-        return render_template('googleMapLoc.html', centerLatLon = (session['lat'], session['lon']),
-                               stoplist = nearby_stops, routepathdict = routepathdict);
+        return render_template('googleMapLoc.html', centerLatLon = (lat,lon),
+                               stoplist = nearby_stops, routepathdict = routepathdict,
+                               buses = buses);
 
 
 if __name__ == "__main__":
