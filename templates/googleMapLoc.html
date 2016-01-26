@@ -12,6 +12,7 @@
       }
       #map {
         height: 100%;
+		width: 80%
       }
     </style>
   </head>
@@ -88,7 +89,7 @@
 			  var routePath = new google.maps.Polyline({
 				path: routeCoordinates,
 				geodesic: true,
-				strokeColor: colors[i], //"#ff0099",
+				strokeColor: colors[i%10], //"#ff0099",
 				strokeOpacity: 0.6,
 				strokeWeight: 3
 			  });

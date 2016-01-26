@@ -19,7 +19,7 @@ sortedRoutenums, routeTtitles = btr.getAllBusRoutes()
 @app.route("/", methods=["GET","POST"])
 def hello():
     if request.method == 'GET':
-        return render_template('chooseRoute.html', routeTtitles = routeTtitles,
+        return render_template('chooseRoute.html', routeTtitles = btr.routenamesdict,
                                rnums = sortedRoutenums);
     elif request.method == 'POST':
         routenum = request.form['routenum'];
@@ -105,20 +105,23 @@ def googleMapByRoute(route_id):
 @app.route("/googmaptrip/<string:trip_id>", methods=["GET","POST"])
 def googleMapByTrip(trip_id):
     centerLatLon = (42.3572, -71.0926)
+    vehicles = btr.getAllVehiclesGTFS()
     if trip_id == 'all':
         tripidlist = [trip['trip_id'] for trip in btr.getAllTripsGTFS() if trip['type'] == 'bus']
+        vehlist = [veh for veh in vehicles if veh['type'] == 'bus']
     else:
         tripidlist = [trip_id]
-        if len(tripidlist) == 1:
-            path = btr.shapepathdict[btr.tripshapedict[trip_id]]
-            startLat, startLon = path[0] 
-            endLat, endLon = path[-1]
-            centerLatLon = (.5*(startLat + endLat), .5*(startLon + endLon))
+        path = btr.shapepathdict[btr.tripshapedict[trip_id]]
+        startLat, startLon = path[0] 
+        endLat, endLon = path[-1]
+        centerLatLon = (.5*(startLat + endLat), .5*(startLon + endLon))
+        vehlist = [veh for veh in vehicles if veh['trip_id'] == trip_id]
     shapeidlist = list(set([btr.tripshapedict[tripid] for tripid in tripidlist]))
     trippaths = [btr.shapepathdict[shape_id] for shape_id in shapeidlist]
+    
     if request.method == 'GET':
         return render_template('googleMapRoute.html', paths = trippaths,
-                               centerLatLon = centerLatLon);
+                               centerLatLon = centerLatLon, buses = vehlist);
 
 
 @app.route("/testlocation", methods=["GET","POST"])
@@ -138,14 +141,20 @@ def mapLocation():
     if request.method == 'GET':
         lat = request.args['lat']
         lon = request.args['lon']
-        #lat = 42.362392
-        #lon = -71.084301
+        #lat, lon = 42.362392, -71.084301 #kendall
         nearby_stops = btr.getNearbyStops(lat, lon)
-        routelist = list(set([stop_id  for stop in nearby_stops for stop_id in btr.stoproutesdict[stop['stop_id']]]))
+        #print nearby_stops
+        routeidlist = []
+        for stop in nearby_stops:
+            if stop.get('stop_id') in btr.stoproutesdict:
+                for route_id in btr.stoproutesdict.get(stop.get('stop_id')):
+                    routeidlist.append(route_id)
+        routeidlist = list(set(routeidlist))      
+        routelist = [btr.routenamesdict[route_id] for route_id in routeidlist]
         print routelist
-        buses = btr.getBusesOnRoutes(routelist)
+        buses = btr.getBusesOnRoutes(routeidlist)
         routepathdict = dict()
-        for route_id in routelist:
+        for route_id in routeidlist:
             #routepathdict[route_id] = btr.getLatLonPathsByRoute(route_id)[0]
             routepathdict[route_id] = [btr.shapepathdict[shape_id] for shape_id in btr.routeshapedict[route_id]]
         return render_template('googleMapLoc.html', centerLatLon = (lat,lon),
