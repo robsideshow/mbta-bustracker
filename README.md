@@ -18,3 +18,5 @@ Once GTFS is installed, run
 python flaskbus.py
 ```
 
+Open the app at `localholst:5000`
+
