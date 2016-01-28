@@ -28,14 +28,9 @@ def hello():
     
 @app.route("/routes/<string:routenum>", methods=["GET","POST"])
 def routes(routenum):
-    #backLink = "<a href='" + url_for('hello') + "'>Back to Route List</a>"
-    #print url_for('hello')
-    #print backLink
     rt = btr.Route(routenum)
     allStops = rt.allStops
     varTitles = rt.varTitles
-    #currentVars = rt.getCurrentVars()
-    #currentBuses = rt.getCurrentBuses()
     if request.method == 'GET':
         return render_template('chooseVar.html', routenum = routenum,
                                varTitles = varTitles, routeTtitle = routeTtitles[routenum],
@@ -49,8 +44,8 @@ def routes(routenum):
 @app.route("/routes/<string:routenum>/<string:var>", methods=["GET","POST"])
 def routeVar(routenum, var):
     rt = btr.Route(routenum)
-    currentVars = rt.getCurrentVars()
-    currentBuses = rt.getCurrentBuses()
+    #currentVars = rt.getCurrentVars()
+    #currentBuses = rt.getCurrentBuses()
     varTitles = rt.varTitles
     return render_template('showRoute.html', routenum = routenum, var = var, 
                            varTitles = varTitles, routeTitle = routeTtitles[routenum],

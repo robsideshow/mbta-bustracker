@@ -8,7 +8,16 @@ import json
 
 alldicts = ['shapepathdict', 'routenamesdict', 'tripshapedict', 
             'shaperoutedict', 'routeshapedict', 'shapestopsdict',
-                'routestopsdict', 'stoproutesdict']   
+                'routestopsdict', 'stoproutesdict'] 
+#Summary of dictionaries:
+#shapepathdict - shape_id : [list of latlon path points]
+#routenamesdict - route_id : route_name
+#tripshapedict - trip_id : shape_id
+#shaperoutedict - shape_id : route_id
+#routeshapedict - route_id : [list of shape_ids]
+#shapestopsdict - shape_id : [List of stops in order] 
+#routestopsdict - route_id : [List of stops for that route]
+#stoproutesdict - stop_id : [List of routes for that stop]
     
 def makeShapePathDict(filename = 'MBTA_GTFS_texts/shapes.txt'):
     #reads the 'shapes.txt' file and returns a dictionary of 
@@ -69,7 +78,7 @@ def makeShapeRouteDict(filename = 'MBTA_GTFS_texts/trips.txt'):
     
 def makeRouteShapeDict(shaperoutedict, filename = 'MBTA_GTFS_texts/shapes.txt'):
     #reads the 'shapes.txt' file and returns a dictionary of 
-    # route_id : [list of shape_ids]
+    # route_id : [List of shape_ids]
     f = open(filename, 'r')
     f.readline()
     rawlines = f.readlines()
@@ -90,21 +99,21 @@ def makeRouteShapeDict(shaperoutedict, filename = 'MBTA_GTFS_texts/shapes.txt'):
 def makeStopsDicts(tripshapedict, shaperoutedict,
                    filename = 'MBTA_GTFS_texts/stop_times.txt'):
     #reads the 'stop_times.txt' file and returns two dictionaries of 
-    # shapestopsdict shape_id : [list of stops in order] 
-    # routestopsdict route_id : {set of stops for that route}
+    # shapestopsdict shape_id : [List of stops in order] 
+    # routestopsdict route_id : [List of stops for that route]
     f = open(filename, 'r')
     f.readline()
-    rawlines = f.readlines()
-    f.close()
-    splitlines = [l.split(',') for l in rawlines if l[:2] == '"2']
     tripstopsdict = dict()
-    for l in splitlines:
-        trip_id = l[0].strip('"')
-        stop_id = l[3].strip('"')
-        if trip_id in tripstopsdict:
-            tripstopsdict[trip_id].append(stop_id)
-        else:
-            tripstopsdict[trip_id] = [stop_id]
+    for line in f:
+        if line[:2] == '"2':
+            l = line.split(',') 
+            trip_id = l[0].strip('"')
+            stop_id = l[3].strip('"')
+            if trip_id in tripstopsdict:
+                tripstopsdict[trip_id].append(stop_id)
+            else:
+                tripstopsdict[trip_id] = [stop_id]
+    f.close()
     shapestopsdict = dict()    
     for trip_id in tripstopsdict:
         shape_id = tripshapedict[trip_id]
@@ -122,7 +131,7 @@ def makeStopsDicts(tripshapedict, shaperoutedict,
     return shapestopsdict, routestopsdict
     
 def makeStopRoutesDict(routestopsdict):
-    # inverts the routestopsdict to create a dict of stop_id : {set of routes for that stop}
+    # inverts the routestopsdict to create a dict of stop_id : [List of routes for that stop]
     stoproutesdict = dict()
     for route_id in routestopsdict:
         for stop_id in routestopsdict[route_id]:

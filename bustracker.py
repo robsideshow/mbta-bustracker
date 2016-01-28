@@ -8,11 +8,9 @@ import math
 import random
 from lxml import etree as et
 import time
-#from turtle import Turtle, Screen, mainloop, done
 import matplotlib.pyplot as pl
 from google.transit import gtfs_realtime_pb2
 import urllib
-import pickle as pk
 import json
 
 api_key = 'wX9NwuHnZU2ToO7GmGR9uw'
@@ -30,23 +28,30 @@ api_key = 'wX9NwuHnZU2ToO7GmGR9uw'
 f = open('shapepathdict.json', 'r')
 shapepathdict = json.load(f)
 f.close()
-#dict of (shape_id : [list of [lat,lon] for that shape])
+#dict of shape_id : [list of [lat,lon] for that shape]
+
+'''
+First, load several dictionaries from json files.  These dictionaries are made 
+(and saved) using functions in dictmaker.py with the text files from 
+MBTA_GTFS_texts, a folder which can be downloaded from 
+http://www.mbta.com/uploadedfiles/MBTA_GTFS.zip Note that these files change 
+slightly about once every 3 months, due to schedule and route changes.
+'''
 
 g = open('tripshapedict.json', 'r')
 tripshapedict = json.load(g)
 g.close()
-#dict of (trip_id : shape_id)
+#dict of trip_id : shape_id
 
 h = open('routeshapedict.json', 'r')
 routeshapedict = json.load(h)
 h.close()
-#dict of (route_id : [list of shape_ids for that route])
-#but note that the 'route_ids' are only correct for BUS ROUTES
+#dict of route_id : [list of shape_ids for that route]
 
 f1 = open('shapestopsdict.json', 'r')
 shapestopsdict = json.load(f1)
 f1.close()
-#dict of (shape_id : [LIST of stops (in order) for that shape])
+#dict of shape_id : [LIST of stops (in order) for that shape]
 
 g1 = open('routestopsdict.json', 'r')
 routestopsdict = json.load(g1)
@@ -67,6 +72,178 @@ g2 = open('shaperoutedict.json', 'r')
 shaperoutedict = json.load(g2)
 g2.close()
 #dict of shape_id : route_id
+
+  
+            
+    
+def getAllBusRoutes():
+    #this is run once by flaskbus.py to get a list of all the bus route_ids 
+    #in a good order (CTs and SLs first, then numerical order)
+    tree = et.parse('http://realtime.mbta.com/developer/api/v2/routes?api_key=' + api_key + '&format=xml')
+    root = tree.getroot()
+    modes = root.getchildren()
+    for mode in modes:
+        if mode.attrib['mode_name'] == 'Bus':
+            busroutes = mode.getchildren()
+    sortedRoutenums = [x.attrib['route_id'] for x in busroutes]
+    routes = dict([(x.attrib['route_id'], x.attrib['route_name']) for x in busroutes])
+    return sortedRoutenums, routes
+    
+        
+def parseVehEntity(vent):     
+# takes a GTFS vehicle entity and returns a dictionary of info    
+    vdict = dict()
+    vdict['route_id'] = vent.vehicle.trip.route_id
+    vdict['route'] = routenamesdict.get(vdict['route_id'])
+    vdict['trip_id'] = vent.vehicle.trip.trip_id
+    vdict['id'] = vent.vehicle.vehicle.id
+    vdict['lat'] = vent.vehicle.position.latitude
+    vdict['lon'] = vent.vehicle.position.longitude
+    vdict['bearing'] = vent.vehicle.position.bearing
+    vdict['timestamp'] = vent.vehicle.timestamp
+    vdict['xcoord'], vdict['ycoord'] = convertll2xy((vdict['lat'], vdict['lon']))
+    if vdict['route_id'] == '':
+        vdict['type'] = 'unknown'
+    elif vdict['route_id'][0] == 'C':
+        vdict['type'] = 'CR'
+    elif vdict['id'][0] == 'y':
+        vdict['type'] = 'bus'
+    else:
+        vdict['type'] = 'subway'
+    return vdict
+    
+    
+def parseTripEntity(tent):     
+# takes a GTFS trip entity and returns a dictionary of info    
+    tdict = dict()
+    tdict['route_id'] = tent.trip_update.trip.route_id
+    tdict['trip_id'] = tent.trip_update.trip.trip_id
+    if tdict['route_id'][0] == 'C':
+        tdict['type'] = 'CR'
+    elif tdict['route_id'][0] in '123456789':
+        tdict['type'] = 'bus'
+    else:
+        tdict['type'] = 'subway'
+    return tdict    
+    
+    
+def getAllVehiclesGTFS_Raw():
+    #gets the GTFS protobuffer Vehicles feed 
+    feed = gtfs_realtime_pb2.FeedMessage()
+    response = urllib.urlopen('http://developer.mbta.com/lib/GTRTFS/Alerts/VehiclePositions.pb')
+    feed.ParseFromString(response.read())
+    return feed.entity
+
+
+def getAllTripsGTFS_Raw():
+    #gets the GTFS protobuffer Trips feed
+    feed = gtfs_realtime_pb2.FeedMessage()
+    response = urllib.urlopen('http://developer.mbta.com/lib/GTRTFS/Alerts/TripUpdates.pb')
+    feed.ParseFromString(response.read())
+    return feed.entity
+
+
+def getAllVehiclesGTFS():
+    #downloads the most recent protobuffer Vehicles feed and returns a list of 
+    #dictionaries with info for each vehicle
+    return [parseVehEntity(v) for v in getAllVehiclesGTFS_Raw()]
+
+
+def getAllTripsGTFS():
+    #downloads the most recent protobuffer Trips feed and returns a list of 
+    #dictionaries with info for each trip. Trips that are underway already or 
+    #about to depart have a specific vehicle, but trips further in the future don't
+    return [parseTripEntity(t) for t in getAllTripsGTFS_Raw()]
+    
+
+def getNearbyStops(lat, lon):
+    #returns a list of dictionaries, one for each of the 15 stops nearest the 
+    #given (lat, lon), minus any generic subway "parent" stations
+    stops = json.load(urllib.urlopen('http://realtime.mbta.com/developer/api/v2/stopsbylocation?api_key=' 
+                + api_key + '&lat=' + str(lat) +'&lon=' + str(lon) + '&format=json'))['stop']
+    stops = [stop for stop in stops if stop['stop_id'][0] != 'p']
+    for stop in stops:
+        tmp = filter(lambda x : x!= '', [routenamesdict[route_id] for route_id in stoproutesdict.get(stop['stop_id'], '') ])
+        stop['routes'] = ', '.join(tmp)            
+    return stops
+        
+        
+def getBusesOnRoutes(routelist):
+    vehicles = getAllVehiclesGTFS()
+    return [veh for veh in vehicles if veh['route_id'] in routelist]        
+        
+ 
+def convertll2xy(latlon):
+    #origin of coords is lat: 42.3572, lon: -71.0926 Mass Ave & Memorial Drive
+    #1 degree lat = 111200 meters, 1 degree lon = 82600 meters
+    lat, lon = latlon
+    return (int((lon +71.0926)*82600), int((lat - 42.3572)*111200))
+    
+    
+def convertll2largemap(latlon):
+    lat, lon = latlon
+    return (int((lon +71.363224)*775/.532172), int((42.562689 - lat)*708/.358172))
+
+
+def convertll2centralmap(latlon):
+    lat, lon = latlon
+    return (int((lon +71.145644)*751/.101124), int((42.400886 - lat)*699/.069698))
+
+    
+def convertxy2latlon(xy):
+    #origin of coords is lat: 42.3572, lon: -71.0926 Mass Ave & Memorial Drive
+    #1 degree lat = 111200 meters, 1 degree lon = 82600 meters
+    x,y = xy
+    return (y/float(111200) + 42.3572, x/float(82600) - 71.0926)
+
+def distxy(xy1, xy2):
+    dx = xy1[0] - xy2[0]
+    dy = xy1[1] - xy2[1]
+    return (dx**2 + dy**2)**.5     
+
+    
+def getPixTripPath(shape_id, map_id):
+    if map_id == 'largemap':
+        pixelcoords = [convertll2largemap(latlon) for latlon in shapepathdict[shape_id]] 
+    if map_id == 'centralmap':
+        pixelcoords = [convertll2centralmap(latlon) for latlon in shapepathdict[shape_id]] 
+    return pixelcoords
+
+
+def getLatLonPathsByRoute(rtnum):
+    rttree = et.parse('http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta&r=' + str(rtnum))
+    rtroot = rttree.getroot()
+    route = rtroot.getchildren()[0]
+    latMin, latMax = float(route.attrib['latMin']), float(route.attrib['latMax'] )
+    lonMin, lonMax = float(route.attrib['lonMin']), float(route.attrib['lonMax'] )
+    allElements = route.getchildren()
+    allpaths = [[(float(pt.attrib['lat']),float(pt.attrib['lon'])) for pt in pa.getchildren()] for pa in allElements if pa.tag == 'path']
+    centerLatLon = (.5*(latMin + latMax), .5*(lonMin + lonMax))
+    return allpaths, centerLatLon
+
+
+def getPixRoutePaths(rtnum, map_id):
+    if map_id == 'largemap':
+        pixelcoords = [[convertll2largemap(latlon) for latlon in path] for path in getLatLonPathsByRoute(rtnum)[0]] 
+    if map_id == 'centralmap':
+        pixelcoords = [[convertll2centralmap(latlon) for latlon in path] for path in getLatLonPathsByRoute(rtnum)[0]]  
+    return pixelcoords
+    
+
+
+
+def plotAllBuses():
+    #plots all current vehicles using matplotlib
+    allVehicles = getAllVehiclesGTFS()
+    buses = [v for v in allVehicles if v['type'] == 'bus']
+    coords = [convertll2xy((v['lat'], v['lon'])) for v in buses]
+    xs = [c[0] for c in coords]
+    ys = [c[1] for c in coords]
+    pl.plot(xs, ys, 'ro')
+    pl.show()
+    
+
+
 
 
 
@@ -178,94 +355,6 @@ class Stop(object):
                     pred['secremainder'] = int(pred['seconds'])%60
                     preds[rt.attrib['routeTitle']].append(pred)
         return preds               
-        
-
-        
-        
-def parseVehEntity(vent):     
-# takes a GTFS vehicle entity and returns a dictionary of info    
-    vdict = dict()
-    vdict['route_id'] = vent.vehicle.trip.route_id
-    vdict['route'] = routenamesdict.get(vdict['route_id'])
-    vdict['trip_id'] = vent.vehicle.trip.trip_id
-    vdict['id'] = vent.vehicle.vehicle.id
-    vdict['lat'] = vent.vehicle.position.latitude
-    vdict['lon'] = vent.vehicle.position.longitude
-    vdict['bearing'] = vent.vehicle.position.bearing
-    vdict['timestamp'] = vent.vehicle.timestamp
-    vdict['xcoord'], vdict['ycoord'] = convertll2xy((vdict['lat'], vdict['lon']))
-    if vdict['route_id'] == '':
-        vdict['type'] = 'unknown'
-    elif vdict['route_id'][0] == 'C':
-        vdict['type'] = 'CR'
-    elif vdict['id'][0] == 'y':
-        vdict['type'] = 'bus'
-    else:
-        vdict['type'] = 'subway'
-    return vdict
-    
-    
-def parseTripEntity(tent):     
-# takes a GTFS trip entity and returns a dictionary of info    
-    tdict = dict()
-    tdict['route_id'] = tent.trip_update.trip.route_id
-    tdict['trip_id'] = tent.trip_update.trip.trip_id
-    if tdict['route_id'][0] == 'C':
-        tdict['type'] = 'CR'
-    elif tdict['route_id'][0] in '123456789':
-        tdict['type'] = 'bus'
-    else:
-        tdict['type'] = 'subway'
-    return tdict    
-    
-    
-def plotAllBuses():
-    #plots all current vehicles using matplotlib
-    allVehicles = getAllVehiclesGTFS()
-    buses = [v for v in allVehicles if v['type'] == 'bus']
-    coords = [convertll2xy((v['lat'], v['lon'])) for v in buses]
-    xs = [c[0] for c in coords]
-    ys = [c[1] for c in coords]
-    pl.plot(xs, ys, 'ro')
-    pl.show()
-    
-
-def getAllVehiclesGTFS_Raw():
-    #gets the GTFS protobuffer Vehicles feed 
-    feed = gtfs_realtime_pb2.FeedMessage()
-    response = urllib.urlopen('http://developer.mbta.com/lib/GTRTFS/Alerts/VehiclePositions.pb')
-    feed.ParseFromString(response.read())
-    return feed.entity
-
-
-def getAllTripsGTFS_Raw():
-    #gets the GTFS protobuffer Trips feed
-    feed = gtfs_realtime_pb2.FeedMessage()
-    response = urllib.urlopen('http://developer.mbta.com/lib/GTRTFS/Alerts/TripUpdates.pb')
-    feed.ParseFromString(response.read())
-    return feed.entity
-
-
-def getAllVehiclesGTFS():
-    return [parseVehEntity(v) for v in getAllVehiclesGTFS_Raw()]
-
-
-def getAllTripsGTFS():
-    return [parseTripEntity(t) for t in getAllTripsGTFS_Raw()]
-    
-            
-    
-def getAllBusRoutes():
-    tree = et.parse('http://realtime.mbta.com/developer/api/v2/routes?api_key=' + api_key + '&format=xml')
-    root = tree.getroot()
-    modes = root.getchildren()
-    for mode in modes:
-        if mode.attrib['mode_name'] == 'Bus':
-            busroutes = mode.getchildren()
-    sortedRoutenums = [x.attrib['route_id'] for x in busroutes]
-    routes = dict([(x.attrib['route_id'], x.attrib['route_name']) for x in busroutes])
-    return sortedRoutenums, routes
-    
       
         
 def getstoplatlon(stopid):
@@ -293,40 +382,6 @@ def dist(lat1, lon1, lat2, lon2):
     return 6373*(((dlat)**2 + \
     math.cos(d2r(lat1))*math.cos(d2r(lat2))*((dlon)**2))**0.5)
     
-def dist2(lat1, lon1, lat2, lon2):
-    dlon = d2r(lon1 - lon2)
-    dlat = d2r(lat1 - lat2)
-    a = (math.sin(dlat/2))**2 + math.cos(d2r(lat1)) * math.cos(d2r(lat2)) * (math.sin(dlon/2))**2
-    c = 2 * math.atan2( math.sqrt(a), math.sqrt(1-a) ) 
-    return 6373*c
-
-def convertll2xy(latlon):
-    #origin of coords is lat: 42.3572, lon: -71.0926 Mass Ave & Memorial Drive
-    #1 degree lat = 111200 meters, 1 degree lon = 82600 meters
-    lat, lon = latlon
-    return (int((lon +71.0926)*82600), int((lat - 42.3572)*111200))
-    
-    
-def convertll2largemap(latlon):
-    lat, lon = latlon
-    return (int((lon +71.363224)*775/.532172), int((42.562689 - lat)*708/.358172))
-
-
-def convertll2centralmap(latlon):
-    lat, lon = latlon
-    return (int((lon +71.145644)*751/.101124), int((42.400886 - lat)*699/.069698))
-
-    
-def convertxy2latlon(xy):
-    #origin of coords is lat: 42.3572, lon: -71.0926 Mass Ave & Memorial Drive
-    #1 degree lat = 111200 meters, 1 degree lon = 82600 meters
-    x,y = xy
-    return (y/float(111200) + 42.3572, x/float(82600) - 71.0926)
-
-def distxy(xy1, xy2):
-    dx = xy1[0] - xy2[0]
-    dy = xy1[1] - xy2[1]
-    return (dx**2 + dy**2)**.5
     
 def getrouteinfo(rtnum = '77'):    
     tree = et.parse('http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&r=' + str(rtnum) + '&t=0')
@@ -445,50 +500,6 @@ def watchOneBusGraph(rtnum = '77', bus = None, points = 10, timeinterval = 15):
     pl.show()
     
     
-def getPixTripPath(shape_id, map_id):
-    if map_id == 'largemap':
-        pixelcoords = [convertll2largemap(latlon) for latlon in shapepathdict[shape_id]] 
-    if map_id == 'centralmap':
-        pixelcoords = [convertll2centralmap(latlon) for latlon in shapepathdict[shape_id]] 
-    return pixelcoords
-
-
-def getLatLonPathsByRoute(rtnum):
-    rttree = et.parse('http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta&r=' + str(rtnum))
-    rtroot = rttree.getroot()
-    route = rtroot.getchildren()[0]
-    latMin, latMax = float(route.attrib['latMin']), float(route.attrib['latMax'] )
-    lonMin, lonMax = float(route.attrib['lonMin']), float(route.attrib['lonMax'] )
-    allElements = route.getchildren()
-    allpaths = [[(float(pt.attrib['lat']),float(pt.attrib['lon'])) for pt in pa.getchildren()] for pa in allElements if pa.tag == 'path']
-    centerLatLon = (.5*(latMin + latMax), .5*(lonMin + lonMax))
-    return allpaths, centerLatLon
-
-
-
-def getPixRoutePaths(rtnum, map_id):
-    if map_id == 'largemap':
-        pixelcoords = [[convertll2largemap(latlon) for latlon in path] for path in getLatLonPathsByRoute(rtnum)[0]] 
-    if map_id == 'centralmap':
-        pixelcoords = [[convertll2centralmap(latlon) for latlon in path] for path in getLatLonPathsByRoute(rtnum)[0]]  
-    return pixelcoords
-    
-    
-def getNearbyStops(lat, lon):
-    stops = json.load(urllib.urlopen('http://realtime.mbta.com/developer/api/v2/stopsbylocation?api_key=' 
-                + api_key + '&lat=' + str(lat) +'&lon=' + str(lon) + '&format=json'))['stop']
-    stops = [stop for stop in stops if stop['stop_id'][0] != 'p']
-    for stop in stops:
-        tmp = filter(lambda x : x!= '', [routenamesdict[route_id] for route_id in stoproutesdict.get(stop['stop_id'], '') ])
-        stop['routes'] = ', '.join(tmp)            
-    return stops
-        
-        
-def getBusesOnRoutes(routelist):
-    vehicles = getAllVehiclesGTFS()
-    return [veh for veh in vehicles if veh['route_id'] in routelist]        
-        
-        
         
         
         
