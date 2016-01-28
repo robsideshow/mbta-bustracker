@@ -20,3 +20,6 @@ python flaskbus.py
 
 Open the app at `localholst:5000`
 
+[MBTA Realtime and GTFS Documentation](http://realtime.mbta.com/Portal/Home/Documents)
+
+[NextBus Documentation](http://www.nextbus.com/xmlFeedDocs/NextBusXMLFeed.pdf)
