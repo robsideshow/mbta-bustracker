@@ -186,7 +186,7 @@ def parseVehEntity(vent):
 # takes a GTFS vehicle entity and returns a dictionary of info    
     vdict = dict()
     vdict['route_id'] = vent.vehicle.trip.route_id
-    vdict['route'] = routenamesdict[vdict['route_id']]
+    vdict['route'] = routenamesdict.get(vdict['route_id'])
     vdict['trip_id'] = vent.vehicle.trip.trip_id
     vdict['id'] = vent.vehicle.vehicle.id
     vdict['lat'] = vent.vehicle.position.latitude

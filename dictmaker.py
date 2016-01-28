@@ -4,6 +4,7 @@ Created on Fri Jan 22 03:34:59 2016
 
 @author: Rob
 """
+import json
 
 alldicts = ['shapepathdict', 'routenamesdict', 'tripshapedict', 
             'shaperoutedict', 'routeshapedict', 'shapestopsdict',
@@ -66,9 +67,9 @@ def makeShapeRouteDict(filename = 'MBTA_GTFS_texts/trips.txt'):
     return shaperoutedict
 
     
-def makeRouteShapeDict(filename = 'MBTA_GTFS_texts/shapes.txt'):
+def makeRouteShapeDict(shaperoutedict, filename = 'MBTA_GTFS_texts/shapes.txt'):
     #reads the 'shapes.txt' file and returns a dictionary of 
-    # route_id : [list of shape_ids] 
+    # route_id : [list of shape_ids]
     f = open(filename, 'r')
     f.readline()
     rawlines = f.readlines()
@@ -86,7 +87,8 @@ def makeRouteShapeDict(filename = 'MBTA_GTFS_texts/shapes.txt'):
     return routeshapedict    
     
 
-def makeStopsDicts(filename = 'MBTA_GTFS_texts/stop_times.txt'):
+def makeStopsDicts(tripshapedict, shaperoutedict,
+                   filename = 'MBTA_GTFS_texts/stop_times.txt'):
     #reads the 'stop_times.txt' file and returns two dictionaries of 
     # shapestopsdict shape_id : [list of stops in order] 
     # routestopsdict route_id : {set of stops for that route}
@@ -119,7 +121,7 @@ def makeStopsDicts(filename = 'MBTA_GTFS_texts/stop_times.txt'):
         routestopsdict[route_id] = list(routestopsdict[route_id])
     return shapestopsdict, routestopsdict
     
-def makeStopRoutesDict():
+def makeStopRoutesDict(routestopsdict):
     # inverts the routestopsdict to create a dict of stop_id : {set of routes for that stop}
     stoproutesdict = dict()
     for route_id in routestopsdict:
@@ -132,3 +134,17 @@ def makeStopRoutesDict():
         stoproutesdict[stop_id] = sorted(list(stoproutesdict[stop_id]))
     return stoproutesdict
 
+
+def makeAllDicts():
+    shapepathdict = makeShapePathDict()
+    routenamesdict = makeRouteNamesDict()
+    tripshapedict = makeTripShapeDict()
+    shaperoutedict = makeShapeRouteDict()
+    routeshapedict = makeRouteShapeDict(shaperoutedict)
+    shapestopsdict, routestopsdict = makeStopsDicts(tripshapedict, shaperoutedict)
+    stoproutesdict = makeStopRoutesDict(routestopsdict)
+    for dic in alldicts:
+        f = open(dic + '.json', 'w')
+        json.dump(eval(dic), f)
+        f.close()
+    

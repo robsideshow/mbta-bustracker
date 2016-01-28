@@ -97,9 +97,11 @@ def mapByRoute(route_id, map_id):
 def googleMapByRoute(route_id):
     routepaths, centerLatLon = btr.getLatLonPathsByRoute(route_id)
    # routepaths = [btr.shapepathdict[shape_id] for shape_id in btr.routeshapedict[route_id]]
+    vehicles = btr.getAllVehiclesGTFS() 
+    vehlist = [veh for veh in vehicles if veh['route_id'] == route_id]
     if request.method == 'GET':
         return render_template('googleMapRoute.html', paths = routepaths,
-                               centerLatLon = centerLatLon);
+                               centerLatLon = centerLatLon, buses = vehlist);
 
                                
 @app.route("/googmaptrip/<string:trip_id>", methods=["GET","POST"])
