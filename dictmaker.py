@@ -8,7 +8,7 @@ import json
 
 alldicts = ['shapepathdict', 'routenamesdict', 'tripshapedict', 
             'shaperoutedict', 'routeshapedict', 'shapestopsdict',
-                'routestopsdict', 'stoproutesdict'] 
+                'routestopsdict', 'stoproutesdict', 'stopinfodict'] 
 #Summary of dictionaries:
 #shapepathdict - shape_id : [list of latlon path points]
 #routenamesdict - route_id : route_name
@@ -18,6 +18,7 @@ alldicts = ['shapepathdict', 'routenamesdict', 'tripshapedict',
 #shapestopsdict - shape_id : [List of stops in order] 
 #routestopsdict - route_id : [List of stops for that route]
 #stoproutesdict - stop_id : [List of routes for that stop]
+#stopinfodict - stop_id : {Dict of 'stop_name', 'lat', 'lon'}
     
 def makeShapePathDict(filename = 'MBTA_GTFS_texts/shapes.txt'):
     #reads the 'shapes.txt' file and returns a dictionary of 
@@ -142,6 +143,26 @@ def makeStopRoutesDict(routestopsdict):
     for stop_id in stoproutesdict:
         stoproutesdict[stop_id] = sorted(list(stoproutesdict[stop_id]))
     return stoproutesdict
+
+
+def makeStopInfoDict(filename = 'MBTA_GTFS_texts/stops.txt'):
+    #reads the 'stops.txt' file and returns a dictionary of 
+    # stop_id : {Dict of 'stop_name', 'lat', 'lon'}
+    f = open(filename, 'r')
+    f.readline()
+    stopinfodict = dict()
+    for line in f:
+        l = line.split(',') 
+        stop_id = l[0].strip('"')
+        stop_name = l[2].strip('"')
+        if l[4].strip('"') == '':
+            lat = float(l[5].strip('"'))
+            lon = float(l[6].strip('"'))
+        else:            
+            lat = float(l[4].strip('"'))
+            lon = float(l[5].strip('"'))
+        stopinfodict[stop_id] = dict([('stop_name', stop_name), ('lat', lat), ('lon', lon)])
+    return stopinfodict
 
 
 def makeAllDicts():

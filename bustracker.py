@@ -73,6 +73,10 @@ shaperoutedict = json.load(g2)
 g2.close()
 #dict of shape_id : route_id
 
+h2 = open('data/stopinfodict.json', 'r')
+stopinfodict = json.load(h2)
+h2.close()
+#dict of stop_id : {Dict of 'stop_name', 'lat', 'lon'}
   
             
     
@@ -128,7 +132,7 @@ def parseTripEntity(tent):
     
     
 def getAllVehiclesGTFS_Raw():
-    #gets the GTFS protobuffer Vehicles feed 
+    #gets the GTFS protobuffer Vehicles feed. Returns a list of unparsed GTFS entities
     feed = gtfs_realtime_pb2.FeedMessage()
     response = urllib.urlopen('http://developer.mbta.com/lib/GTRTFS/Alerts/VehiclePositions.pb')
     feed.ParseFromString(response.read())
@@ -136,7 +140,7 @@ def getAllVehiclesGTFS_Raw():
 
 
 def getAllTripsGTFS_Raw():
-    #gets the GTFS protobuffer Trips feed
+    #gets the GTFS protobuffer Trips feed.  Returns a list of unparsed GTFS entities
     feed = gtfs_realtime_pb2.FeedMessage()
     response = urllib.urlopen('http://developer.mbta.com/lib/GTRTFS/Alerts/TripUpdates.pb')
     feed.ParseFromString(response.read())
@@ -180,16 +184,6 @@ def convertll2xy(latlon):
     return (int((lon +71.0926)*82600), int((lat - 42.3572)*111200))
     
     
-def convertll2largemap(latlon):
-    lat, lon = latlon
-    return (int((lon +71.363224)*775/.532172), int((42.562689 - lat)*708/.358172))
-
-
-def convertll2centralmap(latlon):
-    lat, lon = latlon
-    return (int((lon +71.145644)*751/.101124), int((42.400886 - lat)*699/.069698))
-
-    
 def convertxy2latlon(xy):
     #origin of coords is lat: 42.3572, lon: -71.0926 Mass Ave & Memorial Drive
     #1 degree lat = 111200 meters, 1 degree lon = 82600 meters
@@ -201,7 +195,13 @@ def distxy(xy1, xy2):
     dy = xy1[1] - xy2[1]
     return (dx**2 + dy**2)**.5     
 
-    
+
+
+'''
+The next four functions are semi-obsolete.  They are for plotting on two static 
+google screenshot maps, before use of google js API.
+'''
+   
 def getPixTripPath(shape_id, map_id):
     if map_id == 'largemap':
         pixelcoords = [convertll2largemap(latlon) for latlon in shapepathdict[shape_id]] 
@@ -209,6 +209,29 @@ def getPixTripPath(shape_id, map_id):
         pixelcoords = [convertll2centralmap(latlon) for latlon in shapepathdict[shape_id]] 
     return pixelcoords
 
+
+def getPixRoutePaths(rtnum, map_id):
+    if map_id == 'largemap':
+        pixelcoords = [[convertll2largemap(latlon) for latlon in path] for path in getLatLonPathsByRoute(rtnum)[0]] 
+    if map_id == 'centralmap':
+        pixelcoords = [[convertll2centralmap(latlon) for latlon in path] for path in getLatLonPathsByRoute(rtnum)[0]]  
+    return pixelcoords
+
+
+def convertll2largemap(latlon):
+    lat, lon = latlon
+    return (int((lon +71.363224)*775/.532172), int((42.562689 - lat)*708/.358172))
+
+
+def convertll2centralmap(latlon):
+    lat, lon = latlon
+    return (int((lon +71.145644)*751/.101124), int((42.400886 - lat)*699/.069698))
+
+    
+
+
+
+    
 
 def getLatLonPathsByRoute(rtnum):
     rttree = et.parse('http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta&r=' + str(rtnum))
@@ -220,16 +243,6 @@ def getLatLonPathsByRoute(rtnum):
     allpaths = [[(float(pt.attrib['lat']),float(pt.attrib['lon'])) for pt in pa.getchildren()] for pa in allElements if pa.tag == 'path']
     centerLatLon = (.5*(latMin + latMax), .5*(lonMin + lonMax))
     return allpaths, centerLatLon
-
-
-def getPixRoutePaths(rtnum, map_id):
-    if map_id == 'largemap':
-        pixelcoords = [[convertll2largemap(latlon) for latlon in path] for path in getLatLonPathsByRoute(rtnum)[0]] 
-    if map_id == 'centralmap':
-        pixelcoords = [[convertll2centralmap(latlon) for latlon in path] for path in getLatLonPathsByRoute(rtnum)[0]]  
-    return pixelcoords
-    
-
 
 
 def plotAllBuses():
@@ -356,22 +369,7 @@ class Stop(object):
                     preds[rt.attrib['routeTitle']].append(pred)
         return preds               
       
-        
-def getstoplatlon(stopid):
-    tree = et.parse('http://webservices.nextbus.com/service/publicXMLFeed?command=predictions&a=mbta&stopId=' + str(stopid))
-    root = tree.getroot()
-    routes = root.getchildren() #called 'predictions'
-    rt = routes[0]
-    rtnum = rt.attrib['routeTag']
-    rttree = et.parse('http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta&r=' + str(rtnum))
-    rtroot = rttree.getroot()
-    route = rtroot.getchildren()
-    stops = route[0].getchildren()
-    for stop in stops:
-        if stop.attrib['tag'] == str(stopid):
-            return (float(stop.attrib['lat']), float(stop.attrib['lon']))
-            break
-
+    
 
 def d2r(deg):
     return math.pi * deg / float(180)
@@ -423,7 +421,7 @@ def getstopinfo(stopid = '2297'):
                 
 
 def trackbusesStop(stopid = '2297'): 
-    slat, slon = getstoplatlon(stopid)
+    slat, slon = (stopinfodict[stopid]['lat'], stopinfodict[stopid]['lon'])
     tree = et.parse('http://webservices.nextbus.com/service/publicXMLFeed?command=predictions&a=mbta&stopId=' + str(stopid))
     root = tree.getroot()
     routes = root.getchildren() #called 'predictions'

@@ -149,8 +149,7 @@ def mapLocation():
         routeidlist = list(set(routeidlist))
         routelist = [btr.routenamesdict[route_id] for route_id in routeidlist]
         print routelist
-        buses = btr.getBusesOnRoutes(routeidlist)
-        buses = [btr.json.dumps(x) for x in buses]
+        buses = [btr.json.dumps(x) for x in btr.getBusesOnRoutes(routeidlist)]
         routepathdict = dict()
         for route_id in routeidlist:
             #routepathdict[route_id] = btr.getLatLonPathsByRoute(route_id)[0]
