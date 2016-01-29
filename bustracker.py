@@ -76,7 +76,7 @@ g2.close()
 h2 = open('data/stopinfodict.json', 'r')
 stopinfodict = json.load(h2)
 h2.close()
-#dict of stop_id : {Dict of 'stop_name', 'lat', 'lon'}
+#dict of stop_id : {Dict of 'stop_id', 'stop_name', 'lat', 'lon'}
   
             
     
@@ -160,6 +160,16 @@ def getAllTripsGTFS():
     return [parseTripEntity(t) for t in getAllTripsGTFS_Raw()]
     
 
+def getAllStops():
+    #returns a list of dictionaries, one for each stop 
+    #minus any generic subway "parent" stations
+    stops = [stopinfodict[s] for s in stopinfodict if s[0] != 'p']
+    for stop in stops:
+        tmp = filter(lambda x : x!= '', [routenamesdict[route_id] for route_id in stoproutesdict.get(stop['stop_id'], '') ])
+        stop['routes'] = ', '.join(tmp)            
+    return stops
+   
+   
 def getNearbyStops(lat, lon):
     #returns a list of dictionaries, one for each of the 15 stops nearest the 
     #given (lat, lon), minus any generic subway "parent" stations

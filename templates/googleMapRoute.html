@@ -24,10 +24,11 @@
           zoom: 13,
           center: {lat: {{centerLatLon[0]}}, lng: {{centerLatLon[1]}} }, 
           mapTypeId: google.maps.MapTypeId.ROADMAP
-      	//travelMode: google.maps.TravelMode.TRANSIT
         });
-          var transitLayer = new google.maps.TransitLayer();
-          transitLayer.setMap(map); 
+		
+        var transitLayer = new google.maps.TransitLayer();
+        transitLayer.setMap(map); 
+		
 
       	var colors = ["#007fff", "#ff0000", "#00ff00", "#0000ff", "#ff9900", "#ff0099"];
 
@@ -51,15 +52,26 @@
 
 	     {% endfor %}
 	
-	{% for bus in buses %}
-		var marker = new google.maps.Marker({
-		  position: {lat: {{bus['lat']}}, lng: {{bus['lon']}}},
-		  map: map,
-		  icon: '{{ url_for('static', filename = 'bus.png')}}',
-		  title: 'Route: {{bus['route']}} - Bearing: {{bus['bearing']}}'
-		});
-		
-	{% endfor %}
+		{% for bus in buses %}
+			var marker = new google.maps.Marker({
+			  position: {lat: {{bus['lat']}}, lng: {{bus['lon']}}},
+			  map: map,
+			  icon: '{{ url_for('static', filename = 'bus.png')}}',
+			  title: 'Route: {{bus['route']}} - Bearing: {{bus['bearing']}}'
+			});
+			
+		{% endfor %}
+	
+	
+		{% for stop in stoplist %}
+			var marker = new google.maps.Marker({
+			  position: {lat: {{stop['lat']}}, lng: {{stop['lon']}}},
+			  map: map,
+			  icon: '{{ url_for('static', filename = 'busstop.png')}}',
+			  title: "{{stop['stop_name'] | safe}} - Routes: {{stop['routes']}}"
+			});
+
+		{% endfor %}
 
 }
 

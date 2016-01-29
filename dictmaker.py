@@ -18,7 +18,7 @@ alldicts = ['shapepathdict', 'routenamesdict', 'tripshapedict',
 #shapestopsdict - shape_id : [List of stops in order] 
 #routestopsdict - route_id : [List of stops for that route]
 #stoproutesdict - stop_id : [List of routes for that stop]
-#stopinfodict - stop_id : {Dict of 'stop_name', 'lat', 'lon'}
+#stopinfodict - stop_id : {Dict of 'stop_id', 'stop_name', 'lat', 'lon'}
     
 def makeShapePathDict(filename = 'MBTA_GTFS_texts/shapes.txt'):
     #reads the 'shapes.txt' file and returns a dictionary of 
@@ -147,7 +147,7 @@ def makeStopRoutesDict(routestopsdict):
 
 def makeStopInfoDict(filename = 'MBTA_GTFS_texts/stops.txt'):
     #reads the 'stops.txt' file and returns a dictionary of 
-    # stop_id : {Dict of 'stop_name', 'lat', 'lon'}
+    # stop_id : {Dict of 'stop_id', 'stop_name', 'lat', 'lon'}
     f = open(filename, 'r')
     f.readline()
     stopinfodict = dict()
@@ -161,7 +161,7 @@ def makeStopInfoDict(filename = 'MBTA_GTFS_texts/stops.txt'):
         else:            
             lat = float(l[4].strip('"'))
             lon = float(l[5].strip('"'))
-        stopinfodict[stop_id] = dict([('stop_name', stop_name), ('lat', lat), ('lon', lon)])
+        stopinfodict[stop_id] = dict([('stop_id', stop_id), ('stop_name', stop_name), ('lat', lat), ('lon', lon)])
     return stopinfodict
 
 

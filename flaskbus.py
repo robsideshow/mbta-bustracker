@@ -121,6 +121,15 @@ def googleMapByTrip(trip_id):
                                centerLatLon = centerLatLon, buses = vehlist);
 
 
+@app.route("/googmapstops", methods=["GET","POST"])
+def googleMapStops():
+    centerLatLon = (42.3572, -71.0926)
+    stops = btr.getAllStops()
+    if request.method == 'GET':
+        return render_template('googleMapRoute.html',
+                               centerLatLon = centerLatLon, stoplist = stops);
+
+
 @app.route("/testlocation", methods=["GET","POST"])
 def testlocation():
     if request.method == 'GET':
