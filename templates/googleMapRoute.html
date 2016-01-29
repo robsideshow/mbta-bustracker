@@ -19,28 +19,36 @@
     <div id="map"></div>
     <script>
 
-      function initMap() {
+    function initMap() {
         var map = new google.maps.Map(document.getElementById('map'), {
           zoom: 13,
           center: {lat: {{centerLatLon[0]}}, lng: {{centerLatLon[1]}} }, 
           mapTypeId: google.maps.MapTypeId.ROADMAP
         });
-		
+	
+		// Draw subway lines
         var transitLayer = new google.maps.TransitLayer();
         transitLayer.setMap(map); 
-		
+
+		//Turn off businesses and other "points of interest"
+		var noPoi = [{
+			featureType: "poi",
+			stylers: [{ visibility: "off" }	]   
+		}];
+
+		map.setOptions({styles: noPoi});
 
       	var colors = ["#007fff", "#ff0000", "#00ff00", "#0000ff", "#ff9900", "#ff0099"];
 
       	{% for path in paths %}	
-      	  var routeCoordinates = [
+			var routeCoordinates = [
 
         		{% for latlon in path %}
         			{lat: {{latlon[0]}}, lng: {{latlon[1]}} },
         		{% endfor %}
-        		   ];
+        	];
 
-      	  var routePath = new google.maps.Polyline({
+			var routePath = new google.maps.Polyline({
                             		path: routeCoordinates,
                             		geodesic: true,
                             		strokeColor: "#ff0099",
@@ -48,9 +56,9 @@
                             		strokeWeight: 3
                             	});
 
-      	  routePath.setMap(map);
+			routePath.setMap(map);
 
-	     {% endfor %}
+	    {% endfor %}
 	
 		{% for bus in buses %}
 			var marker = new google.maps.Marker({

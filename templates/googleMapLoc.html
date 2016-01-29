@@ -38,58 +38,67 @@ function myMap() {
     {% endfor %}
 	
     // Draw subway lines
-		var transitLayer = new google.maps.TransitLayer();
-		transitLayer.setMap(map); 
+	var transitLayer = new google.maps.TransitLayer();
+	transitLayer.setMap(map); 
 	
+	//Turn off businesses and other "points of interest"
+	var noPoi = [{
+		featureType: "poi",
+		stylers: [{ visibility: "off" }	]   
+	}];
+
+	map.setOptions({styles: noPoi});
+	
+
+	var marker = new google.maps.Marker({
+					  position: {lat: mylat, lng: mylon },
+					  map: map,
+					  title: 'YOU ARE HERE'
+					});
+
+	{% for stop in stoplist %}
 		var marker = new google.maps.Marker({
-                		  position: {lat: mylat, lng: mylon },
-                		  map: map,
-                		  title: 'YOU ARE HERE'
-                		});
+		  position: {lat: {{stop['stop_lat']}}, lng: {{stop['stop_lon']}}},
+		  map: map,
+		  icon: '{{ url_for('static', filename = 'busstop.png')}}',
+		  title: "{{stop['stop_name'] | safe}} - Routes: {{stop['routes']}}"
+		});
+		
+		var infowindow = new google.maps.InfoWindow({
+								content: '{{stop['stop_name']}} - Routes: {{stop['routes']}}'
+								});
+						
+		marker.addListener('click', function() {
+			infowindow.open(map, marker);
+		});
+		
+	{% endfor %}
 	
-		{% for stop in stoplist %}
-			var marker = new google.maps.Marker({
-			  position: {lat: {{stop['stop_lat']}}, lng: {{stop['stop_lon']}}},
-			  map: map,
-			  icon: '{{ url_for('static', filename = 'busstop.png')}}',
-			  title: "{{stop['stop_name'] | safe}} - Routes: {{stop['routes']}}"
-			});
-			
-			var infowindow = new google.maps.InfoWindow({
-                          			content: '{{stop['stop_name']}} - Routes: {{stop['routes']}}'
-                          			});
-                			
-			marker.addListener('click', function() {
-				infowindow.open(map, marker);
-			});
-			
-		{% endfor %}
-		
-		var colors = ["#007fff", "#ff0000", "#00ff00", "#0000ff", "#ff9900", "#ff0099", "#4B0082",
-						"#2E8B57", "#663300", "#cc0000"];
-		var i = 0;
-		{% for route in routepathdict %}
-		
-			{% for path in routepathdict[route] %}	
-			  var routeCoordinates = [
+	var colors = ["#007fff", "#ff0000", "#00ff00", "#0000ff", "#ff9900", "#ff0099", "#4B0082",
+					"#2E8B57", "#663300", "#cc0000"];
+	var i = 0;
+	{% for route in routepathdict %}
+	
+		{% for path in routepathdict[route] %}	
+		  var routeCoordinates = [
 
-				{% for latlon in path %}
-					{lat: {{latlon[0]}} + .000002*(-2 + i%4), lng: {{latlon[1]}} + .000002*(-2 + i%3) },
-				{% endfor %}
-				   ];
-
-			  var routePath = new google.maps.Polyline({
-				path: routeCoordinates,
-				geodesic: true,
-				strokeColor: colors[i%10], //"#ff0099",
-				strokeOpacity: 0.6,
-				strokeWeight: 3
-			  });
-
-			  routePath.setMap(map);
+			{% for latlon in path %}
+				{lat: {{latlon[0]}} + .000002*(-2 + i%4), lng: {{latlon[1]}} + .000002*(-2 + i%3) },
 			{% endfor %}
-			i++;
+			   ];
+
+		  var routePath = new google.maps.Polyline({
+			path: routeCoordinates,
+			geodesic: true,
+			strokeColor: colors[i%10], //"#ff0099",
+			strokeOpacity: 0.6,
+			strokeWeight: 3
+		  });
+
+		  routePath.setMap(map);
 		{% endfor %}
+		i++;
+	{% endfor %}
 }
 
     </script>
