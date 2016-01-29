@@ -19,7 +19,7 @@ $RECYCLE.BIN/
 
 
 # Python compile file
-.pyc
+*.pyc
 
 # =========================
 # Operating System Files
