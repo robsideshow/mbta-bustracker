@@ -146,10 +146,11 @@ def mapLocation():
             if stop.get('stop_id') in btr.stoproutesdict:
                 for route_id in btr.stoproutesdict.get(stop.get('stop_id')):
                     routeidlist.append(route_id)
-        routeidlist = list(set(routeidlist))      
+        routeidlist = list(set(routeidlist))
         routelist = [btr.routenamesdict[route_id] for route_id in routeidlist]
         print routelist
         buses = btr.getBusesOnRoutes(routeidlist)
+        buses = [btr.json.dumps(x) for x in buses]
         routepathdict = dict()
         for route_id in routeidlist:
             #routepathdict[route_id] = btr.getLatLonPathsByRoute(route_id)[0]

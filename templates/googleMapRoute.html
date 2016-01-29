@@ -19,38 +19,37 @@
     <div id="map"></div>
     <script>
 
+      function initMap() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 13,
+          center: {lat: {{centerLatLon[0]}}, lng: {{centerLatLon[1]}} }, 
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+      	//travelMode: google.maps.TravelMode.TRANSIT
+        });
+          var transitLayer = new google.maps.TransitLayer();
+          transitLayer.setMap(map); 
 
-function initMap() {
-  var map = new google.maps.Map(document.getElementById('map'), {
-    zoom: 13,
-    center: {lat: {{centerLatLon[0]}}, lng: {{centerLatLon[1]}} }, 
-    mapTypeId: google.maps.MapTypeId.ROADMAP
-	//travelMode: google.maps.TravelMode.TRANSIT
-  });
-    var transitLayer = new google.maps.TransitLayer();
-    transitLayer.setMap(map); 
+      	var colors = ["#007fff", "#ff0000", "#00ff00", "#0000ff", "#ff9900", "#ff0099"];
 
-	var colors = ["#007fff", "#ff0000", "#00ff00", "#0000ff", "#ff9900", "#ff0099"];
-	//var i = 0;
-  	{% for path in paths %}	
-	  var routeCoordinates = [
+      	{% for path in paths %}	
+      	  var routeCoordinates = [
 
-		{% for latlon in path %}
-			{lat: {{latlon[0]}}, lng: {{latlon[1]}} },
-		{% endfor %}
-		   ];
+        		{% for latlon in path %}
+        			{lat: {{latlon[0]}}, lng: {{latlon[1]}} },
+        		{% endfor %}
+        		   ];
 
-	  var routePath = new google.maps.Polyline({
-		path: routeCoordinates,
-		geodesic: true,
-		strokeColor: "#ff0099", //colors[i],
-		strokeOpacity: 0.6,
-		strokeWeight: 3
-	  });
+      	  var routePath = new google.maps.Polyline({
+                            		path: routeCoordinates,
+                            		geodesic: true,
+                            		strokeColor: "#ff0099",
+                            		strokeOpacity: 0.6,
+                            		strokeWeight: 3
+                            	});
 
-	  routePath.setMap(map);
-	  //i++;
-	{% endfor %}
+      	  routePath.setMap(map);
+
+	     {% endfor %}
 	
 	{% for bus in buses %}
 		var marker = new google.maps.Marker({
@@ -59,7 +58,6 @@ function initMap() {
 		  icon: '{{ url_for('static', filename = 'bus.png')}}',
 		  title: 'Route: {{bus['route']}} - Bearing: {{bus['bearing']}}'
 		});
-		
 		
 	{% endfor %}
 
