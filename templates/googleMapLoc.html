@@ -12,34 +12,40 @@
       }
       #map {
         height: 100%;
-		width: 80%
       }
     </style>
+    <script src="/static/javascript/app.js"></script>
   </head>
   <body>
     <div id="map"></div>
 	
     <script>
 
-	function initMap() {
-		var map = new google.maps.Map(document.getElementById('map'), {
-			zoom: 14,
-			center: {lat: {{centerLatLon[0]}}, lng: {{centerLatLon[1]}} }, 
-			mapTypeId: google.maps.MapTypeId.ROADMAP
+var mylat = {{centerLatLon[0]}},
+    mylon = {{centerLatLon[1]}};
 
-		});
+function myMap() {
+    var element = document.getElementById('map'),
+        config = {  zoom: 14,
+                    center: {lat: mylat, lng: mylon},
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                  };
+
+    var map = new google.maps.Map(element, config);
+
+    {% for bus in buses %}
+      var marker = new google.maps.Marker(drawBus({{ bus|safe }}, map));    
+    {% endfor %}
 	
+    // Draw subway lines
 		var transitLayer = new google.maps.TransitLayer();
-		transitLayer.setMap(map);  
+		transitLayer.setMap(map); 
 	
 		var marker = new google.maps.Marker({
-		  position: {lat: {{centerLatLon[0]}}, lng: {{centerLatLon[1]}} },
-		  map: map,
-		  title: 'YOU ARE HERE'
-		});
-	
-//		var stop_img = document.getElementById('stopimage');
-//		var bus_img = document.getElementById('busimage');
+                		  position: {lat: mylat, lng: mylon },
+                		  map: map,
+                		  title: 'YOU ARE HERE'
+                		});
 	
 		{% for stop in stoplist %}
 			var marker = new google.maps.Marker({
@@ -50,28 +56,14 @@
 			});
 			
 			var infowindow = new google.maps.InfoWindow({
-			content: '{{stop['stop_name']}} - Routes: {{stop['routes']}}'
-			});
-			
+                          			content: '{{stop['stop_name']}} - Routes: {{stop['routes']}}'
+                          			});
+                			
 			marker.addListener('click', function() {
 				infowindow.open(map, marker);
 			});
 			
 		{% endfor %}
-
-
-		{% for bus in buses %}
-			var marker = new google.maps.Marker({
-			  position: {lat: {{bus['lat']}}, lng: {{bus['lon']}}},
-			  map: map,
-			  icon: '{{ url_for('static', filename = 'bus.png')}}',
-			  title: 'Route: {{bus['route']}} - Bearing: {{bus['bearing']}}'
-			});
-			
-			
-		{% endfor %}
-
-		
 		
 		var colors = ["#007fff", "#ff0000", "#00ff00", "#0000ff", "#ff9900", "#ff0099", "#4B0082",
 						"#2E8B57", "#663300", "#cc0000"];
@@ -98,12 +90,10 @@
 			{% endfor %}
 			i++;
 		{% endfor %}
-
-  	
-	}
+}
 
     </script>
     <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD1SmWti0oIiSwT23aNcQtandgrrPfgBVU&signed_in=true&callback=initMap"></script>
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD1SmWti0oIiSwT23aNcQtandgrrPfgBVU&signed_in=true&callback=myMap"></script>
   </body>
 </html>
