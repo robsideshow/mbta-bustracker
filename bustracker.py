@@ -25,11 +25,6 @@ api_key = 'wX9NwuHnZU2ToO7GmGR9uw'
 
 #Kendall Sq: (42.362392, -71.084301)
 
-f = open('shapepathdict.json', 'r')
-shapepathdict = json.load(f)
-f.close()
-#dict of shape_id : [list of [lat,lon] for that shape]
-
 '''
 First, load several dictionaries from json files.  These dictionaries are made 
 (and saved) using functions in dictmaker.py with the text files from 
@@ -38,37 +33,42 @@ http://www.mbta.com/uploadedfiles/MBTA_GTFS.zip Note that these files change
 slightly about once every 3 months, due to schedule and route changes.
 '''
 
-g = open('tripshapedict.json', 'r')
+f = open('data/shapepathdict.json', 'r')
+shapepathdict = json.load(f)
+f.close()
+#dict of shape_id : [list of [lat,lon] for that shape]
+
+g = open('data/tripshapedict.json', 'r')
 tripshapedict = json.load(g)
 g.close()
 #dict of trip_id : shape_id
 
-h = open('routeshapedict.json', 'r')
+h = open('data/routeshapedict.json', 'r')
 routeshapedict = json.load(h)
 h.close()
 #dict of route_id : [list of shape_ids for that route]
 
-f1 = open('shapestopsdict.json', 'r')
+f1 = open('data/shapestopsdict.json', 'r')
 shapestopsdict = json.load(f1)
 f1.close()
 #dict of shape_id : [LIST of stops (in order) for that shape]
 
-g1 = open('routestopsdict.json', 'r')
+g1 = open('data/routestopsdict.json', 'r')
 routestopsdict = json.load(g1)
 g1.close()
 #dict of route_id : [List of all stop_ids for that route_id]
 
-h1 = open('stoproutesdict.json', 'r')
+h1 = open('data/stoproutesdict.json', 'r')
 stoproutesdict = json.load(h1)
 h1.close()
 #dict of stop_id : [List of all route_ids for that stop_id]
 
-f2 = open('routenamesdict.json', 'r')
+f2 = open('data/routenamesdict.json', 'r')
 routenamesdict = json.load(f2)
 f2.close()
 #dict of route_id : route_name
 
-g2 = open('shaperoutedict.json', 'r')
+g2 = open('data/shaperoutedict.json', 'r')
 shaperoutedict = json.load(g2)
 g2.close()
 #dict of shape_id : route_id
