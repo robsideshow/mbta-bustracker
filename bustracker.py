@@ -205,7 +205,11 @@ def distxy(xy1, xy2):
     dy = xy1[1] - xy2[1]
     return (dx**2 + dy**2)**.5     
 
-
+def trip2route(trip_id):
+    return shaperoutedict.get(tripshapedict.get(trip_id))
+    
+def trip2stops(trip_id):
+    return shapestopsdict.get(tripshapedict.get(trip_id))
 
 '''
 The next four functions are semi-obsolete.  They are for plotting on two static 

@@ -106,15 +106,21 @@ def makeStopsDicts(tripshapedict, shaperoutedict,
     f.readline()
     tripstopsdict = dict()
     for line in f:
-        if line[:2] == '"2':
+        if line[1] == '2':
             l = line.split(',') 
             trip_id = l[0].strip('"')
             stop_id = l[3].strip('"')
+            stop_seq = int(l[4].strip('"'))
             if trip_id in tripstopsdict:
-                tripstopsdict[trip_id].append(stop_id)
+                tripstopsdict[trip_id].append((stop_seq, stop_id))
             else:
-                tripstopsdict[trip_id] = [stop_id]
+                tripstopsdict[trip_id] = [(stop_seq, stop_id)]
     f.close()
+    for trip_id in tripstopsdict:
+        tmp = tripstopsdict[trip_id]
+        tmp.sort(key = lambda x : x[0])
+        tripstopsdict[trip_id] = [x[1] for x in tmp]
+        
     shapestopsdict = dict()    
     for trip_id in tripstopsdict:
         shape_id = tripshapedict[trip_id]
