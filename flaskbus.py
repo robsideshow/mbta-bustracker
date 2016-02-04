@@ -123,7 +123,7 @@ def googleMapByTrip(trip_id):
 
 @app.route("/googmapstops", methods=["GET","POST"])
 def googleMapStops():
-    centerLatLon = (42.3572, -71.0926)
+    centerLatLon = btr.MassAveMemDrLatLon
     stops = btr.getAllStops()
     if request.method == 'GET':
         return render_template('googleMapRoute.html',
@@ -147,7 +147,7 @@ def mapLocation():
     if request.method == 'GET':
         lat = request.args['lat']
         lon = request.args['lon']
-        #lat, lon = 42.362392, -71.084301 #kendall
+        #lat, lon = btr.KendallLatLon
         nearby_stops = btr.getNearbyStops(lat, lon)
         #print nearby_stops
         routeidlist = []

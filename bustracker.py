@@ -22,8 +22,8 @@ api_key = 'wX9NwuHnZU2ToO7GmGR9uw'
 
 #UL corner of CM:(42.400886, -71.145444) LR corner:(42.331188, -71.044320)
 #Centralmap 751 X 699
-
-#Kendall Sq: (42.362392, -71.084301)
+MassAveMemDrLatLon = (42.3572, -71.0926)
+KendallLatLon =  (42.362392, -71.084301)
 
 '''
 First, load several dictionaries from json files.  These dictionaries are made 
