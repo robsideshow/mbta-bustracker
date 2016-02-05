@@ -9,7 +9,7 @@ function drawBus(bus, map){
 
 function drawStop(stop, map){
   return {
-    position: {lat: stop.stop_lat, lng: stop.stop_lon},
+    position: {lat: +stop.stop_lat, lng: +stop.stop_lon},
     map: map,
     icon: "/static/busstop.png",
     title: stop.stop_name + " - Routes: " + stop.routes 

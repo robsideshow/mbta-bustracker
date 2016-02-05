@@ -57,13 +57,9 @@ function myMap() {
 					});
 
 	{% for stop in stoplist %}
-		var marker = new google.maps.Marker({
-		  position: {lat: {{stop['stop_lat']}}, lng: {{stop['stop_lon']}}},
-		  map: map,
-		  icon: '{{ url_for('static', filename = 'busstop.png')}}',
-		  title: "{{stop['stop_name'] | safe}} - Routes: {{stop['routes']}}"
-		});
 		
+    var stopMarker = new google.maps.Marker(drawStop({{ stop|safe }}, map));
+
 		var infowindow = new google.maps.InfoWindow({
 								content: '{{stop['stop_name']}} - Routes: {{stop['routes']}}'
 								});

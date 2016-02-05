@@ -155,6 +155,9 @@ def mapLocation():
             if stop.get('stop_id') in btr.stoproutesdict:
                 for route_id in btr.stoproutesdict.get(stop.get('stop_id')):
                     routeidlist.append(route_id)
+
+        nearby_stops = [btr.json.dumps(x) for x in nearby_stops]
+
         routeidlist = list(set(routeidlist))
         routelist = [btr.routenamesdict[route_id] for route_id in routeidlist]
         print routelist
