@@ -183,8 +183,16 @@ def getNearbyStops(lat, lon):
  
    
 def getNearbyStopsSelf(lat, lon, numstops = 15, radius = 800):
-    #returns a list of dictionaries, one for each of the 15 stops nearest the 
-    #given (lat, lon), minus any generic subway "parent" stations
+    '''
+    returns a list of dictionaries, one for each of the stops nearest the 
+    given (lat, lon). It will return the GREATER number of stops from:
+    1) the nearest (numstops) stops, regardless of distance, or
+    2) all stops withing (radius) METERS 
+    
+    That is, if you are in a sparse area and/or (radius) is very small, you will 
+    get (numstops) stops.  If you are in a congested area and/or (radius) is large,
+    you will get all stops within (radius) meters.
+    '''
     asradius = convertDist2ASD(radius)  
     asdistlist = []
     for stop_id in stopinfodict:
