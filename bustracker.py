@@ -180,6 +180,27 @@ def getNearbyStops(lat, lon):
         tmp = filter(lambda x : x!= '', [routenamesdict[route_id] for route_id in stoproutesdict.get(stop['stop_id'], '') ])
         stop['routes'] = ', '.join(tmp)            
     return stops
+ 
+   
+def getNearbyStopsSelf(lat, lon, numstops = 15, radius = 800):
+    #returns a list of dictionaries, one for each of the 15 stops nearest the 
+    #given (lat, lon), minus any generic subway "parent" stations
+    asradius = convertDist2ASD(radius)  
+    asdistlist = []
+    for stop_id in stopinfodict:
+        asdist = angularSquaredDist(lat, lon, 
+                                    stopinfodict[stop_id]['lat'], 
+                                    stopinfodict[stop_id]['lon'])
+        asdistlist.append((stop_id, asdist))
+    nearstops = filter(lambda x : x[1] < asradius, asdistlist)
+    if len(nearstops) < numstops:
+        asdistlist.sort(key = lambda x : x[1])
+        nearstops = asdistlist[:numstops]
+    stops = [stopinfodict[x[0]] for x in nearstops]
+    for stop in stops:
+        tmp = filter(lambda x : x!= '', [routenamesdict[route_id] for route_id in stoproutesdict.get(stop['stop_id'], '') ])
+        stop['routes'] = ', '.join(tmp)  
+    return stops
         
         
 def getBusesOnRoutes(routelist):
@@ -187,6 +208,21 @@ def getBusesOnRoutes(routelist):
     return [veh for veh in vehicles if veh['route_id'] in routelist]        
         
  
+def angularSquaredDist(lat1, lon1, lat2, lon2):
+    dlon = lon1 - lon2
+    dlat = lat1 - lat2
+    return dlat**2 + (.742*dlon)**2
+    
+def convertASD2Dist(asdist):
+    '''converts the "angular squared distance" to distance in meters'''
+    return 111120*((asdist)**.5)
+
+def convertDist2ASD(dist_meters):
+    '''converts distance in meters to "angular squared distance" '''
+    return (dist_meters/float(111120))**2
+    
+    
+    
 def convertll2xy(latlon):
     #origin of coords is lat: 42.3572, lon: -71.0926 Mass Ave & Memorial Drive
     #1 degree lat = 111200 meters, 1 degree lon = 82600 meters
@@ -213,7 +249,7 @@ def trip2stops(trip_id):
 
 '''
 The next four functions are semi-obsolete.  They are for plotting on two static 
-google screenshot maps, before use of google js API.
+google screenshot maps, before use of google JS API.
 '''
    
 def getPixTripPath(shape_id, map_id):

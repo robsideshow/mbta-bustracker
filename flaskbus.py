@@ -45,7 +45,6 @@ def routes(routenum):
 def routeVar(routenum, var):
     rt = btr.Route(routenum)
     #currentVars = rt.getCurrentVars()
-    #currentBuses = rt.getCurrentBuses()
     varTitles = rt.varTitles
     return render_template('showRoute.html', routenum = routenum, var = var, 
                            varTitles = varTitles, routeTitle = routeTtitles[routenum],
@@ -145,19 +144,18 @@ def testlocation():
 @app.route("/maplocation", methods=["GET","POST"])
 def mapLocation():
     if request.method == 'GET':
-        lat = request.args['lat']
-        lon = request.args['lon']
+        lat = float(request.args['lat'])
+        lon = float(request.args['lon'])
+        radius = float(request.args.get('radius', 800))
+        numstops = int(request.args.get('numstops', 15))
         #lat, lon = btr.KendallLatLon
-        nearby_stops = btr.getNearbyStops(lat, lon)
-        #print nearby_stops
+        nearby_stops = btr.getNearbyStopsSelf(lat, lon, numstops, radius)
         routeidlist = []
         for stop in nearby_stops:
             if stop.get('stop_id') in btr.stoproutesdict:
                 for route_id in btr.stoproutesdict.get(stop.get('stop_id')):
                     routeidlist.append(route_id)
-
         nearby_stops = [btr.json.dumps(x) for x in nearby_stops]
-
         routeidlist = list(set(routeidlist))
         routelist = [btr.routenamesdict[route_id] for route_id in routeidlist]
         print routelist
