@@ -100,7 +100,7 @@ def googleMapByRoute(route_id):
                                
 @app.route("/googmaptrip/<string:trip_id>", methods=["GET","POST"])
 def googleMapByTrip(trip_id):
-    centerLatLon = (42.3572, -71.0926)
+    centerLatLon = btr.MassAveMemDrLatLon
     vehicles = btr.getAllVehiclesGTFS()
     if trip_id == 'all':
         tripidlist = [trip['trip_id'] for trip in btr.getAllTripsGTFS() if trip['type'] == 'bus']

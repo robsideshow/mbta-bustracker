@@ -81,8 +81,11 @@ h2.close()
             
     
 def getAllBusRoutes():
-    #this is run once by flaskbus.py to get a list of all the bus route_ids 
-    #in a good order (CTs and SLs first, then numerical order)
+    '''
+    This is run once by flaskbus.py to get a list of all the bus route_ids 
+    in a good order (CTs and SLs first, then numerical order), suitable for 
+    display on the landing page.
+    '''
     tree = et.parse('http://realtime.mbta.com/developer/api/v2/routes?api_key=' + api_key + '&format=xml')
     root = tree.getroot()
     modes = root.getchildren()
@@ -95,7 +98,9 @@ def getAllBusRoutes():
     
         
 def parseVehEntity(vent):     
-# takes a GTFS vehicle entity and returns a dictionary of info    
+    '''
+    Takes a GTFS vehicle entity and returns a dictionary of info about the vehicle
+    '''
     vdict = dict()
     vdict['route_id'] = vent.vehicle.trip.route_id
     vdict['route'] = routenamesdict.get(vdict['route_id'])
@@ -117,8 +122,10 @@ def parseVehEntity(vent):
     return vdict
     
     
-def parseTripEntity(tent):     
-# takes a GTFS trip entity and returns a dictionary of info    
+def parseTripEntity(tent):  
+    '''
+    takes a GTFS trip entity and returns a dictionary of info about the trip  
+    '''
     tdict = dict()
     tdict['route_id'] = tent.trip_update.trip.route_id
     tdict['trip_id'] = tent.trip_update.trip.trip_id
@@ -132,7 +139,10 @@ def parseTripEntity(tent):
     
     
 def getAllVehiclesGTFS_Raw():
-    #gets the GTFS protobuffer Vehicles feed. Returns a list of unparsed GTFS entities
+    '''
+    downloads the GTFS protobuffer Vehicles feed from mbta.com. 
+    Returns a list of unparsed GTFS vehicle entities
+    '''
     feed = gtfs_realtime_pb2.FeedMessage()
     response = urllib.urlopen('http://developer.mbta.com/lib/GTRTFS/Alerts/VehiclePositions.pb')
     feed.ParseFromString(response.read())
@@ -140,7 +150,10 @@ def getAllVehiclesGTFS_Raw():
 
 
 def getAllTripsGTFS_Raw():
-    #gets the GTFS protobuffer Trips feed.  Returns a list of unparsed GTFS entities
+    '''
+    downloads the GTFS protobuffer Trips feed from mbta.com.  
+    Returns a list of unparsed GTFS trip entities
+    '''
     feed = gtfs_realtime_pb2.FeedMessage()
     response = urllib.urlopen('http://developer.mbta.com/lib/GTRTFS/Alerts/TripUpdates.pb')
     feed.ParseFromString(response.read())
