@@ -32,22 +32,48 @@ function myMap() {
                   };
 
     var map = new google.maps.Map(element, config);
-
-    {% for bus in buses %}
-      var marker = new google.maps.Marker(drawBus({{ bus|safe }}, map));    
-    {% endfor %}
 	
-    // Draw subway lines
+	// Draw subway lines
 	var transitLayer = new google.maps.TransitLayer();
 	transitLayer.setMap(map); 
+	
+	//Turn off buildings and parks
+	var noBuildings = [{
+		featureType: "landscape",
+		stylers: [{ visibility: "off" }	]   
+	}];
+	//map.setOptions({styles: noBuildings});
+    
 	
 	//Turn off businesses and other "points of interest"
 	var noPoi = [{
 		featureType: "poi",
 		stylers: [{ visibility: "off" }	]   
 	}];
+	//map.setOptions({styles: noPoi});
 
-	map.setOptions({styles: noPoi});
+	
+	//Turn off "points of interest" AND building outlines
+	var cleanStyle = [
+		{"featureType": "poi",
+		"stylers": [{ "visibility": "off" }]},
+		
+		{"featureType": "landscape",
+		"stylers": [{ "visibility": "off" }]}
+	];
+
+	map.setOptions({styles: cleanStyle});	
+
+	
+	
+	
+	
+	
+	
+
+    {% for bus in buses %}
+      var marker = new google.maps.Marker(drawBus({{ bus|safe }}, map));    
+    {% endfor %}
 	
 
 	var marker = new google.maps.Marker({
