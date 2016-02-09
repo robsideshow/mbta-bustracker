@@ -62,11 +62,24 @@ function myMap() {
 		"stylers": [{ "visibility": "off" }]}
 	];
 
-	map.setOptions({styles: cleanStyle});	
-
+	//map.setOptions({styles: cleanStyle});	
 	
 	
-	
+	//Fade google maps underlay to make routes stand out
+	var fadeStyle = [{
+		"featureType": "water",
+		"stylers": [
+		  { "saturation": -100 },
+		  { "lightness": -30 },
+		  { "gamma": 1.13 }
+		]},{
+		"stylers": [
+		  { "saturation": -100 },
+		  { "lightness": 39 },
+		  { "gamma": 0.73 }
+		]
+	}];
+	map.setOptions({styles: fadeStyle.concat(cleanStyle)});	
 	
 	
 	
