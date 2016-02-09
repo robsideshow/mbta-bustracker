@@ -24,6 +24,7 @@ api_key = 'wX9NwuHnZU2ToO7GmGR9uw'
 #Centralmap 751 X 699
 MassAveMemDrLatLon = (42.3572, -71.0926)
 KendallLatLon =  (42.362392, -71.084301)
+DTXLatLon = (42.355741, -71.060537)
 
 '''
 First, load several dictionaries from json files.  These dictionaries are made 
@@ -161,21 +162,27 @@ def getAllTripsGTFS_Raw():
 
 
 def getAllVehiclesGTFS():
-    #downloads the most recent protobuffer Vehicles feed and returns a list of 
-    #dictionaries with info for each vehicle
+    '''
+    downloads the most recent protobuffer Vehicles feed and returns a list of 
+    dictionaries with info for each vehicle
+    '''
     return [parseVehEntity(v) for v in getAllVehiclesGTFS_Raw()]
 
 
 def getAllTripsGTFS():
-    #downloads the most recent protobuffer Trips feed and returns a list of 
-    #dictionaries with info for each trip. Trips that are underway already or 
-    #about to depart have a specific vehicle, but trips further in the future don't
+    '''
+    downloads the most recent protobuffer Trips feed and returns a list of 
+    dictionaries with info for each trip. Trips that are underway already or 
+    about to depart have a specific vehicle, but trips further in the future don't
+    '''
     return [parseTripEntity(t) for t in getAllTripsGTFS_Raw()]
     
 
 def getAllStops():
-    #returns a list of dictionaries, one for each stop 
-    #minus any generic subway "parent" stations
+    '''
+    returns a list of dictionaries, one for each stop 
+    minus any generic subway "parent" stations
+    '''
     stops = [stopinfodict[s] for s in stopinfodict if s[0] != 'p']
     for stop in stops:
         tmp = filter(lambda x : x!= '', [routenamesdict[route_id] for route_id in stoproutesdict.get(stop['stop_id'], '') ])
@@ -184,8 +191,11 @@ def getAllStops():
    
    
 def getNearbyStops(lat, lon):
-    #returns a list of dictionaries, one for each of the 15 stops nearest the 
-    #given (lat, lon), minus any generic subway "parent" stations
+    '''
+    DEPRECATED. getNearbyStopsSelf is better
+    returns a list of dictionaries, one for each of the 15 stops nearest the 
+    given (lat, lon), minus any generic subway "parent" stations
+    '''    
     stops = json.load(urllib.urlopen('http://realtime.mbta.com/developer/api/v2/stopsbylocation?api_key=' 
                 + api_key + '&lat=' + str(lat) +'&lon=' + str(lon) + '&format=json'))['stop']
     stops = [stop for stop in stops if stop['stop_id'][0] != 'p']
@@ -230,6 +240,10 @@ def getBusesOnRoutes(routelist):
         
  
 def angularSquaredDist(lat1, lon1, lat2, lon2):
+    '''
+    calculates a number proportional to the squared distance, computationally 
+    much more efficient than calculating the distance
+    '''
     dlon = lon1 - lon2
     dlat = lat1 - lat2
     return dlat**2 + (.742*dlon)**2
@@ -245,17 +259,23 @@ def convertDist2ASD(dist_meters):
     
     
 def convertll2xy(latlon):
-    #origin of coords is lat: 42.3572, lon: -71.0926 Mass Ave & Memorial Drive
-    #1 degree lat = 111200 meters, 1 degree lon = 82600 meters
+    '''
+    converts a (lat, lon) to x, y coordinates in meters
+    origin of x-y coords is lat: 42.3572, lon: -71.0926: Mass Ave & Memorial Drive
+    1 degree lat = 111120 meters, 1 degree lon = 82600 meters
+    '''
     lat, lon = latlon
-    return (int((lon +71.0926)*82600), int((lat - 42.3572)*111200))
+    return (int((lon +71.0926)*82600), int((lat - 42.3572)*111120))
     
     
 def convertxy2latlon(xy):
-    #origin of coords is lat: 42.3572, lon: -71.0926 Mass Ave & Memorial Drive
-    #1 degree lat = 111200 meters, 1 degree lon = 82600 meters
+    '''
+    converts x, y coordinates in meters to (lat, lon)
+    origin of x-y coords is lat: 42.3572, lon: -71.0926 Mass Ave & Memorial Drive
+    1 degree lat = 111120 meters, 1 degree lon = 82600 meters
+    '''
     x,y = xy
-    return (y/float(111200) + 42.3572, x/float(82600) - 71.0926)
+    return (y/float(111120) + 42.3572, x/float(82600) - 71.0926)
 
 def distxy(xy1, xy2):
     dx = xy1[0] - xy2[0]
