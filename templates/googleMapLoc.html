@@ -97,7 +97,7 @@ function myMap() {
 
 	{% for stop in stoplist %}
 		
-    var stopMarker = new google.maps.Marker(drawStop({{ stop|safe }}, map));
+		var stopMarker = new google.maps.Marker(drawStop({{ stop|safe }}, map));
 
 		var infowindow = new google.maps.InfoWindow({
 								content: '{{stop['stop_name']}} - Routes: {{stop['routes']}}'
