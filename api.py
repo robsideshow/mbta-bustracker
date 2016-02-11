@@ -1,4 +1,4 @@
-from flask import Blueprint, request, abort, json
+from flask import Blueprint, request, abort, json, jsonify
 from datetime import datetime
 
 import bustracker as btr
@@ -26,8 +26,7 @@ def bus_updates():
 
     now_stamp = (datetime.now() - datetime.fromtimestamp(0)).total_seconds()
 
-    return json.dumps({
-        "buses": map(dict, buses),
-        "stamp": int(now_stamp)
-    })
+    return jsonify(
+        buses=map(dict, buses),
+        stamp=int(now_stamp))
 
