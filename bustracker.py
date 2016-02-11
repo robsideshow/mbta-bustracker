@@ -190,9 +190,9 @@ def getAllStops():
     return stops
    
    
-def getNearbyStops(lat, lon):
+def getNearbyStopsOld(lat, lon):
     '''
-    DEPRECATED. getNearbyStopsSelf is better
+    DEPRECATED. getNearbyStops is better
     returns a list of dictionaries, one for each of the 15 stops nearest the 
     given (lat, lon), minus any generic subway "parent" stations
     '''    
@@ -205,7 +205,7 @@ def getNearbyStops(lat, lon):
     return stops
  
    
-def getNearbyStopsSelf(lat, lon, numstops = 15, radius = 800):
+def getNearbyStops(lat, lon, numstops = 15, radius = 800):
     '''
     returns a list of dictionaries, one for each of the stops nearest the 
     given (lat, lon). It will return the GREATER number of stops from:
@@ -235,8 +235,27 @@ def getNearbyStopsSelf(lat, lon, numstops = 15, radius = 800):
         
         
 def getBusesOnRoutes(routelist):
+    '''
+    Takes a list of route_ids and returns a list of dictionaries, one for each
+    vehicle currently on those routes
+    '''
     vehicles = getAllVehiclesGTFS()
-    return [veh for veh in vehicles if veh['route_id'] in routelist]        
+    return [veh for veh in vehicles if veh['route_id'] in routelist]   
+
+
+def getRoutesForStops(stopidlist):
+    '''
+    takes a list of stop_ids and returns a list of route_ids for all routes 
+    which go through those stops
+    '''
+    routeidlist = []
+    for stop_id in stopidlist:
+        routeidlist += stoproutesdict.get(stop_id, [])
+    routeidlist = list(set(routeidlist))
+    return routeidlist
+
+
+     
         
  
 def angularSquaredDist(lat1, lon1, lat2, lon2):
@@ -283,9 +302,15 @@ def distxy(xy1, xy2):
     return (dx**2 + dy**2)**.5     
 
 def trip2route(trip_id):
+    '''
+    takes a trip_id and returns the shape_id for that trip
+    '''
     return shaperoutedict.get(tripshapedict.get(trip_id))
     
 def trip2stops(trip_id):
+    '''
+    takes a trip_id and returns a list of stop_ids, in order, for that trip
+    '''
     return shapestopsdict.get(tripshapedict.get(trip_id))
 
 '''

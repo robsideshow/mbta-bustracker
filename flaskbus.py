@@ -150,18 +150,11 @@ def mapLocation():
         lon = float(request.args['lon'])
         radius = float(request.args.get('radius', 800))
         numstops = int(request.args.get('numstops', 15))
-        #lat, lon = btr.KendallLatLon
-        nearby_stops = btr.getNearbyStopsSelf(lat, lon, numstops, radius)
-        routeidlist = []
-        for stop in nearby_stops:
-            if stop.get('stop_id') in btr.stoproutesdict:
-                for route_id in btr.stoproutesdict.get(stop.get('stop_id')):
-                    routeidlist.append(route_id)
-        nearby_stops = [btr.json.dumps(x) for x in nearby_stops]
-        routeidlist = list(set(routeidlist))
-        routelist = [btr.routenamesdict[route_id] for route_id in routeidlist]
-        print routelist
+        #lat, lon = btr.KendallLatLon #uncomment for testing purposes
+        nearby_stops = btr.getNearbyStops(lat, lon, numstops, radius)
+        routeidlist = btr.getRoutesForStops([stop.get('stop_id') for stop in nearby_stops])
         buses = [btr.json.dumps(x) for x in btr.getBusesOnRoutes(routeidlist)]
+        nearby_stops = [btr.json.dumps(x) for x in nearby_stops]
         routepathdict = dict()
         for route_id in routeidlist:
             #routepathdict[route_id] = btr.getLatLonPathsByRoute(route_id)[0]
