@@ -161,6 +161,9 @@ def makeStopInfoDict(filename = 'MBTA_GTFS_texts/stops.txt'):
         l = line.split(',') 
         stop_id = l[0].strip('"')
         stop_name = l[2].strip('"')
+        parent = l[-2].strip('"')
+        #there are a few stop names with COMMAS, which screws up parsing 
+        #this COMMA-separated file, duh.
         if l[4].strip('"') == '':
             lat = float(l[5].strip('"'))
             lon = float(l[6].strip('"'))
@@ -168,6 +171,11 @@ def makeStopInfoDict(filename = 'MBTA_GTFS_texts/stops.txt'):
             lat = float(l[4].strip('"'))
             lon = float(l[5].strip('"'))
         stopinfodict[stop_id] = dict([('stop_id', stop_id), ('stop_name', stop_name), ('lat', lat), ('lon', lon)])
+        if stop_id[0] == 'p':
+            stopinfodict[stop_id]['children'] = []
+        if parent != '':
+            stopinfodict[parent]['children'].append(stop_id)
+            stopinfodict[stop_id]['parent'] = parent
     return stopinfodict
 
 
