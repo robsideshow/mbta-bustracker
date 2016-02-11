@@ -7,8 +7,10 @@ Created on Mon Aug 10 20:17:59 2015
 
 from flask import Flask, render_template, url_for, request, redirect, session
 import bustracker as btr
+import api
 
 app = Flask(__name__)
+app.register_blueprint(api.api_routes, url_prefix="/api")
 
 app.secret_key = 'F12Zr47j\3yX R~X@H!jmM]Lwf/,?KT'
 
