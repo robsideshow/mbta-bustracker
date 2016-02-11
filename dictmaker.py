@@ -18,7 +18,7 @@ alldicts = ['shapepathdict', 'routenamesdict', 'tripshapedict',
 #shapestopsdict - shape_id : [List of stops in order] 
 #routestopsdict - route_id : [List of stops for that route]
 #stoproutesdict - stop_id : [List of routes for that stop]
-#stopinfodict - stop_id : {Dict of 'stop_id', 'stop_name', 'lat', 'lon'}
+#stopinfodict - stop_id : {Dict of 'stop_id', 'stop_name', 'lat', 'lon', 'parent' (if a child), 'children' (if a parent)}}
     
 def makeShapePathDict(filename = 'MBTA_GTFS_texts/shapes.txt'):
     #reads the 'shapes.txt' file and returns a dictionary of 

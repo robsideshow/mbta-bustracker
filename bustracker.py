@@ -34,50 +34,42 @@ http://www.mbta.com/uploadedfiles/MBTA_GTFS.zip Note that these files change
 slightly about once every 3 months, due to schedule and route changes.
 '''
 
-f = open('data/shapepathdict.json', 'r')
-shapepathdict = json.load(f)
-f.close()
+with open('data/shapepathdict.json', 'r') as f:
+	shapepathdict = json.load(f)
 #dict of shape_id : [list of [lat,lon] for that shape]
 
-g = open('data/tripshapedict.json', 'r')
-tripshapedict = json.load(g)
-g.close()
+with open('data/tripshapedict.json', 'r') as f:
+	tripshapedict = json.load(f)
 #dict of trip_id : shape_id
 
-h = open('data/routeshapedict.json', 'r')
-routeshapedict = json.load(h)
-h.close()
+with open('data/routeshapedict.json', 'r') as f:
+	routeshapedict = json.load(f)
 #dict of route_id : [list of shape_ids for that route]
 
-f1 = open('data/shapestopsdict.json', 'r')
-shapestopsdict = json.load(f1)
-f1.close()
+with open('data/shapestopsdict.json', 'r') as f:
+	shapestopsdict = json.load(f)
 #dict of shape_id : [LIST of stops (in order) for that shape]
 
-g1 = open('data/routestopsdict.json', 'r')
-routestopsdict = json.load(g1)
-g1.close()
+with open('data/routestopsdict.json', 'r') as f:
+	routestopsdict = json.load(f)
 #dict of route_id : [List of all stop_ids for that route_id]
 
-h1 = open('data/stoproutesdict.json', 'r')
-stoproutesdict = json.load(h1)
-h1.close()
+with open('data/stoproutesdict.json', 'r') as f:
+	stoproutesdict = json.load(f)
 #dict of stop_id : [List of all route_ids for that stop_id]
 
-f2 = open('data/routenamesdict.json', 'r')
-routenamesdict = json.load(f2)
-f2.close()
+with open('data/routenamesdict.json', 'r') as f:
+	routenamesdict = json.load(f)
 #dict of route_id : route_name
 
-g2 = open('data/shaperoutedict.json', 'r')
-shaperoutedict = json.load(g2)
-g2.close()
+with open('data/shaperoutedict.json', 'r') as f:
+	shaperoutedict = json.load(f)
 #dict of shape_id : route_id
 
-h2 = open('data/stopinfodict.json', 'r')
-stopinfodict = json.load(h2)
-h2.close()
-#dict of stop_id : {Dict of 'stop_id', 'stop_name', 'lat', 'lon'}
+with open('data/stopinfodict.json', 'r') as f:
+	stopinfodict = json.load(f)
+#dict of stop_id : {Dict of 'stop_id', 'stop_name', 'lat', 'lon', 
+# 'parent' (if a child), 'children' (if a parent)}
   
             
     
