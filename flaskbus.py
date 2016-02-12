@@ -7,11 +7,11 @@ Created on Mon Aug 10 20:17:59 2015
 
 from flask import Flask, render_template, url_for, request, redirect, session
 import bustracker as btr
-import api
+from api_routes import api_routes
 from map_routes import map_routes
 
 app = Flask(__name__)
-app.register_blueprint(api.api_routes, url_prefix="/api")
+app.register_blueprint(api_routes, url_prefix="/api")
 app.register_blueprint(map_routes, url_prefix="/map")
 
 app.secret_key = 'F12Zr47j\3yX R~X@H!jmM]Lwf/,?KT'
@@ -155,16 +155,18 @@ def mapLocation():
         #lat, lon = btr.KendallLatLon #uncomment for testing purposes
         nearby_stops = btr.getNearbyStops(lat, lon, numstops, radius)
         routeidlist = btr.getRoutesForStops([stop.get('stop_id') for stop in nearby_stops])
+        parent_stops = btr.getParentStops([s['stop_id'] for s in nearby_stops])        
         buses = [btr.json.dumps(x) for x in btr.getBusesOnRoutes(routeidlist)]
         nearby_stops = [btr.json.dumps(x) for x in nearby_stops]
+        parents = [btr.json.dumps(x) for x in parent_stops]
         routepathdict = dict()
         for route_id in routeidlist:
             #routepathdict[route_id] = btr.getLatLonPathsByRoute(route_id)[0]
             routepathdict[route_id] = [btr.shapepathdict[shape_id] for shape_id in btr.routeshapedict[route_id]]
         return render_template('googleMapLoc.html', centerLatLon = (lat,lon),
                                stoplist = nearby_stops, routepathdict = routepathdict,
-                               buses = buses);
+                               buses = buses, parents = parents);
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()#debug=True)

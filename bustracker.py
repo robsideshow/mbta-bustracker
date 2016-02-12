@@ -177,25 +177,10 @@ def getAllStops():
     '''
     stops = [stopinfodict[s] for s in stopinfodict if s[0] != 'p']
     for stop in stops:
-        tmp = filter(lambda x : x!= '', [routenamesdict[route_id] for route_id in stoproutesdict.get(stop['stop_id'], '') ])
-        stop['routes'] = ', '.join(tmp)            
+        routenames = filter(lambda x : x!= '', [routenamesdict[route_id] for route_id in stoproutesdict.get(stop['stop_id'], '') ])
+        stop['routes'] = ', '.join(routenames)            
     return stops
    
-   
-def getNearbyStopsOld(lat, lon):
-    '''
-    DEPRECATED. getNearbyStops is better
-    returns a list of dictionaries, one for each of the 15 stops nearest the 
-    given (lat, lon), minus any generic subway "parent" stations
-    '''    
-    stops = json.load(urllib.urlopen('http://realtime.mbta.com/developer/api/v2/stopsbylocation?api_key=' 
-                + api_key + '&lat=' + str(lat) +'&lon=' + str(lon) + '&format=json'))['stop']
-    stops = [stop for stop in stops if stop['stop_id'][0] != 'p']
-    for stop in stops:
-        tmp = filter(lambda x : x!= '', [routenamesdict[route_id] for route_id in stoproutesdict.get(stop['stop_id'], '') ])
-        stop['routes'] = ', '.join(tmp)            
-    return stops
- 
    
 def getNearbyStops(lat, lon, numstops = 15, radius = 800):
     '''
@@ -221,8 +206,8 @@ def getNearbyStops(lat, lon, numstops = 15, radius = 800):
         nearstops = asdistlist[:numstops]
     stops = [stopinfodict[x[0]] for x in nearstops]
     for stop in stops:
-        tmp = filter(lambda x : x!= '', [routenamesdict[route_id] for route_id in stoproutesdict.get(stop['stop_id'], '') ])
-        stop['routes'] = ', '.join(tmp)  
+        routenames = filter(lambda x : x!= '', [routenamesdict[route_id] for route_id in stoproutesdict.get(stop['stop_id'], '') ])
+        stop['routes'] = ', '.join(routenames)  
     return stops
         
         
@@ -247,7 +232,22 @@ def getRoutesForStops(stopidlist):
     return routeidlist
 
 
-     
+def getParentStops(stopidlist):
+    '''
+    takes a list of stop_ids and returns a list of dictionaries 
+    '''
+    parents = []
+    for stop_id in stopidlist:
+        stopinfo = stopinfodict[stop_id]
+        if stopinfo.get('children', '') != '':
+            route_ids = []
+            for stop_id in stopinfo['children']:
+                route_ids += stoproutesdict.get(stop_id, []) 
+            routenames = filter(lambda x : x!= '', [routenamesdict.get(route_id, '') for route_id in route_ids])
+            routenames = sorted(list(set(routenames)))
+            stopinfo['routes'] = ', '.join(routenames)  
+            parents.append(stopinfo)
+    return parents
         
  
 def angularSquaredDist(lat1, lon1, lat2, lon2):
@@ -607,6 +607,20 @@ def watchOneBusGraph(rtnum = '77', bus = None, points = 10, timeinterval = 15):
     
     
         
-        
+def getNearbyStopsOld(lat, lon):
+    '''
+    DEPRECATED. getNearbyStops is better
+    returns a list of dictionaries, one for each of the 15 stops nearest the 
+    given (lat, lon), minus any generic subway "parent" stations
+    '''    
+    stops = json.load(urllib.urlopen('http://realtime.mbta.com/developer/api/v2/stopsbylocation?api_key=' 
+                + api_key + '&lat=' + str(lat) +'&lon=' + str(lon) + '&format=json'))['stop']
+    stops = [stop for stop in stops if stop['stop_id'][0] != 'p']
+    for stop in stops:
+        tmp = filter(lambda x : x!= '', [routenamesdict[route_id] for route_id in stoproutesdict.get(stop['stop_id'], '') ])
+        stop['routes'] = ', '.join(tmp)            
+    return stops
+ 
+   
         
         

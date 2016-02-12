@@ -48,9 +48,12 @@ def makeRouteNamesDict(filename = 'MBTA_GTFS_texts/routes.txt'):
     routenamesdict = dict()
     for l in splitlines:
         if l[2].strip('"') == '':
-            routenamesdict[l[0].strip('"')] = l[3].strip('"')
+            routename = l[3].strip('"')
         else:
-            routenamesdict[l[0].strip('"')] = l[2].strip('"')        
+            routename = l[2].strip('"')
+        if routename in 'BCDE':
+            routename = l[0].strip('"')
+        routenamesdict[l[0].strip('"')] = routename       
     return routenamesdict
     
     

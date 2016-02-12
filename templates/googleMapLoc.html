@@ -97,7 +97,7 @@ function myMap() {
 
 	{% for stop in stoplist %}
 		
-		var stopMarker = new google.maps.Marker(drawStop({{ stop|safe }}, map));
+		var stopMarker = new google.maps.Marker(drawStop({{ stop|safe }}, map, 1));
 
 		var infowindow = new google.maps.InfoWindow({
 								content: '{{stop['stop_name']}} - Routes: {{stop['routes']}}'
@@ -107,6 +107,12 @@ function myMap() {
 			infowindow.open(map, marker);
 		});
 		
+	{% endfor %}
+	
+	{% for stop in parents %}
+		
+		var stopMarker = new google.maps.Marker(drawStop({{ stop|safe }}, map, 2));
+	
 	{% endfor %}
 	
 	var colors = ["#007fff", "#ff0000", "#00ff00", "#0000ff", "#ff9900", "#ff0099", "#4B0082",
