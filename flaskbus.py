@@ -8,11 +8,11 @@ Created on Mon Aug 10 20:17:59 2015
 from flask import Flask, render_template, url_for, request, redirect, session
 import bustracker as btr
 import api
-import map
+from map_routes import map_routes
 
 app = Flask(__name__)
 app.register_blueprint(api.api_routes, url_prefix="/api")
-app.register_blueprint(map.map_routes, url_prefix="/map")
+app.register_blueprint(map_routes, url_prefix="/map")
 
 app.secret_key = 'F12Zr47j\3yX R~X@H!jmM]Lwf/,?KT'
 
