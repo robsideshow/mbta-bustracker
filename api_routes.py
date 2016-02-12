@@ -30,3 +30,7 @@ def bus_updates():
         buses=map(dict, buses),
         stamp=int(now_stamp))
 
+@api_routes.route("/routes")
+def bus_routes():
+    pass
+
