@@ -52,3 +52,4 @@ Temporary Items
 
 # Prediction data collection
 /ignore
+/static/javascript/.tern-port
