@@ -66,8 +66,8 @@ define(["leaflet"], function(L) {
                 hl = this.options.busLength/2,
                 hw = this.options.busWidth/2,
                 polyPoints = [[-hl, hw], [hl, hw], [hl, -hw], [-hl, -hw]],
-                sinRads = Math.sin(rads),
-                cosRads = Math.cos(rads);
+                sinRads = Math.sin(-rads),
+                cosRads = Math.cos(-rads);
 
             return polyPoints.map(function(point) {
                 var x = point[0] * cosRads - point[1] * sinRads,
