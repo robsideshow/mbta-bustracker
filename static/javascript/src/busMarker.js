@@ -75,18 +75,6 @@ define(["leaflet"], function(L) {
 
                 return crs.pointToLatLng(L.point(cx+x, cy+y), 15);
             });
-
-
-
-            function convert(rads, lat, lng, d) {
-                var newLat = Math.asin(Math.sin(lat)*Math.cos(d) +
-                                       Math.cos(lat)*Math.sin(d) * Math.cos(rads)),
-                    newLng = (lng -
-                              Math.asin(rads*Math.sin(d)/Math.cos(lat))+Math.PI) % 2*Math.PI - Math.PI;
-                return [newLat, newLng];
-            }
-
-            return [[]];
         },
 
         update: function(bus) {
