@@ -20,10 +20,12 @@ define(["leaflet"], function(L) {
                 busWidth: 3
             };
 
-            var self = this;
+            this.bindPopup("popup!");
+
             this.on("click", function(e) {
                 console.log(this.bus);
-            });
+            })
+                .on("popupopen", this.onPopupOpen);
         },
 
         onAdd: function(map) {
@@ -40,22 +42,30 @@ define(["leaflet"], function(L) {
             this.centerPoint = L.circle(this.getCenter(), 2).addTo(this);
         },
 
+        onPopupOpen: function(e) {
+            e.popup.setContent("Heading: " + this.bus.heading + "<br>" +
+                               "Rotation: " + (360-(this.bus.heading-90))%360 + "<br>" +
+                               "ID: " + this.bus.id + "<br>" +
+                               "dirTag: " + this.bus.dirTag);
+        },
+
         getCenter: function() {
             return L.latLng(+this.bus.lat, +this.bus.lon);
         },
 
         _calculatePoints: function() {
             var bus = this.bus,
-                degs = -(this.bus.heading%360 - 90),
+                degs = (360-(bus.heading-90))%360,
                 rads = degs/180 * Math.PI,
                 crs = L.CRS.EPSG3857,
                 busLatLng = L.latLng(+bus.lat, +bus.lon),
                 centerPoint = crs.latLngToPoint(busLatLng, 15),
+                // cached valued for calculation:
                 cx = centerPoint.x,
                 cy = centerPoint.y,
                 hl = this.options.busLength/2,
                 hw = this.options.busWidth/2,
-                polyPoints = [[-hw, hl], [hw, hl], [hw, -hl], [-hw, -hl]],
+                polyPoints = [[-hl, hw], [hl, hw], [hl, -hw], [-hl, -hw]],
                 sinRads = Math.sin(rads),
                 cosRads = Math.cos(rads);
 

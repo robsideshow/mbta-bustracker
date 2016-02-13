@@ -24,6 +24,7 @@ define(["jquery", "leaflet", "bus-marker"],
                                    } else {
                                        busMarkers[bus.id].update(bus);
                                    }
+                                   lastTick = update.stamp;
                                });
 
                                setTimeout(tick, 10000);
