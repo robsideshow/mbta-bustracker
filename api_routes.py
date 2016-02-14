@@ -10,25 +10,21 @@ def bus_updates():
     route_ids = request.args.get("routes", "")
     route_idlist = route_ids.split(',')
 
-    # Timestamp in seconds
-    since = request.args.get("since", "")
-
     if not route_ids:
         abort(401)
+
+    # Timestamp in seconds
+    since = request.args.get("since", "")
 
     buses = btr.getBusesOnRoutes(route_idlist)
 
     if since:
-        when = datetime.fromtimestamp(int(since))
-
-        dt = ((datetime.now() - when).total_seconds())
-        buses = [bus for bus in buses if int(bus["secsSinceReport"]) <= dt]
+        when = long(since)
+        buses = [bus for bus in buses if bus["timestamp"] > when]
 
     now_stamp = (datetime.now() - datetime.fromtimestamp(0)).total_seconds()
 
-    return jsonify(
-        buses=map(dict, buses),
-        stamp=int(now_stamp))
+    return jsonify(buses=buses, stamp=int(now_stamp))
 
 @api_routes.route("/routes")
 def bus_routes():
