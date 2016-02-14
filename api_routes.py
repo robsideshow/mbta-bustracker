@@ -7,16 +7,16 @@ api_routes = Blueprint("api", __name__)
 
 @api_routes.route("/bus_updates")
 def bus_updates():
-    route_id = request.args.get("route", "")
+    route_ids = request.args.get("routes", "")
+    route_idlist = route_ids.split(',')
 
     # Timestamp in seconds
     since = request.args.get("since", "")
 
-    if not route_id:
+    if not route_ids:
         abort(401)
 
-    route = btr.Route(route_id)
-    buses = route.getCurrentBuses()
+    buses = btr.getBusesOnRoutes(route_idlist)
 
     if since:
         when = datetime.fromtimestamp(int(since))
@@ -32,5 +32,25 @@ def bus_updates():
 
 @api_routes.route("/routes")
 def bus_routes():
-    pass
+    #the route_ids are in a reasonable order for a user to choose from
+    route_ids, routeTitles = btr.getAllBusRoutes()
+    return jsonify(route_ids = route_ids, 
+                   routeTitles = routeTitles)
+
+
+@api_routes.route("/routeinfo")
+def route_info():
+    route_id = request.args.get("route", "")
+    
+    if not route_id:
+        abort(401)
+
+    shape_ids = btr.routeshapedict.get(route_id)
+    paths = [btr.shapepathdict.get(shape_id) for shape_id in shape_ids]
+    stop_ids = btr.routestopsdict.get(route_id)
+    stops = [btr.stopinfodict.get(stop_id) for stop_id in stop_ids]
+    
+
+    return jsonify(paths = paths, 
+                   stops = stops)
 

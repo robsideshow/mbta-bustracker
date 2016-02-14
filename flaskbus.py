@@ -16,15 +16,15 @@ app.register_blueprint(map_routes, url_prefix="/map")
 
 app.secret_key = 'F12Zr47j\3yX R~X@H!jmM]Lwf/,?KT'
 
-sortedRoutenums, routeTtitles = btr.getAllBusRoutes()
+sortedRoute_ids, routeTitles = btr.getAllBusRoutes()
  
 
 
 @app.route("/", methods=["GET","POST"])
 def hello():
     if request.method == 'GET':
-        return render_template('chooseRoute.html', routeTtitles = btr.routenamesdict,
-                               rnums = sortedRoutenums);
+        return render_template('chooseRoute.html', routeTitles = btr.routenamesdict,
+                               rnums = sortedRoute_ids);
     elif request.method == 'POST':
         routenum = request.form['routenum'];
         return redirect(url_for('routes',  routenum = routenum))
@@ -37,7 +37,7 @@ def routes(routenum):
     varTitles = rt.varTitles
     if request.method == 'GET':
         return render_template('chooseVar.html', routenum = routenum,
-                               varTitles = varTitles, routeTtitle = routeTtitles[routenum],
+                               varTitles = varTitles, routeTtitle = routeTitles[routenum],
                            stops = allStops, backLink = url_for('hello'))
     elif request.method == 'POST':
         var = request.form['var'];
@@ -51,7 +51,7 @@ def routeVar(routenum, var):
     #currentVars = rt.getCurrentVars()
     varTitles = rt.varTitles
     return render_template('showRoute.html', routenum = routenum, var = var, 
-                           varTitles = varTitles, routeTitle = routeTtitles[routenum],
+                           varTitles = varTitles, routeTitle = routeTitles[routenum],
                            stops = rt.getStopsOneVar(var), backLink = url_for('hello'))
 
 
@@ -66,7 +66,7 @@ def stopVar(routenum, var, stoptag):
     stop = btr.Stop(stoptag)
     preds = stop.getStopPreds()
     return render_template('showStopVar.html', routenum = routenum, 
-                           buses = currentBuses, preds = preds, routeTitle = routeTtitles[routenum],
+                           buses = currentBuses, preds = preds, routeTitle = routeTitles[routenum],
                            var = var, allstops = rt.allStops, varTitles = varTitles,
                            stoptag = stoptag, backLink = url_for('hello'))
 

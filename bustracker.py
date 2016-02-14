@@ -70,6 +70,10 @@ with open('data/stopinfodict.json', 'r') as f:
 	stopinfodict = json.load(f)
 #dict of stop_id : {Dict of 'stop_id', 'stop_name', 'lat', 'lon', 
 # 'parent' (if a child), 'children' (if a parent)}
+ 
+with open('data/shapeinfodict.json', 'r') as f:
+	shapeinfodict = json.load(f)
+#dict of shape_id : {Dict of 'destination', 'direction', 'route_id'}
   
             
     
@@ -101,9 +105,16 @@ def parseVehEntity(vent):
     vdict['id'] = vent.vehicle.vehicle.id
     vdict['lat'] = vent.vehicle.position.latitude
     vdict['lon'] = vent.vehicle.position.longitude
-    vdict['bearing'] = vent.vehicle.position.bearing
+    vdict['heading'] = vent.vehicle.position.bearing
     vdict['timestamp'] = vent.vehicle.timestamp
     vdict['xcoord'], vdict['ycoord'] = convertll2xy((vdict['lat'], vdict['lon']))
+    shape_id = tripshapedict.get(vent.vehicle.trip.trip_id, '')
+    if shape_id == '':
+        vdict['destination'] = '?'
+        vdict['direction'] = '?'
+    else:
+        vdict['destination'] = shapeinfodict[shape_id]['destination']
+        vdict['direction'] = shapeinfodict[shape_id]['direction']
     if vdict['route_id'] == '':
         vdict['type'] = 'unknown'
     elif vdict['route_id'][0] == 'C':

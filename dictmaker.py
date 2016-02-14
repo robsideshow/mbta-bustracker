@@ -8,7 +8,8 @@ import json
 
 alldicts = ['shapepathdict', 'routenamesdict', 'tripshapedict', 
             'shaperoutedict', 'routeshapedict', 'shapestopsdict',
-                'routestopsdict', 'stoproutesdict', 'stopinfodict'] 
+                'routestopsdict', 'stoproutesdict', 'stopinfodict',
+                'shapeinfodict'] 
 #Summary of dictionaries:
 #shapepathdict - shape_id : [list of latlon path points]
 #routenamesdict - route_id : route_name
@@ -67,6 +68,7 @@ def makeTripShapeDict(filename = 'MBTA_GTFS_texts/trips.txt'):
     splitlines = [l.split(',') for l in rawlines]
     tripshapedict = dict([(l[2].strip('"'), l[-2].strip('"')) for l in splitlines])
     return tripshapedict
+    
     
 def makeShapeRouteDict(filename = 'MBTA_GTFS_texts/trips.txt'):
     #reads the 'trips.txt' file and returns a dictionary of 
@@ -180,6 +182,27 @@ def makeStopInfoDict(filename = 'MBTA_GTFS_texts/stops.txt'):
             stopinfodict[parent]['children'].append(stop_id)
             stopinfodict[stop_id]['parent'] = parent
     return stopinfodict
+    
+
+def makeShapeInfoDict(filename = 'MBTA_GTFS_texts/trips.txt'):
+    #reads the 'trips.txt' file and returns a dictionary of 
+    # shape_id : {Dict of 'route_id', 'destination', 'direction'}
+    f = open(filename, 'r')
+    f.readline()
+    rawlines = f.readlines()
+    f.close()
+    shapeinfodict = dict()
+    splitlines = [l.split(',') for l in rawlines]
+    for l in splitlines:
+        route_id = l[0].strip('"')
+        shape_id = l[-2].strip('"')
+        destination = l[3].strip('"')
+        direction = l[-4].strip('"')
+        shapeinfodict[shape_id] = {'route_id' : route_id, 
+                                    'destination' : destination,
+                                    'direction' : direction}
+    return shapeinfodict
+
 
 
 def makeAllDicts():
@@ -190,6 +213,7 @@ def makeAllDicts():
     routeshapedict = makeRouteShapeDict(shaperoutedict)
     shapestopsdict, routestopsdict = makeStopsDicts(tripshapedict, shaperoutedict)
     stoproutesdict = makeStopRoutesDict(routestopsdict)
+    shapeinfodict = makeShapeInfoDict()
     for dic in alldicts:
         f = open(dic + '.json', 'w')
         json.dump(eval(dic), f)

@@ -45,8 +45,8 @@ define(["leaflet"], function(L) {
         onPopupOpen: function(e) {
             e.popup.setContent("Heading: " + this.bus.heading + "<br>" +
                                "Rotation: " + (360-(this.bus.heading-90))%360 + "<br>" +
-                               "ID: " + this.bus.id + "<br>" +
-                               "dirTag: " + this.bus.dirTag);
+                               "Vehicle_id: " + this.bus.id + "<br>" +
+                               "Trip_id: " + this.bus.trip_id);
         },
 
         getCenter: function() {
