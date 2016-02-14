@@ -14,7 +14,7 @@ define(["jquery", "leaflet", "bus-marker"],
                        busLayer = L.layerGroup().addTo(map);
                    function tick(){
                        $.get("/api/bus_updates", {routes: "Red,77,66,1",
-                                                  stamp: lastTick}).
+                                                  since: lastTick}).
                            then(function(update) {
                                $.each(update.buses, function(idx, bus) {
                                    if (!busMarkers[bus.id]) {
