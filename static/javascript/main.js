@@ -3,6 +3,7 @@ require.config({
         "jquery": "http://code.jquery.com/jquery-1.12.0.min",
         "leaflet": "http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet",
 
+        "config": "config",
         "bus-marker": "src/busMarker",
         "utils": "src/utils",
 
