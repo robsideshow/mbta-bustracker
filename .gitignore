@@ -18,8 +18,9 @@ $RECYCLE.BIN/
 *.lnk
 
 
-# Python compile file
+# Compiler and Cashe
 *.pyc
+/static/.webassets-cache/
 
 # =========================
 # Operating System Files
