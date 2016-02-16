@@ -6,21 +6,30 @@ Created on Mon Aug 10 20:17:59 2015
 """
 
 from flask import Flask, render_template, url_for, request, redirect, session
+from flask.ext.assets import Environment, Bundle
 import bustracker as btr
 from api_routes import api_routes
 from map_routes import map_routes
 
 app = Flask(__name__)
+
+assets = Environment(app)
+assets.url = app.static_url_path
+scss = Bundle('stylesheets/all.scss', 
+                filters='pyscss', 
+                output='build/css/all.css', 
+                depends=('stylesheets/**/*.scss'))
+assets.register('scss_all', scss)
+
 app.register_blueprint(api_routes, url_prefix="/api")
 app.register_blueprint(map_routes, url_prefix="/map")
 
 app.secret_key = 'F12Zr47j\3yX R~X@H!jmM]Lwf/,?KT'
 
 sortedRoute_ids, routeTitles = btr.getAllBusRoutes()
- 
 
 
-@app.route("/", methods=["GET","POST"])
+@app.route("/", methods=["GET", "POST"])
 def hello():
     if request.method == 'GET':
         return render_template('chooseRoute.html', routeTitles = btr.routenamesdict,
@@ -60,7 +69,7 @@ def stopVar(routenum, var, stoptag):
     if '_' in stoptag:
         stoptag = stoptag.split('_')[0]   
     rt = btr.Route(routenum)
-    #currentVars = rt.getCurrentVars()
+    # currentVars = rt.getCurrentVars()
     currentBuses = rt.getCurrentBuses()
     varTitles = rt.varTitles
     stop = btr.Stop(stoptag)

@@ -24,6 +24,14 @@ easy_install --upgrade gtfs-realtime-bindings
 
 ### Flask
 
+### flask-assets
+
+Using the pyScss and Flask Assets to compile the SCSS files.  
+```
+pip install flask-assets
+pip install pyScss
+```
+
 ### lxml
 ```
 conda install lxml
@@ -42,7 +50,7 @@ $ cd your-path-to/mbta-bustracker
 $ python flaskbus.py
 ```
 
-Open the app at `localholst:5000`
+Open the app at `localholst:5000/map`
 
 
 # API References
