@@ -1,11 +1,10 @@
-nav {
-  $navbar-height: 3em;
+$navbar-height: 40px;
 
+.topnav {
   color: $brand-5;
   background-color: $brand-3;
   width: 100%;
   height: $navbar-height;
-  @extend .z-depth-1;
 
   ul {
     margin: 0;
@@ -22,10 +21,30 @@ nav {
         color: $brand-5;
       }
 
-      &:hover, &.active {
-        a {color: white;}
-        background-color: $brand-2;
+      &.logo {
+        color: white;
+      }
+
+      &:not(.logo){
+        float: right;
+        &:hover, &.active {
+          a {color: white;}
+          background-color: $brand-2;
+        }
       }
     }
+  }
+}
+.sidenav {
+  background-color: white;
+  border-right: 1px solid $neutral-6;
+  .search-route {
+    padding: 1.5em 1em;
+    margin: 0;
+    border-bottom: 1px solid $neutral-6;
+  }
+  .select-route {
+    padding: 1.5em 1em;
+    background-color: $neutral-9;
   }
 }

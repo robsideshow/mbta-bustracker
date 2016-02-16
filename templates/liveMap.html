@@ -1,24 +1,46 @@
 <html>
-    <head>
-        <title>MBTA Woohoo</title>
+<head>
+  <title>MBTA Woohoo</title>
 
-        <script type="text/javascript" data-main="/static/javascript/main" src="/static/javascript/require.js"></script>
-        <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
-        {% assets "scss_all" %}
-            <link rel=stylesheet type=text/css href="{{ ASSET_URL }}">
-        {% endassets %}
-        <style>
-         #map {
-             position: absolute;
-             top: 0;
-             right: 0;
-             bottom: 0;
-             left: 0;
-         }
-        </style>
-    </head>
-    <body>
-        <form id="select-route"></form>
-        <div id="map"></div> 
-    </body>
+  <script type="text/javascript" data-main="/static/javascript/main" src="/static/javascript/require.js"></script>
+  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+  {% assets "scss_all" %}
+  <link rel=stylesheet type=text/css href="{{ ASSET_URL }}">
+  {% endassets %}
+</head>
+<body>
+  <header class="row">
+    <nav class="topnav">
+      <ul class="col m12">
+        <li class="logo">MBTA Woohoo!</li>
+        <li><a href="https://github.com/robsideshow/mbta-bustracker" target="_blank">Fork Me!</a></li>
+        <li><a href="#">Graph View</a></li>
+        <li class="active"><a href="#">Map View</a></li>
+      </ul>
+    </nav>
+  </header>
+  <div class="row container">
+    <div class="col m3">
+      <div class="sidenav">     
+        <form class="search-route" method="post">
+            <label>Search Route</label><br>
+            <input type="text" placeholder="Type Route Number" name="routenum" />
+            <button class="btn primary" type="submit">Submit</button>
+        </form>
+        <div  class="select-route">
+          Select your route from this list:
+          <ul>
+          {% for rt in rnums %}
+            <li class="btn flat left"><a class="route-link" href='{{url_for("routes", routenum = rt)}}'>{{routeTitles[rt]}}</a></li>
+          {% endfor %}
+          </ul>
+          <div class="clearfix"></div>
+        </div>
+      </div>
+    </div>
+    <div class="col m9">
+      <div id="map"></div>     
+    </div>
+  </div>
+</body>
 </html>

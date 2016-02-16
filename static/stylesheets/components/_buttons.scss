@@ -11,7 +11,7 @@ $btn-color:           $brand-1;
   cursor: pointer;
   border: none;
   display: inline-block;
-  padding: .85em 2em;
+  padding: .25em 1em;
   text-align: center;
   transition: .2s ease-out;
 
@@ -65,7 +65,7 @@ $btn-color:           $brand-1;
     box-shadow: none !important;
     
     &:hover {
-      background: $neutral-9;
+      background: $neutral-8;
       box-shadow: none;
     }
 
