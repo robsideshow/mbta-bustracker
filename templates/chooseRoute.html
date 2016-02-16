@@ -2,6 +2,9 @@
 <html lang="en">
 
 <head>
+  {% assets "scss_all" %}
+    <link rel=stylesheet type=text/css href="{{ ASSET_URL }}">
+  {% endassets %}
 	<style>
 		.route-link {
 			float: left;
@@ -43,7 +46,6 @@
 	{% endfor %}
 	
 	<div class="clearfix"></div>
-	Lorem ips
 
 	</div>
 </body>

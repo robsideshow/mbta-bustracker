@@ -1,0 +1,83 @@
+/* Base Button Class ----------------
+Any button element starts with the .btn class.
+-------------------------------*/
+$btn-color:           $brand-1;
+
+/** Button Basics **/
+.btn {
+  border-radius: 4px;
+  line-height: 1em;
+  font-size: 1em;
+  cursor: pointer;
+  border: none;
+  display: inline-block;
+  padding: .85em 2em;
+  text-align: center;
+  transition: .2s ease-out;
+
+  &:hover {
+    @extend .z-depth-1-half;
+  }
+
+  &.block {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  &.primary {
+    color: white;
+    background: $btn-color;
+
+    &.disabled, 
+    &:disabled {
+      background-color: $neutral-1;
+      background-image: none;
+      color: $neutral-7;
+      cursor: default;
+      box-shadow: none;
+      &:hover {
+        box-shadow: none;
+      }
+    }
+  }
+
+  &.secondary  {
+    color: $btn-color;
+    background-color: transparent;
+    border: 2px solid $btn-color;
+    
+    &.disabled, 
+    &:disabled {
+      background-color: $neutral-9;
+      color: $neutral-7;
+      cursor: default;
+      box-shadow: none;
+      &:hover {
+        box-shadow: none;
+      }
+    }
+  }
+
+  &.flat {
+    color: $btn-color;
+    background: transparent;
+    box-shadow: none !important;
+    
+    &:hover {
+      background: $neutral-9;
+      box-shadow: none;
+    }
+
+    &.disabled, 
+    &:disabled {
+      color: $neutral-9;
+      background: $neutral-7;
+      cursor: default;
+    }
+
+  }
+}
+
+/* Button Group ------------------------
+---------------------------------------*/

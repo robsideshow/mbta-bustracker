@@ -1,0 +1,31 @@
+nav {
+  $navbar-height: 3em;
+
+  color: $brand-5;
+  background-color: $brand-3;
+  width: 100%;
+  height: $navbar-height;
+  @extend .z-depth-1;
+
+  ul {
+    margin: 0;
+    padding: 0;
+    height: $navbar-height;
+    li {
+      transition: all .3s;
+      float: left;
+      padding: 0 2em;
+      height: $navbar-height;
+      line-height: $navbar-height;
+      overflow: auto;
+      &, & a {
+        color: $brand-5;
+      }
+
+      &:hover, &.active {
+        a {color: white;}
+        background-color: $brand-2;
+      }
+    }
+  }
+}

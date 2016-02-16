@@ -1,0 +1,235 @@
+// Spacing Helpers
+// --------------------------------------------------
+// ex: mtxl = margin-top: 20px
+//     pan = padding: 0px;
+//
+$direction_list: (
+  (t, "-top"),
+  (r, "-right"),
+  (b, "-bottom"),
+  (l, "-left"),
+  (a, ""),
+  (v, ""),
+  (h, "")
+);
+$space_sizes: (
+  (n, 0px!important),
+  (s, 5px!important),
+  (m, 10px!important),
+  (l, 20px!important),
+  (xl, 30px!important),
+  (xxl, 40px!important),
+  (xxxl, 80px!important)
+);
+@each $d, $direction in $direction_list {
+  @each $space_sizes, $size in $space_sizes {
+    @if $d == "h" {
+      .p#{$d}#{$space_sizes} {
+        padding-left: $size;
+        padding-right: $size;
+      }  
+      .m#{$d}#{$space_sizes} {
+        margin-left: $size;
+        margin-right: $size;
+      }
+    }
+    @elseif $d == "v" {
+      .p#{$d}#{$space_sizes} {
+        padding-top: $size;
+        padding-bottom: $size;
+      }  
+      .m#{$d}#{$space_sizes} {
+        margin-top: $size;
+        margin-bottom: $size;
+      }
+    }
+    @else {
+      .p#{$d}#{$space_sizes} {
+        padding#{$direction}: $size;
+      }
+      .m#{$d}#{$space_sizes} {
+        margin#{$direction}: $size;
+      }
+    }
+  }
+}
+
+// Radius Helpers
+// --------------------------------------------------
+// ex: .ras = border-radius: 2px;
+//     .rlm = {border-top-left-radius: 4px; border-top-right-radius: 4px;}
+//
+
+$side_list: (
+  (t, top),
+  (r, right),
+  (b, bottom),
+  (l, left),
+  (a, all)
+);
+$radius_sizes:
+  (n, 0px!important),
+  (s, 3px!important),
+  (m, 5px!important),
+  (l, 10px!important),
+  (xl, 50%!important)
+;
+
+@each $d, $direction in $side_list {
+  @each $s, $size in $radius_sizes{
+    @if $direction == "top" or $direction == "bottom" {
+      .r#{$d}#{$s} {
+        border-#{$direction}-left-radius: $size;
+        border-#{$direction}-right-radius: $size;
+      }
+    }
+    @else if $direction == "left" or $direction == "right" {
+      .r#{$d}#{$s} {
+        border-top-#{$direction}-radius: $size;
+        border-bottom-#{$direction}-radius: $size;
+      }
+    }
+    @else {
+      .r#{$d}#{$s} {
+        border-radius: $size;
+      }
+    }
+  }
+}
+
+/*******************
+  Utility Classes
+*******************/
+
+// Z-levels
+.z-depth-0 {
+  box-shadow: none;
+}
+.z-depth-1{
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.22), 
+              0 2px 5px 0 rgba(0, 0, 0, 0.12);
+}
+.z-depth-1-half{
+  box-shadow: 0 5px 11px 0 rgba(0, 0, 0, 0.18), 
+              0 4px 15px 0 rgba(0, 0, 0, 0.15);
+}
+
+/**********************
+  Text Helpers
+**********************/
+
+.hide {
+  display: none !important;
+}
+
+.thin {
+  font-weight: 300;
+}
+
+.bold, 
+.strong {
+  font-weight: 500;
+}
+
+.italic {
+  font-style: italic;
+}
+
+.larger {
+  font-size: 1.5em;
+  line-height: 1em;
+}
+.smaller {
+  font-size: 0.85em;
+}
+
+// Text Align
+.left-align {
+  text-align: left;
+}
+.right-align {
+  text-align: right
+}
+.center-align {
+  text-align: center;
+}
+
+.left {
+  float: left !important;
+}
+.right {
+  float: right !important;
+}
+
+.center {
+  margin: 0 auto;
+}
+
+// Icon Sizes
+i {
+  line-height: inherit;
+
+  &.left {
+    float: left;
+    margin-right: 15px;
+  }
+  &.right {
+    float: right;
+    margin-left: 15px;
+  }
+  &.tiny {
+    font-size: 1rem;
+  }
+  &.small {
+    font-size: 2rem;
+  }
+  &.medium {
+    font-size: 4rem;
+  }
+  &.large {
+    font-size: 6rem;
+  }
+}
+
+// classic clearfix
+.clearfix {
+  clear: both;
+}
+
+.hoverable {
+  opacity: .8;
+  transition: all .25s;
+  @extend .z-depth-1;
+  cursor: pointer;
+  &:hover {
+    opacity: 1;
+    transition: all .25s;
+    @extend .z-depth-1-half;
+  }
+}
+
+.circle {
+  border-radius: 50%;
+}
+
+.center-block {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.truncate {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// No Text Select
+.no-select {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}

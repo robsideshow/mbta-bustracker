@@ -1,0 +1,22 @@
+*, *:before, *:after {
+  -moz-box-sizing: border-box; 
+  -webkit-box-sizing: border-box; 
+  box-sizing: border-box;
+}
+
+body {
+  font-size: 16px;
+  font-weight: 400;
+  color: $neutral-2;
+  font-family: Roboto;
+  background-color: $neutral-10;
+}
+
+a {
+  color: $brand-1;
+  text-decoration: none;
+
+  &:hover {
+    color: $brand-2;
+  }
+}
