@@ -277,8 +277,7 @@ def convertASD2Dist(asdist):
 def convertDist2ASD(dist_meters):
     '''converts distance in meters to "angular squared distance" '''
     return (dist_meters/float(111120))**2
-    
-    
+       
     
 def convertll2xy(latlon):
     '''
@@ -299,10 +298,16 @@ def convertxy2latlon(xy):
     x,y = xy
     return (y/float(111120) + 42.3572, x/float(82600) - 71.0926)
 
+
 def distxy(xy1, xy2):
     dx = xy1[0] - xy2[0]
     dy = xy1[1] - xy2[1]
-    return (dx**2 + dy**2)**.5     
+    return (dx**2 + dy**2)**.5    
+    
+    
+def distll(lat1, lon1, lat2, lon2):
+    return ((111120*(lat1 - lat2))**2 + (82600*(lon1 - lon2))**2)**.5
+    
 
 def trip2route(trip_id):
     '''
@@ -315,6 +320,20 @@ def trip2stops(trip_id):
     takes a trip_id and returns a list of stop_ids, in order, for that trip
     '''
     return shapestopsdict.get(tripshapedict.get(trip_id))
+    
+def pathAnalyzer(path):
+    '''
+    takes a path and returns: number of segments, total length of path, avg segment length
+    '''
+    numsegs = len(path) - 1
+    totlen = 0
+    for i in range(numsegs):
+        lat1, lon1 = path[i]
+        lat2, lon2 = path[i+1]
+        totlen += distll(lat1, lon1, lat2, lon2)
+    avglen = totlen/numsegs
+    return numsegs, round(totlen), round(avglen, 1)
+    
 
 '''
 The next four functions are semi-obsolete.  They are for plotting on two static 

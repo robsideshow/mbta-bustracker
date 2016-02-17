@@ -20,7 +20,7 @@ def bus_updates():
 
     if since:
         when = long(since)
-        buses = [bus for bus in buses if bus["timestamp"] > when]
+        buses = [bus for bus in buses if int(bus["timestamp"]) > when]
 
     now_stamp = (datetime.now() - datetime.fromtimestamp(0)).total_seconds()
 
@@ -45,8 +45,10 @@ def route_info():
     paths = [btr.shapepathdict.get(shape_id) for shape_id in shape_ids]
     stop_ids = btr.routestopsdict.get(route_id)
     stops = [btr.stopinfodict.get(stop_id) for stop_id in stop_ids]
-    
-
     return jsonify(paths = paths, 
                    stops = stops)
+
+
+
+
 
