@@ -39,12 +39,10 @@ $navbar-height: 40px;
   background-color: white;
   border-right: 1px solid $neutral-6;
   .search-route {
-    padding: 1.5em 1em;
     margin: 0;
     border-bottom: 1px solid $neutral-6;
   }
   .select-route {
-    padding: 1.5em 1em;
-    background-color: $neutral-9;
+    background-color: white;
   }
 }

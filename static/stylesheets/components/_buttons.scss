@@ -1,28 +1,32 @@
 /* Base Button Class ----------------
 Any button element starts with the .btn class.
 -------------------------------*/
-$btn-color:           $brand-1;
+$btn-color:           $brand-2;
 
 /** Button Basics **/
 .btn {
-  border-radius: 4px;
+  border-radius: 2px;
   line-height: 1em;
   font-size: 1em;
   cursor: pointer;
   border: none;
   display: inline-block;
-  padding: .25em 1em;
   text-align: center;
   transition: .2s ease-out;
+  padding: 0.75em 1.25em;
 
   &:hover {
-    @extend .z-depth-1-half;
+    @extend .z-depth-1;
   }
 
   &.block {
     display: block;
     box-sizing: border-box;
     width: 100%;
+  }
+
+  &.small {
+    padding: 0.25em 0.5em;
   }
 
   &.primary {
