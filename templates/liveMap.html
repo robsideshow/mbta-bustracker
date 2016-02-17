@@ -22,21 +22,18 @@
   <div class="row container">
     <div class="col m3">
       <div class="sidenav">     
-        <form class="search-route" method="post">
-            <label>Search Route</label><br>
-            <input type="text" placeholder="Type Route Number" name="routenum" />
-            <button class="btn primary" type="submit">Submit</button>
-        </form>
-        <div  class="select-route">
-          Select your route from this list:
-          <ul>
+        <form>
+          <fieldset class="search-route">
+            <input type="search" placeholder="Type Route Number" />
+          </fieldset>
+          <fieldset class="select-route">
           {% for rt in rnums %}
             <input type="checkbox" id={{routeTitles[rt]}} class="toggle left" />
             <label for={{routeTitles[rt]}}>{{routeTitles[rt]}}</label>
           {% endfor %}
-          </ul>
+          </fieldset>
           <div class="clearfix"></div>
-        </div>
+        </form>
       </div>
     </div>
     <div class="col m9">
