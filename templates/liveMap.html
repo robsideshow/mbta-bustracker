@@ -31,7 +31,8 @@
           Select your route from this list:
           <ul>
           {% for rt in rnums %}
-            <li class="btn flat left"><a class="route-link" href='{{url_for("routes", routenum = rt)}}'>{{routeTitles[rt]}}</a></li>
+            <input type="checkbox" id={{routeTitles[rt]}} class="toggle left" />
+            <label for={{routeTitles[rt]}}>{{routeTitles[rt]}}</label>
           {% endfor %}
           </ul>
           <div class="clearfix"></div>
