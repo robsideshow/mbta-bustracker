@@ -785,8 +785,8 @@ fieldset {
   input[type="search"] {
     box-sizing: border-box;
     border: 2px solid #d4d9d9;
-    padding: 0.75em 1.25em;
-    border-radius: 10px;
+    padding: 0.5em 0.75em;
+    border-radius: 15px;
     width: 100%;
     -webkit-appearance: none; }
     input[type="search"]:focus {
@@ -806,7 +806,7 @@ fieldset {
     display: inline-block;
     padding: 0.25em 0.5em;
     margin: 2px;
-    border-radius: 10px;
+    border-radius: 15px;
     -webkit-user-select: none;
     -moz-user-select: none;
     -khtml-user-select: none;
@@ -916,6 +916,4 @@ ul {
 
   .sidenav {
     height: 98%;
-    overflow: auto;
-    padding-bottom: 1em;
-    margin-bottom: 1em; }
+    overflow: auto; }
