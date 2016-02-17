@@ -1,0 +1,62 @@
+$input-radius: 10px;
+
+fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+  padding: 1em;
+}
+input[type="search"] {
+  box-sizing: border-box;
+  border: 2px solid $neutral-7;
+  padding: 0.75em 1.25em;
+  border-radius: $input-radius;
+  width: 100%;
+  -webkit-appearance: none; 
+
+  &:focus {
+    box-shadow: none;
+    outline: none;
+    border-color: $brand-4;
+  }
+}
+
+/* Remove default checkbox */
+[type="checkbox"]:not(:checked),
+[type="checkbox"]:checked {
+  position: absolute;
+  left: -9999px;
+  visibility: hidden;
+}
+
+// Checkbox Styles
+[type="checkbox"].toggle {
+
+  // Text Label Style
+  + label {
+    position: relative;
+    color: $accent-1;
+    cursor: pointer;
+    display: inline-block;
+    padding: 0.25em 0.5em;
+    margin: 2px;
+    border-radius: $input-radius;
+
+    -webkit-user-select: none; /* webkit (safari, chrome) browsers */
+    -moz-user-select: none; /* mozilla browsers */
+    -khtml-user-select: none; /* webkit (konqueror) browsers */
+    -ms-user-select: none; /* IE10+ */
+
+    &:hover {
+      color: white;
+      background: $accent-3;
+    }
+  }
+
+  &:checked {
+    + label {
+      color: white;
+      background: $accent-1;
+    }
+  }
+}
