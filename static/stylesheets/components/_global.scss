@@ -10,6 +10,8 @@ body {
   color: $neutral-2;
   font-family: Roboto;
   background-color: $neutral-10;
+  height: 100%;
+  overflow: hidden;
 }
 
 a {
@@ -32,4 +34,11 @@ ul {
   width: 100%;
   height: 100%;
   z-index: 0;
+}
+
+.sidenav {
+  height: 98%;
+  overflow: auto;
+  padding-bottom: 1em;
+  margin-bottom: 1em;
 }
