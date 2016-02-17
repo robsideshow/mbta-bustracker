@@ -1,5 +1,5 @@
-define(["jquery", "leaflet", "bus-marker", "config"],
-       function($, L, BusMarker, config) {
+define(["jquery", "leaflet", "bus-marker", "routes", "config"],
+       function($, L, BusMarker, Routes, config) {
            return {
                init: function() {
                    var map = L.map("map", {
@@ -16,24 +16,49 @@ define(["jquery", "leaflet", "bus-marker", "config"],
                        routeLayer = L.layerGroup().addTo(map),
                        busLayer = L.layerGroup().addTo(map);
 
+                   var RoutesLoader = new Routes(routeLayer);
+
                    window.routeLayer = routeLayer;
 
-                   $.each(routes, function(i, route) {
-                       var style = $.extend({color: config.colors[i]},
-                                            config.defaultRouteStyle,
-                                            config.routeStyles[route]);
-                       $.get("/api/routeinfo", {route: route})
-                           .then(function(info) {
-                               var routeGroup = L.layerGroup().addTo(routeLayer);
-                               $.each(info.paths, function(i, path) {
-                                   L.polyline(path, style)
-                                       .addTo(routeGroup)
-                                       .bringToBack();
-                               });
-                           });
-                   });
+                   RoutesLoader.showRoutes(routes);
+
+                   // TODO: Rewrite
+                   $("fieldset.select-route")
+                       .on("change", "input", function() {
+                           var route = this.id,
+                               checked = this.checked;
+
+                           if (checked) {
+                               if (routes.indexOf(route) == -1) {
+                                   routes.push(route);
+                                   RoutesLoader.showRoute(route);
+                                   tick();
+                               }
+                           } else {
+                               var idx = routes.indexOf(route);
+
+                               if (idx != -1) {
+                                   routes.splice(idx, 1);
+                                   RoutesLoader.hideRoute(route);
+
+                                   $.each(busMarkers,
+                                          function(i, marker) {
+                                              if (marker.bus.route == route) {
+                                                  busLayer.removeLayer(marker);
+                                                  delete busMarkers[i];
+                                              }
+                                          });
+                               }
+                           }
+                       });
+
+                   var _timeout;
 
                    function tick(){
+                       if (!routes.length) return;
+
+                       clearTimeout(_timeout);
+
                        $.get("/api/bus_updates", {routes: routes.join(","),
                                                   since: lastTick}).
                            then(function(update) {
@@ -45,10 +70,10 @@ define(["jquery", "leaflet", "bus-marker", "config"],
                                    } else {
                                        busMarkers[bus.id].update(bus);
                                    }
-                                   lastTick = update.stamp;
+                                   //lastTick = update.stamp;
                                });
 
-                               setTimeout(tick, 10000);
+                               _timeout = setTimeout(tick, 10000);
                            });
                    }
 

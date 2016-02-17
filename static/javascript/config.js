@@ -1,6 +1,6 @@
 define([], function() {
     return {
-        defaultRoutes: ["Red", "77"],
+        defaultRoutes: [],
         defaultRouteStyle: {
             opacity: 0.5,
             weight: 4

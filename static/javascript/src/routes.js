@@ -37,33 +37,33 @@ define(["jquery", "leaflet", "config"],
                    return promise;
                },
 
-               showRoute: function(route) {
+               showRoute: function(routeName) {
                    var layer = this.layer;
 
                    // TODO: Hide and show only certain route shapes.
-                   this.loadRouteInfo(route)
+                   this.loadRouteInfo(routeName)
                        .then(function(route) {
                            $.each(route.paths, function(i, path) {
                                var line = L.polyline(path, route.style)
                                        .addTo(layer)
                                        .bringToBack();
-                               route._layer = line;
+                               line._route = routeName;
                            });
                        });
                },
 
+               getLayersForRoute: function(route) {
+                   return $.grep(this.layer.getLayers(), function(layer) {
+                       return (layer._route == route);
+                   });
+               },
+
                hideRoute: function(route) {
                    var layer = this.layer;
-
-                   this.loadRouteInfo(route, true)
-                       .then(function(routeInfo) {
-                           var routeLayer = routeInfo._layer;
-
-                           if (routeLayer) {
-                               layer.removeLayer(routeLayer);
-                               delete routeInfo._layer;
-                           }
-                       });
+                   $.each(this.getLayersForRoute(route),
+                          function(i, pathLayer) {
+                              layer.removeLayer(pathLayer);
+                          });
                },
 
                showRoutes: function(routes) {
