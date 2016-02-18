@@ -17,13 +17,13 @@ define([], function() {
 
         vehicleSummary: function(vehicle) {
             return [
-                vehicle["type"] == "subway" ? vehicle["route"] :
-                    ((vehicle["direction"] == "1" ? "Inbound " : "Outbound ") + "Route " + vehicle["route"]),
-                vehicle["type"],
+                vehicle.type == "subway" ? vehicle.route :
+                    ((vehicle.direction == "1" ? "Inbound " : "Outbound ") + "Route " + vehicle.route),
+                vehicle.type,
                 "heading",
-                $u.readableHeading(vehicle["heading"]),
+                $u.readableHeading(vehicle.heading),
                 "toward",
-                vehicle["destination"]
+                vehicle.destination
             ].join(" ");
         }
     };

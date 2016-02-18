@@ -26,7 +26,7 @@ define(["jquery", "leaflet", "config"],
                            .then(function(info) {
                                self.routeInfo[route] = info;
                                info.style = $.extend({
-                                   color: config.colors[self._routeCount++]
+                                   color: config.colors[(self._routeCount++)%10]
                                },
                                                      config.defaultRouteStyle,
                                                      config.routeStyles[route]);
