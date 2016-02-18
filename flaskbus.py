@@ -26,7 +26,7 @@ app.register_blueprint(map_routes, url_prefix="/map")
 
 app.secret_key = 'F12Zr47j\3yX R~X@H!jmM]Lwf/,?KT'
 
-sortedRoute_ids, routeTitles = btr.getAllBusRoutes()
+sortedRoute_ids, routeTitles = btr.getAllRoutes()
 
 
 @app.route("/", methods=["GET", "POST"])

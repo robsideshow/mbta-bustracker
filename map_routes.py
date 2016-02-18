@@ -2,7 +2,7 @@ from flask import Blueprint, request, render_template
 import bustracker as btr
 
 map_routes = Blueprint("map", __name__)
-sortedRoute_ids, routeTitles = btr.getAllBusRoutes()
+sortedRoute_ids, routeTitles = btr.getAllRoutes()
 
 @map_routes.route("/")
 def live_map():

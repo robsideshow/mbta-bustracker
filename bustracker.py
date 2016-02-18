@@ -77,7 +77,7 @@ with open('data/shapeinfodict.json', 'r') as f:
   
             
     
-def getAllBusRoutes():
+def getAllRoutes():
     '''
     This is run once by flaskbus.py to get a list of all the bus route_ids 
     in a good order (CTs and SLs first, then numerical order), suitable for 
@@ -87,11 +87,16 @@ def getAllBusRoutes():
     root = tree.getroot()
     modes = root.getchildren()
     for mode in modes:
-        if mode.attrib['mode_name'] == 'Bus':
-            busroutes = mode.getchildren()
-    sortedRoutenums = [x.attrib['route_id'] for x in busroutes]
-    routes = dict([(x.attrib['route_id'], x.attrib['route_name']) for x in busroutes])
-    return sortedRoutenums, routes
+        if mode.attrib['route_type'] == '0':
+            trolley_routes = mode.getchildren()
+        if mode.attrib['route_type'] == '1':
+            subway_routes = mode.getchildren()
+        if mode.attrib['route_type'] == '3':
+            bus_routes = mode.getchildren()
+    allroutes = trolley_routes + subway_routes + bus_routes
+    sortedRoute_ids = [x.attrib['route_id'] for x in allroutes]
+    routes = dict([(x.attrib['route_id'], x.attrib['route_name']) for x in allroutes])
+    return sortedRoute_ids, routes
     
         
 def parseVehEntity(vent):     
