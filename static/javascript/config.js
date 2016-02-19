@@ -21,6 +21,6 @@ define([], function() {
             "Blue": {color: "blue",
                     opacity: 0.3}
         },
-        colors: ["salmon", "orchid", "green", "tomato", "chartreuse", "gold", "magenta", "burlywood", "deeppink", "deepskyblue"]
+        colors: ["salmon", "teal", "chartreuse", "gold", "orchid", "darkgoldenrod", "deepskyblue", "deeppink", "sienna", "burlywood"]
     };
 });
