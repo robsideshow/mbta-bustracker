@@ -79,9 +79,9 @@ with open('data/shapeinfodict.json', 'r') as f:
     
 def getAllRoutes():
     '''
-    This is run once by flaskbus.py to get a list of all the bus route_ids 
-    in a good order (CTs and SLs first, then numerical order), suitable for 
-    display on the landing page.
+    This is run once by flaskbus.py to get a list of all the bus and subway route_ids 
+    in a good order (subway first, then CTs and SLs, then numerical order), 
+    suitable for display on the landing page.
     '''
     tree = et.parse('http://realtime.mbta.com/developer/api/v2/routes?api_key=' + api_key + '&format=xml')
     root = tree.getroot()
@@ -318,13 +318,13 @@ def trip2route(trip_id):
     '''
     takes a trip_id and returns the shape_id for that trip
     '''
-    return shaperoutedict.get(tripshapedict.get(trip_id))
+    return shaperoutedict.get(tripshapedict.get(trip_id), '')
     
 def trip2stops(trip_id):
     '''
     takes a trip_id and returns a list of stop_ids, in order, for that trip
     '''
-    return shapestopsdict.get(tripshapedict.get(trip_id))
+    return shapestopsdict.get(tripshapedict.get(trip_id), '')
     
 def pathAnalyzer(path):
     '''

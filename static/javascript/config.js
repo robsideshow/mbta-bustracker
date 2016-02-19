@@ -9,6 +9,6 @@ define([], function() {
             "Red": {color: "red",
                     opacity: 0.2}
         },
-        colors: ["blue", "orange", "lightsalmon", "orchid", "green", "tomato", "chartreuse", "gold", "magenta", "burlywood"]
+        colors: ["blue", "orange", "salmon", "orchid", "green", "tomato", "chartreuse", "gold", "magenta", "burlywood"]
     };
 });
