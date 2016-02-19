@@ -7,8 +7,20 @@ define([], function() {
         },
         routeStyles: {
             "Red": {color: "red",
-                    opacity: 0.2}
+                    opacity: 0.2},
+            "Orange": {color: "orange",
+                    opacity: 0.3},
+            "Green-B": {color: "green",
+                    opacity: 0.2},
+            "Green-C": {color: "green",
+                    opacity: 0.2},
+            "Green-D": {color: "green",
+                    opacity: 0.2},
+            "Green-E": {color: "green",
+                    opacity: 0.2},
+            "Blue": {color: "blue",
+                    opacity: 0.3}
         },
-        colors: ["blue", "orange", "salmon", "orchid", "green", "tomato", "chartreuse", "gold", "magenta", "burlywood"]
+        colors: ["salmon", "orchid", "green", "tomato", "chartreuse", "gold", "magenta", "burlywood", "deeppink", "deepskyblue"]
     };
 });
