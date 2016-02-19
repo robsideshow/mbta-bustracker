@@ -2,6 +2,7 @@ from flask import Blueprint, request, abort, json, jsonify
 from datetime import datetime
 
 import bustracker as btr
+import currentdata
 
 api_routes = Blueprint("api", __name__)
 
@@ -16,7 +17,7 @@ def bus_updates():
     # Timestamp in seconds
     since = request.args.get("since", "")
 
-    buses = btr.getBusesOnRoutes(route_idlist)
+    buses = currentdata.current_vehicles.getVehiclesOnRoutes(route_idlist)
 
     if since:
         when = long(since)
