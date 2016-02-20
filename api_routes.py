@@ -17,7 +17,7 @@ def bus_updates():
     # Timestamp in seconds
     since = request.args.get("since", "")
 
-    buses = currentdata.current_vehicles.getVehiclesOnRoutes(route_idlist)
+    buses = currentdata.current_data.getVehiclesOnRoutes(route_idlist)
 
     if since:
         when = long(since)

@@ -14,6 +14,7 @@ import urllib
 import json
 
 api_key = 'wX9NwuHnZU2ToO7GmGR9uw'
+mbta_rt_url = 'http://realtime.mbta.com/developer/api/v2/'
 
 #AG Mednet stopid:234 LatLon:(42.3639399, -71.0511499)   xyCoords:(3423, 749)
 #Mass Ave @ Hollis{'lat': '42.39434', 'stopId': '02297', 'tag': '2297', 'lon': '-71.12703', 'title': 'Massachusetts Ave @ Hollis St'}
