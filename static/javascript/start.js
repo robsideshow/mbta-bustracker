@@ -43,7 +43,7 @@ define(["jquery", "leaflet", "bus-marker", "routes", "config"],
 
                                    $.each(busMarkers,
                                           function(i, marker) {
-                                              if (marker.bus.route == route) {
+                                              if (marker.bus.route_id == route) {
                                                   busLayer.removeLayer(marker);
                                                   delete busMarkers[i];
                                               }
