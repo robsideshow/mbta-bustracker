@@ -5,6 +5,7 @@ require.config({
 
         "config": "config",
         "bus-marker": "src/busMarker",
+        "stop-marker": "src/stopMarker",
         "routes": "src/routes",
         "utils": "src/utils",
 

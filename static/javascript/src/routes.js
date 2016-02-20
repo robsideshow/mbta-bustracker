@@ -1,8 +1,8 @@
 /**
  * 
  */
-define(["jquery", "leaflet", "config"],
-       function($, L, config) {
+define(["jquery", "leaflet", "config", "stop-marker"],
+       function($, L, config, StopMarker) {
            var colors = ["blue", "orange", "purple", "maroon",
                          "steelblue", "gray"];
 
@@ -48,6 +48,11 @@ define(["jquery", "leaflet", "config"],
                                        .addTo(layer)
                                        .bringToBack();
                                line._route = routeName;
+                           });
+
+                           $.each(route.stops, function(i, stop) {
+                               var marker = new StopMarker(stop).addTo(layer);
+                               marker._route = routeName;
                            });
                        });
                },
