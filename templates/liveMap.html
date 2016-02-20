@@ -28,8 +28,8 @@
           </fieldset>
           <fieldset class="select-route">
           {% for rt in rnums %}
-            <input type="checkbox" id={{routeTitles[rt]}} class="toggle left" />
-            <label for={{routeTitles[rt]}}>{{routeTitles[rt]}}</label>
+            <input type="checkbox" id="{{rt}}" class="toggle left" value="{{rt}}"/>
+            <label for={{rt}}>{{routeTitles[rt]}}</label>
           {% endfor %}
           </fieldset>
           <div class="clearfix"></div>

@@ -25,7 +25,7 @@ define(["jquery", "leaflet", "bus-marker", "routes", "config"],
                    // TODO: Rewrite
                    $("fieldset.select-route")
                        .on("change", "input", function() {
-                           var route = this.id,
+                           var route = this.value,
                                checked = this.checked;
 
                            if (checked) {
