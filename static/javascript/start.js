@@ -1,5 +1,5 @@
-define(["jquery", "leaflet", "bus-marker", "routes", "config"],
-       function($, L, BusMarker, Routes, config) {
+define(["jquery", "leaflet", "animation", "bus-marker", "routes", "config"],
+       function($, L, Animation, BusMarker, Routes, config) {
            return {
                init: function() {
                    var map = L.map("map", {
@@ -21,6 +21,9 @@ define(["jquery", "leaflet", "bus-marker", "routes", "config"],
                    window.routeLayer = routeLayer;
 
                    RoutesLoader.showRoutes(routes);
+
+                   var animation = new Animation({tickInterval: 1000});
+                   animation.start();
 
                    // TODO: Rewrite
                    $("fieldset.select-route")
@@ -45,6 +48,7 @@ define(["jquery", "leaflet", "bus-marker", "routes", "config"],
                                           function(i, marker) {
                                               if (marker.bus.route_id == route_id) {
                                                   busLayer.removeLayer(marker);
+                                                  animation.removeObject(marker);
                                                   delete busMarkers[i];
                                               }
                                           });
@@ -64,9 +68,9 @@ define(["jquery", "leaflet", "bus-marker", "routes", "config"],
                            then(function(update) {
                                $.each(update.buses, function(idx, bus) {
                                    if (!busMarkers[bus.id]) {
-                                       busMarkers[bus.id] =
-                                           new BusMarker(bus)
-                                           .addTo(busLayer);
+                                       var marker = new BusMarker(bus).addTo(busLayer);
+                                       busMarkers[bus.id] = marker;
+                                       animation.addObject(marker);
                                    } else {
                                        busMarkers[bus.id].update(bus);
                                    }

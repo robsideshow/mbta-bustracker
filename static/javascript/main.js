@@ -4,6 +4,7 @@ require.config({
         "leaflet": "http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet",
 
         "config": "config",
+        "animation": "src/animation",
         "bus-marker": "src/busMarker",
         "stop-marker": "src/stopMarker",
         "routes": "src/routes",

@@ -29,6 +29,7 @@ define(["leaflet", "utils"],
                        .on("popupopen", this.onPopupOpen);
                },
 
+               // Called by Leaflet when the marker is added to the map.
                onAdd: function(map) {
                    this._map = map;
 
@@ -46,6 +47,15 @@ define(["leaflet", "utils"],
                        L.polyline(this._arrowPoints(), {color: "#ff0000",
                                                         weight: 3})
                         .addTo(this);
+
+                   var self = this;
+                   map.on("zoomend", function() {
+                       self.setZoom(map.getZoom());
+                   });
+               },
+
+               setZoom: function(level) {
+                   
                },
 
                onPopupOpen: function(e) {
@@ -118,9 +128,16 @@ define(["leaflet", "utils"],
 
                update: function(bus) {
                    this.bus = bus;
+                   this._wantsUpdate = true;
+               },
 
-                   this.busShape.setLatLngs(this._busPoints());
-                   this.arrowShape.setLatLngs(this._arrowPoints());
+               tick: function() {
+                   if (this._wantsUpdate) {
+                       this.busShape.setLatLngs(this._busPoints());
+                       this.arrowShape.setLatLngs(this._arrowPoints());
+
+                       this._wantsUpdate = false;
+                   }
                }
            });
        });

@@ -25,6 +25,12 @@ define([], function() {
                 "toward",
                 vehicle.destination
             ].join(" ");
+        },
+
+        bind: function(fn, context) {
+            return function() {
+                return fn.apply(context, arguments);
+            };
         }
     };
 
