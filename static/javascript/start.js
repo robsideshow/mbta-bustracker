@@ -25,25 +25,25 @@ define(["jquery", "leaflet", "bus-marker", "routes", "config"],
                    // TODO: Rewrite
                    $("fieldset.select-route")
                        .on("change", "input", function() {
-                           var route = this.value,
+                           var route_id = this.value,
                                checked = this.checked;
 
                            if (checked) {
-                               if (routes.indexOf(route) == -1) {
-                                   routes.push(route);
-                                   RoutesLoader.showRoute(route);
+                               if (routes.indexOf(route_id) == -1) {
+                                   routes.push(route_id);
+                                   RoutesLoader.showRoute(route_id);
                                    tick();
                                }
                            } else {
-                               var idx = routes.indexOf(route);
+                               var idx = routes.indexOf(route_id);
 
                                if (idx != -1) {
                                    routes.splice(idx, 1);
-                                   RoutesLoader.hideRoute(route);
+                                   RoutesLoader.hideRoute(route_id);
 
                                    $.each(busMarkers,
                                           function(i, marker) {
-                                              if (marker.bus.route_id == route) {
+                                              if (marker.bus.route_id == route_id) {
                                                   busLayer.removeLayer(marker);
                                                   delete busMarkers[i];
                                               }

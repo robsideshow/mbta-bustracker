@@ -13,23 +13,23 @@ define(["jquery", "leaflet", "config", "stop-marker"],
            }
 
            $.extend(Routes.prototype, {
-               loadRouteInfo: function(route, cacheOnly) {
+               loadRouteInfo: function(route_id, cacheOnly) {
                    var promise = $.Deferred();
 
-                   if (this.routeInfo[route]) {
-                       promise.resolve(this.routeInfo[route]);
+                   if (this.routeInfo[route_id]) {
+                       promise.resolve(this.routeInfo[route_id]);
                    } else if (cacheOnly) {
                        promise.reject("Route info not in cache.");
                    } else {
                        var self = this;
-                       $.get("/api/routeinfo", {route: route})
+                       $.get("/api/routeinfo", {route: route_id})
                            .then(function(info) {
-                               self.routeInfo[route] = info;
+                               self.routeInfo[route_id] = info;
                                info.style = $.extend({
                                    color: config.colors[(self._routeCount++)%10]
                                },
                                                      config.defaultRouteStyle,
-                                                     config.routeStyles[route]);
+                                                     config.routeStyles[route_id]);
                                promise.resolve(info);
                            });
                    }
@@ -37,35 +37,35 @@ define(["jquery", "leaflet", "config", "stop-marker"],
                    return promise;
                },
 
-               showRoute: function(routeName) {
+               showRoute: function(route_id) {
                    var layer = this.layer;
 
                    // TODO: Hide and show only certain route shapes.
-                   this.loadRouteInfo(routeName)
+                   this.loadRouteInfo(route_id)
                        .then(function(route) {
                            $.each(route.paths, function(i, path) {
                                var line = L.polyline(path, route.style)
                                        .addTo(layer)
                                        .bringToBack();
-                               line._route = routeName;
+                               line._route_id = route_id;
                            });
 
                            $.each(route.stops, function(i, stop) {
                                var marker = new StopMarker(stop).addTo(layer);
-                               marker._route = routeName;
+                               marker._route_id = route_id;
                            });
                        });
                },
 
-               getLayersForRoute: function(route) {
+               getLayersForRoute: function(route_id) {
                    return $.grep(this.layer.getLayers(), function(layer) {
-                       return (layer._route == route);
+                       return (layer._route_id == route_id);
                    });
                },
 
-               hideRoute: function(route) {
+               hideRoute: function(route_id) {
                    var layer = this.layer;
-                   $.each(this.getLayersForRoute(route),
+                   $.each(this.getLayersForRoute(route_id),
                           function(i, pathLayer) {
                               layer.removeLayer(pathLayer);
                           });
@@ -74,8 +74,8 @@ define(["jquery", "leaflet", "config", "stop-marker"],
                showRoutes: function(routes) {
                    var self = this;
 
-                   $.each(routes, function(i, route) {
-                       self.showRoute(route);
+                   $.each(routes, function(i, route_id) {
+                       self.showRoute(route_id);
                    });
                }
            });
