@@ -33,7 +33,12 @@ def makeShapePathDict(filename = 'MBTA_GTFS_texts/shapes.txt'):
     shapepathdict = dict([(shape_id, []) for shape_id in shape_ids])
     for l in splitlines:
         latlon = (float(l[1].strip('"')), float(l[2].strip('"')))
-        shapepathdict[l[0].strip('"')].append(latlon)
+        shape_pt_seq = int(l[3])
+        shapepathdict[l[0].strip('"')].append((shape_pt_seq,latlon))
+    for shape_id in shape_ids:
+        tmp = shapepathdict[shape_id]
+        tmp.sort()
+        shapepathdict[shape_id] = [x[1] for x in tmp]
     return shapepathdict
     
     

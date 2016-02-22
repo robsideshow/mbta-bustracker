@@ -327,18 +327,27 @@ def trip2stops(trip_id):
     '''
     return shapestopsdict.get(tripshapedict.get(trip_id), '')
     
-def pathAnalyzer(path):
+def pathAnalyzer(path, longseg = 100):
     '''
     takes a path and returns: number of segments, total length of path, avg segment length
     '''
     numsegs = len(path) - 1
     totlen = 0
+    longsegs = []
     for i in range(numsegs):
         lat1, lon1 = path[i]
         lat2, lon2 = path[i+1]
-        totlen += distll(lat1, lon1, lat2, lon2)
+        seglength = distll(lat1, lon1, lat2, lon2)
+        if seglength > longseg:
+            longsegs.append(int(seglength))
+        totlen += seglength
     avglen = totlen/numsegs
-    return numsegs, round(totlen), round(avglen, 1)
+    return numsegs, round(totlen), round(avglen, 1), sorted(longsegs)
+    
+def routeAnalyzer(route_id, longseg = 100):
+    for shape_id in routeshapedict.get(route_id):
+        print shape_id, pathAnalyzer(shapepathdict.get(shape_id), longseg)
+    
     
 
 '''
