@@ -37,9 +37,9 @@ pip install pyScss
 conda install lxml
 ```
 
-### matlplotlib
+### matplotlib
 ```
-conda install matlplotlib
+conda install matplotlib
 ```
 
 # Run the App
@@ -50,7 +50,7 @@ $ cd your-path-to/mbta-bustracker
 $ python flaskbus.py
 ```
 
-Open the app at `localholst:5000/map`
+Open the app at `localhost:5000/map`
 
 
 # API References
