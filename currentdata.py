@@ -8,8 +8,8 @@ Created on Fri Feb 19 11:43:12 2016
 import bustracker as btr
 import time, json, threading, urllib
 
-veh_update_period = 12
-trip_update_period = 12
+veh_update_period = 22
+trip_update_period = 22
 
 
 class CurrentData(object):    
