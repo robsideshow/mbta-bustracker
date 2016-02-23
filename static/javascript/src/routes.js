@@ -8,7 +8,10 @@ define(["jquery", "leaflet", "config", "stop-marker"],
 
            function Routes(layer) {
                this.layer = layer;
+               /** @member {Object} A cache of route objects indexed by id */
                this.routeInfo = {};
+               /** @member {string[]} An array of route ids */
+               this.showing = [];
                this._routeCount = 0;
            }
 
@@ -24,6 +27,7 @@ define(["jquery", "leaflet", "config", "stop-marker"],
                        var self = this;
                        $.get("/api/routeinfo", {route: route_id})
                            .then(function(info) {
+                               info.id = route_id;
                                self.routeInfo[route_id] = info;
                                info.style = $.extend({
                                    color: config.colors[(self._routeCount++)%10]
@@ -38,10 +42,11 @@ define(["jquery", "leaflet", "config", "stop-marker"],
                },
 
                showRoute: function(route_id) {
-                   var layer = this.layer;
+                   var layer = this.layer,
+                       self = this;
 
                    // TODO: Hide and show only certain route shapes.
-                   this.loadRouteInfo(route_id)
+                   return this.loadRouteInfo(route_id)
                        .then(function(route) {
                            $.each(route.paths, function(i, path) {
                                var line = L.polyline(path, route.style)
@@ -54,6 +59,10 @@ define(["jquery", "leaflet", "config", "stop-marker"],
                                var marker = new StopMarker(stop).addTo(layer);
                                marker._route_id = route_id;
                            });
+
+                           self.showing.push(route_id);
+
+                           return this;
                        });
                },
 
@@ -69,6 +78,12 @@ define(["jquery", "leaflet", "config", "stop-marker"],
                           function(i, pathLayer) {
                               layer.removeLayer(pathLayer);
                           });
+
+                   this.showing = $.grep(this.showing,
+                                         function(id) { return id !== route_id; });
+                   $(this).trigger("routesChanged", [route_id]);
+
+                   return $.Deferred().resolve(this);
                },
 
                showRoutes: function(routes) {
@@ -77,6 +92,27 @@ define(["jquery", "leaflet", "config", "stop-marker"],
                    $.each(routes, function(i, route_id) {
                        self.showRoute(route_id);
                    });
+               },
+
+               getRoutes: function() {
+                   var self = this;
+                   return $.map(this.showing, function(route_id) {
+                       return self.routeInfo[route_id];
+                   });
+               },
+
+               getBounds: function() {
+                   var i = 0, bounds = null, layers = this.layer.getLayers(),
+                       layer;
+
+                   while ((layer = layers[i++])) {
+                       if (bounds)
+                           bounds.extend(layer.getBounds());
+                       else
+                           bounds = layer.getBounds();
+                   }
+
+                   return bounds;
                }
            });
 

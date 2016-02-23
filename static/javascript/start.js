@@ -19,6 +19,8 @@ define(["jquery", "leaflet", "animation", "bus-marker", "routes", "config"],
                    var RoutesLoader = new Routes(routeLayer);
 
                    window.routeLayer = routeLayer;
+                   window.routeLoader = RoutesLoader;
+                   window.routes = routes;
 
                    RoutesLoader.showRoutes(routes);
 
@@ -34,7 +36,10 @@ define(["jquery", "leaflet", "animation", "bus-marker", "routes", "config"],
                            if (checked) {
                                if (routes.indexOf(route_id) == -1) {
                                    routes.push(route_id);
-                                   RoutesLoader.showRoute(route_id);
+                                   RoutesLoader.showRoute(route_id)
+                                       .then(function() {
+                                           map.fitBounds(RoutesLoader.getBounds());
+                                       });
                                    tick();
                                }
                            } else {
