@@ -47,7 +47,12 @@ define(["jquery", "leaflet", "animation", "bus-marker", "routes", "config"],
 
                                if (idx != -1) {
                                    routes.splice(idx, 1);
-                                   RoutesLoader.hideRoute(route_id);
+                                   RoutesLoader
+                                       .hideRoute(route_id)
+                                       .then(function() {
+                                           var bounds = RoutesLoader.getBounds();
+                                           if (bounds) map.fitBounds(bounds);
+                                       });
 
                                    $.each(busMarkers,
                                           function(i, marker) {
