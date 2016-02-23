@@ -139,6 +139,10 @@ def parseTripEntity(tent):
     tdict = dict()
     tdict['route_id'] = tent.trip_update.trip.route_id
     tdict['trip_id'] = tent.trip_update.trip.trip_id
+    stu = tent.trip_update.stop_time_update
+    tdict['preds'] = [{'stop_seq' : x.stop_sequence,
+                       'arr_time' : x.arrival.time,
+                       'stop_id' : x.stop_id} for x in stu] 
     if tdict['route_id'][0] == 'C':
         tdict['type'] = 'CR'
     elif tdict['route_id'][0] in '123456789':
