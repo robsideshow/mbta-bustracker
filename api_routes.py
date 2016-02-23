@@ -46,7 +46,9 @@ def route_info():
     paths = [btr.shapepathdict.get(shape_id) for shape_id in shape_ids]
     stop_ids = btr.routestopsdict.get(route_id)
     stops = [btr.stopinfodict.get(stop_id) for stop_id in stop_ids]
-    return jsonify(paths = paths, 
+    routename = btr.routenamesdict.get(route_id)
+    return jsonify(routename = routename,
+                    paths = paths, 
                    stops = stops)
 
 
