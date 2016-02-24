@@ -8,8 +8,8 @@ Created on Fri Feb 19 11:43:12 2016
 import bustracker as btr
 import time, json, threading, urllib
 
-veh_update_period = 12
-trip_update_period = 12
+veh_update_period = 22
+trip_update_period = 22
 
 
 class CurrentData(object):    
@@ -47,7 +47,6 @@ class CurrentData(object):
                                             + btr.api_key 
                                             + '&route=' + str(route_id) 
                                             + '&format=json'))
-        triplist = []
         for direction in routejson.get('direction', []):
             for trip in direction.get('trip', []):
                 trip_id = trip.get('trip_id', '')

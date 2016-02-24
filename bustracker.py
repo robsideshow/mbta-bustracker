@@ -113,7 +113,6 @@ def parseVehEntity(vent):
     vdict['lon'] = vent.vehicle.position.longitude
     vdict['heading'] = vent.vehicle.position.bearing
     vdict['timestamp'] = vent.vehicle.timestamp
-    vdict['xcoord'], vdict['ycoord'] = convertll2xy((vdict['lat'], vdict['lon']))
     shape_id = tripshapedict.get(vent.vehicle.trip.trip_id, '')
     if shape_id == '':
         vdict['destination'] = '?'
@@ -139,6 +138,10 @@ def parseTripEntity(tent):
     tdict = dict()
     tdict['route_id'] = tent.trip_update.trip.route_id
     tdict['trip_id'] = tent.trip_update.trip.trip_id
+    stu = tent.trip_update.stop_time_update
+    tdict['preds'] = [{'stop_seq' : x.stop_sequence,
+                       'arr_time' : x.arrival.time,
+                       'stop_id' : x.stop_id} for x in stu] 
     if tdict['route_id'][0] == 'C':
         tdict['type'] = 'CR'
     elif tdict['route_id'][0] in '123456789':
@@ -326,6 +329,65 @@ def trip2stops(trip_id):
     takes a trip_id and returns a list of stop_ids, in order, for that trip
     '''
     return shapestopsdict.get(tripshapedict.get(trip_id), '')
+
+
+def findClosestPoint(lat, lon, path):
+    '''
+    takes a (vehicle) lat and lon and a path (list of (lat, lon)) and returns 
+    the INDEX of the path point closest to the given location
+    '''
+    closest_i = 0
+    min_asdist = 99999
+    numpoints = len(path)
+    for i in range(numpoints):
+        pathlat, pathlon = path[i]
+        asdist = angularSquaredDist(lat, lon, pathlat, pathlon)
+        if asdist < min_asdist:
+            closest_i = i
+            min_asdist = asdist
+    return closest_i
+    
+    
+def buildAnimationDicts(path, first_i, start_lat, start_lon, start_time, speed):
+    '''
+    takes a path, a starting lat and lon not on the path, the index of the 
+    first path point to go to, the starting timestamp, and the speed in m/s
+    returns a list of {time, lat, lon} dicts
+    '''
+    last_i = len(path) - 1
+    curr_time = start_time
+    timepoints = []
+    i = first_i
+    curr_lat, curr_lon = start_lat, start_lon
+    while (curr_time < start_time + 180) and (i <= last_i):
+        next_lat, next_lon = path[i]
+        dx = distll(curr_lat, curr_lon, next_lat, next_lon)
+        dt = dx/float(speed)
+        if dx > 1:
+            timepoints.append({'time':round(curr_time + dt, 2), 
+                               'lat':next_lat, 'lon':next_lon})
+        curr_lat, curr_lon = next_lat, next_lon
+        curr_time += dt
+        i += 1
+    return timepoints
+            
+   
+def getAnimationPoints(path, veh_lat, veh_lon, veh_timestamp, speed = 6):
+    '''
+    takes a path, the lat and lon of a vehicle, and speed in m/s
+    returns a list of dictionaries {time, lat, lon} which give the 
+    future points and their arrival times
+    '''
+    numpoints = len(path)
+    closest_i = findClosestPoint(veh_lat, veh_lon, path)
+    if closest_i == numpoints - 1:
+        first_i = closest_i
+    else:
+        first_i = closest_i +1
+    return buildAnimationDicts(path, first_i, veh_lat, veh_lon, veh_timestamp, speed)
+        
+    
+
     
 def pathAnalyzer(path, longseg = 100):
     '''
@@ -343,7 +405,8 @@ def pathAnalyzer(path, longseg = 100):
         totlen += seglength
     avglen = totlen/numsegs
     return numsegs, round(totlen), round(avglen, 1), sorted(longsegs)
-    
+ 
+   
 def routeAnalyzer(route_id, longseg = 100):
     for shape_id in routeshapedict.get(route_id):
         print shape_id, pathAnalyzer(shapepathdict.get(shape_id), longseg)
