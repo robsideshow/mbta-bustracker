@@ -35,7 +35,7 @@ define(["jquery", "utils"], function($, $u) {
 
         runTick: function() {
             var now = new Date().getTime(),
-                dt = now - this._lastRun;
+                dt = (now - this._lastRun)/1000;
             $.each(this.objects, function(i, thing) {
                 thing.tick(dt, now);
             });

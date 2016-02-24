@@ -18,6 +18,7 @@ define(["jquery", "leaflet", "animation", "bus-marker", "routes", "config"],
 
                    var RoutesLoader = new Routes(routeLayer);
 
+                   window.map = map;
                    window.routeLayer = routeLayer;
                    window.routeLoader = RoutesLoader;
                    window.routes = routes;
@@ -84,7 +85,7 @@ define(["jquery", "leaflet", "animation", "bus-marker", "routes", "config"],
                                    } else {
                                        busMarkers[bus.id].update(bus);
                                    }
-                                   //lastTick = update.stamp;
+                                   lastTick = update.stamp;
                                });
 
                                _timeout = setTimeout(tick, 10000);

@@ -14,7 +14,7 @@ define(["leaflet", "utils"],
                 */
                initialize: function(bus, options) {
                    L.FeatureGroup.prototype.initialize.apply(this, []);
-                   this.bus = bus;
+                   this.update(bus);
 
                    this.options = options || {
                        busLength: 10,
@@ -33,20 +33,28 @@ define(["leaflet", "utils"],
                onAdd: function(map) {
                    this._map = map;
 
-                   this.busShape = L.polygon(this._busPoints(),
-                                             {
-                                                 color: "#000",
-                                                 weight: 2,
-                                                 fill: true,
-                                                 fillColor: "white",
-                                                 fillOpacity: 0.9
+                   this.busCircle = L.circle(this.busLatLng(), 7, {
+                       color: "black",
+                       weight: 2,
+                       fill: true,
+                       fillColor: "orange",
+                       fillOpacity: 1
+                   }).addTo(this);
 
-                                             })
-                       .addTo(this);
-                   this.arrowShape =
-                       L.polyline(this._arrowPoints(), {color: "#ff0000",
-                                                        weight: 3})
-                        .addTo(this);
+                   // this.busShape = L.polygon(this._busPoints(),
+                   //                           {
+                   //                               color: "#000",
+                   //                               weight: 2,
+                   //                               fill: true,
+                   //                               fillColor: "white",
+                   //                               fillOpacity: 0.9
+
+                   //                           })
+                   //     .addTo(this);
+                   // this.arrowShape =
+                   //     L.polyline(this._arrowPoints(), {color: "#ff0000",
+                   //                                      weight: 3})
+                   //      .addTo(this);
 
                    var self = this;
                    map.on("zoomend", function() {
@@ -70,23 +78,19 @@ define(["leaflet", "utils"],
                 * Create and return a function for transforming a point from the
                 * coordinate system of the bus to latitude and longitude.
                 *
-                * @param {L.CRS} [crs=L.CRS.EPSG3857]
                 * @return {Function} A function that takes an array [x, y] and
                 * returns a L.LatLng instance.
                 */
-               makeTransform: function(crs) {
-                   crs = crs || L.CRS.EPSG3857;
-                   var cached = this._cachedTransform;
-                   if (cached && cached.crs == crs.code &&
-                       cached.heading == this.bus.heading) {
+               makeTransform: function() {
+                   var cached = this._cachedTransform,
+                       rads = this._busTheta;
+
+                   if (cached && rads == cached.theta) {
                        return cached.transform;
                    }
 
                    var bus = this.bus,
-                       degs = (360-(bus.heading-90))%360,
-                       rads = degs/180 * Math.PI,
-                       busLatLng = L.latLng(+bus.lat, +bus.lon),
-                       centerPoint = crs.latLngToPoint(busLatLng, 15),
+                       centerPoint = this._pixelPosition,
                        // cached valued for calculation:
                        cx = centerPoint.x,
                        cy = centerPoint.y,
@@ -97,16 +101,19 @@ define(["leaflet", "utils"],
                        var x = point[0] * cosRads - point[1] * sinRads,
                            y = point[0] * sinRads + point[1] * cosRads;
 
-                       return crs.pointToLatLng(L.point(cx+x, cy+y), 15);
+                       return L.CRS.EPSG3857.pointToLatLng(L.point(cx+x, cy+y), 15);
                    };
 
                    this._cachedTransform = {
-                       crs: crs.code,
                        transform: transform,
-                       heading: bus.heading
+                       theta: rads
                    };
 
                    return transform;
+               },
+
+               busLatLng: function() {
+                   return this._position;
                },
 
                _busPoints: function() {
@@ -128,16 +135,84 @@ define(["leaflet", "utils"],
 
                update: function(bus) {
                    this.bus = bus;
-                   this._wantsUpdate = true;
+                   this._pathCache = bus.timepoints;
+                   this._position = L.latLng(bus.lat, bus.lon);
+                   if (this._findNextTimePoint())
+                       this._wantsUpdate = true;
                },
 
-               tick: function() {
-                   if (this._wantsUpdate) {
-                       this.busShape.setLatLngs(this._busPoints());
-                       this.arrowShape.setLatLngs(this._arrowPoints());
-
-                       this._wantsUpdate = false;
+               /**
+                * @private
+                * Destructively traverses the cached array of timepoints stored
+                * in _pathCache until the next point (in time) is found.  If
+                * there is already a non-obsolete stored in _nextPoint, simply
+                * returns that.  If there is no _nextPoint, or if it is
+                * obsolete, caches several values, advances _nextPoint, and
+                * returns the timepoint.
+                */
+               _findNextTimePoint: function() {
+                   var now = new Date().valueOf()/1000;
+                   if (this._nextPoint) {
+                       if (this._nextPoint.time < now)
+                           return this._nextPoint;
+                       this._nextPoint = null;
                    }
+                   if (this._pathCache) {
+                       var timepoint;
+                       while ((timepoint = this._pathCache.shift())) {
+                           if (timepoint.time < now)
+                               break;
+                       }
+                       this._nextPoint = timepoint;
+                       if (timepoint) {
+                           var ll = L.latLng(timepoint.lat, timepoint.lon),
+                               point = L.CRS.EPSG3857.latLngToPoint(ll),
+                               busLL = this._position,
+                               busPoint = L.CRS.EPSG3857.latLngToPoint(busLL),
+                               dt = timepoint.time - now,
+                               dLat = ll.lat - busLL.lat,
+                               dLng = ll.lng - busLL.lng,
+                               dx = point.x - busPoint.x,
+                               dy = point.y - busPoint.y;
+
+                           // this._pixelPosition = busPoint;
+                           this._latSpeed = dLat/dt;
+                           this._lngSpeed = dLng/dt;
+                           this._position = busLL;
+                           // this._pixelXSpeed = dx/dt;
+                           // this._pixelYSpeed = dy/dt;
+                           this._busTheta = Math.atan2(dy, dx);
+                           return this._nextPoint;
+                       }
+                   }
+
+                   return null;
+               },
+
+               tick: function(dt, now) {
+                   if (!this._wantsUpdate) return;
+
+                   var point = this._findNextTimePoint();
+
+                   // Time points exhausted!
+                   if (!point)
+                       this._wantsUpdate = false;
+
+                   // var newX = this._pixelPosition.x + this._pixelXSpeed,
+                   //     newY = this._pixelPosition.y + this._pixelYSpeed,
+                   //     newPoint = L.point(newX, newY),
+                   //     newLatLng = L.CRS.EPSG3857.pointToLatLng(newPoint);
+
+                   var oldLL = this._position,
+                       newLL = L.latLng(oldLL.lat+this._latSpeed*dt,
+                                        oldLL.lng+this._lngSpeed*dt);
+                   this._position = newLL;
+
+                   //this._pixelPosition = newPoint;
+                   // this.busShape.setLatLngs(this._busPoints());
+                   // this.arrowShape.setLatLngs(this._arrowPoints());
+                   this.busCircle.setLatLng(newLL);
+                   //console.log(this.busLatLng());
                }
            });
        });
