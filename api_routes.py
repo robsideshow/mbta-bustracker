@@ -17,15 +17,24 @@ def bus_updates():
     # Timestamp in seconds
     since = request.args.get("since", "")
 
-    buses = currentdata.current_data.getVehiclesOnRoutes(route_idlist)
+    vehicles = currentdata.current_data.getVehiclesOnRoutes(route_idlist)
+    for veh in vehicles:
+        shape_id = btr.tripshapedict.get(veh.get('trip_id'), '')
+        if shape_id != '':
+            path  = btr.shapepathdict.get(shape_id, [])
+            veh['timepoints'] = btr.getAnimationPoints(path, veh.get('lat'),
+                                    veh.get('lon'), veh.get('timestamp'), 6)
+                                    
+                                                        
+            
 
     if since:
         when = long(since)
-        buses = [bus for bus in buses if int(bus["timestamp"]) > when]
+        vehicles = [veh for veh in vehicles if int(veh["timestamp"]) > when]
 
     now_stamp = (datetime.now() - datetime.fromtimestamp(0)).total_seconds()
 
-    return jsonify(buses=buses, stamp=int(now_stamp))
+    return jsonify(buses = vehicles, stamp=int(now_stamp))
 
 @api_routes.route("/routes")
 def bus_routes():

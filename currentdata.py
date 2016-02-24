@@ -47,7 +47,6 @@ class CurrentData(object):
                                             + btr.api_key 
                                             + '&route=' + str(route_id) 
                                             + '&format=json'))
-        triplist = []
         for direction in routejson.get('direction', []):
             for trip in direction.get('trip', []):
                 trip_id = trip.get('trip_id', '')
