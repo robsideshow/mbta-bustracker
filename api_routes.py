@@ -10,6 +10,16 @@ api_routes = Blueprint("api", __name__)
 def bus_updates():
     route_ids = request.args.get("routes", "")
     route_idlist = route_ids.split(',')
+    
+    vehicle_ids = request.args.get("vehicles", "")
+    vehicle_idlist = vehicle_ids.split(',')
+
+    stop_ids = request.args.get("stops", "")
+    stop_idlist = stop_ids.split(',')
+    if stop_idlist != ['']:
+        stops = currentdata.current_data.getPredsForStops(stop_idlist)
+    else:
+        stops = None
 
     if not route_ids:
         abort(401)
@@ -23,18 +33,17 @@ def bus_updates():
         if shape_id != '':
             path  = btr.shapepathdict.get(shape_id, [])
             veh['timepoints'] = btr.getAnimationPoints(path, veh.get('lat'),
-                                    veh.get('lon'), veh.get('timestamp'), 6)
-                                    
-                                                        
+                                    veh.get('lon'), veh.get('timestamp'), 6)                                                                                   
             
 
     if since:
         when = long(since)
         vehicles = [veh for veh in vehicles if int(veh["timestamp"]) > when]
-
     now_stamp = (datetime.now() - datetime.fromtimestamp(0)).total_seconds()
 
-    return jsonify(buses = vehicles, stamp=int(now_stamp))
+    return jsonify(buses = vehicles, 
+                   stamp = int(now_stamp),
+                   stops = stops)
 
 @api_routes.route("/routes")
 def bus_routes():

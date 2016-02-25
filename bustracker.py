@@ -17,7 +17,7 @@ api_key = 'wX9NwuHnZU2ToO7GmGR9uw'
 mbta_rt_url = 'http://realtime.mbta.com/developer/api/v2/'
 
 #AG Mednet stopid:234 LatLon:(42.3639399, -71.0511499)   xyCoords:(3423, 749)
-#Mass Ave @ Hollis{'lat': '42.39434', 'stopId': '02297', 'tag': '2297', 'lon': '-71.12703', 'title': 'Massachusetts Ave @ Hollis St'}
+#Mass Ave @ Hollis{'lat': '42.39434', 'stopId': '2297', 'tag': '2297', 'lon': '-71.12703', 'title': 'Massachusetts Ave @ Hollis St'}
 #UL corner of LM:(42.562689, -71.363924) LR corner:(42.204517,-70.831752)
 #largemap 775 X 708
 
@@ -137,6 +137,13 @@ def parseTripEntity(tent):
     '''
     tdict = dict()
     tdict['route_id'] = tent.trip_update.trip.route_id
+    shape_id = tripshapedict.get(tent.trip_update.trip.trip_id, '')
+    if shape_id == '':
+        tdict['destination'] = '?'
+        tdict['direction'] = '?'
+    else:
+        tdict['destination'] = shapeinfodict[shape_id]['destination']
+        tdict['direction'] = shapeinfodict[shape_id]['direction']
     tdict['trip_id'] = tent.trip_update.trip.trip_id
     stu = tent.trip_update.stop_time_update
     tdict['preds'] = [{'stop_seq' : x.stop_sequence,
