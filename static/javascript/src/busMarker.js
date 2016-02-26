@@ -26,7 +26,6 @@ define(["leaflet", "jquery", "utils"],
                    var self = this;
                    this.on("click", function(e) {
                        console.log(this.bus);
-                       console.log(e);
                        if (e.originalEvent.shiftKey) {
                            var pathMarkers = 
                            $.map(this.bus.timepoints,
@@ -174,35 +173,29 @@ define(["leaflet", "jquery", "utils"],
                _findNextTimePoint: function() {
                    var now = new Date().valueOf()/1000;
                    if (this._nextPoint) {
-                       if (this._nextPoint.time < now)
+                       if (this._nextPoint.time > now)
                            return this._nextPoint;
                        this._nextPoint = null;
                    }
                    if (this._pathCache) {
                        var timepoint;
                        while ((timepoint = this._pathCache.shift())) {
-                           if (timepoint.time < now)
+                           if (timepoint.time > now)
                                break;
                        }
                        this._nextPoint = timepoint;
                        if (timepoint) {
                            var ll = L.latLng(timepoint.lat, timepoint.lon),
-                               point = L.CRS.EPSG3857.latLngToPoint(ll),
-                               busLL = this._position,
-                               busPoint = L.CRS.EPSG3857.latLngToPoint(busLL),
+                               busLL = this._position ||
+                                   L.latLng(this.bus.lat, this.bus.lon),
                                dt = timepoint.time - now,
                                dLat = ll.lat - busLL.lat,
-                               dLng = ll.lng - busLL.lng,
-                               dx = point.x - busPoint.x,
-                               dy = point.y - busPoint.y;
+                               dLng = ll.lng - busLL.lng;
 
-                           // this._pixelPosition = busPoint;
                            this._latSpeed = dLat/dt;
                            this._lngSpeed = dLng/dt;
                            this._position = busLL;
-                           // this._pixelXSpeed = dx/dt;
-                           // this._pixelYSpeed = dy/dt;
-                           this._busTheta = Math.atan2(dy, dx);
+                           //this._busTheta = Math.atan2(, dx);
                            return this._nextPoint;
                        }
                    }
@@ -219,21 +212,14 @@ define(["leaflet", "jquery", "utils"],
                    if (!point)
                        this._wantsUpdate = false;
 
-                   // var newX = this._pixelPosition.x + this._pixelXSpeed,
-                   //     newY = this._pixelPosition.y + this._pixelYSpeed,
-                   //     newPoint = L.point(newX, newY),
-                   //     newLatLng = L.CRS.EPSG3857.pointToLatLng(newPoint);
-
                    var oldLL = this._position,
                        newLL = L.latLng(oldLL.lat+this._latSpeed*dt,
                                         oldLL.lng+this._lngSpeed*dt);
                    this._position = newLL;
 
-                   //this._pixelPosition = newPoint;
                    // this.busShape.setLatLngs(this._busPoints());
                    // this.arrowShape.setLatLngs(this._arrowPoints());
                    this.busCircle.setLatLng(newLL);
-                   //console.log(this.busLatLng());
                }
            });
        });
