@@ -21,6 +21,8 @@ $RECYCLE.BIN/
 # Compiler and Cashe
 *.pyc
 /static/.webassets-cache/
+.idea/
+/tests
 
 # =========================
 # Operating System Files
