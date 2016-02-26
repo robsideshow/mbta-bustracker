@@ -58,20 +58,32 @@ class CurrentData(object):
                                                         'veh_info' : trip.get('vehicle', {})}
                 
     def getPredsForStops(self, stopidlist):
-        allpreds = dict([(stop_id, []) for stop_id in stopidlist])
+        stop_preds = dict([(stop_id, []) for stop_id in stopidlist])
         check_routes = set([x for stop_id in stopidlist for x in btr.stoproutesdict.get(stop_id, [])])
         for trip in self.trips:
             if trip.get('route_id') in check_routes:
                 preds = trip.get('preds', [])
                 for pred in preds:
                     if pred.get('stop_id') in stopidlist:
-                        allpreds[pred.get('stop_id')].append({'route_id':trip.get('route_id'),
+                        stop_preds[pred.get('stop_id')].append({'route_id':trip.get('route_id'),
                                                     'direction' : trip.get('direction'),
                                                     'arr_time' : pred.get('arr_time')})
-        return allpreds
+        return stop_preds
                     
                 
-            
+    def getPredsForVehicles(self, vehicleidlist):
+        veh_preds = dict()
+        tripvehicledict = dict()        
+        for veh in self.vehicles:
+            if veh.get('id', '') in vehicleidlist:
+                tripvehicledict[veh.get('trip_id', '')] = veh.get('id', '')            
+        for trip in self.trips:
+            if trip.get('trip_id') in tripvehicledict:
+                preds = trip.get('preds', [])
+                for pred in preds:
+                    pred['stop_name'] = (btr.stopinfodict.get(pred.get('stop_id'))).get('stop_name')
+                veh_preds[tripvehicledict[trip.get('trip_id')]] = preds
+        return veh_preds
             
 
 

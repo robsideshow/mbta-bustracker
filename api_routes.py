@@ -10,19 +10,24 @@ api_routes = Blueprint("api", __name__)
 def bus_updates():
     route_ids = request.args.get("routes", "")
     route_idlist = route_ids.split(',')
-    
+
+    if not route_ids:
+        abort(401)
+
     vehicle_ids = request.args.get("vehicles", "")
     vehicle_idlist = vehicle_ids.split(',')
+    if vehicle_ids:
+        vehicle_preds = currentdata.current_data.getPredsForVehicles(vehicle_idlist)
+    else:
+        vehicle_preds = None
 
     stop_ids = request.args.get("stops", "")
     stop_idlist = stop_ids.split(',')
-    if stop_idlist != ['']:
+    if stop_ids:
         stops = currentdata.current_data.getPredsForStops(stop_idlist)
     else:
         stops = None
 
-    if not route_ids:
-        abort(401)
 
     # Timestamp in seconds
     since = request.args.get("since", "")
@@ -43,7 +48,8 @@ def bus_updates():
 
     return jsonify(buses = vehicles, 
                    stamp = int(now_stamp),
-                   stops = stops)
+                   stops = stops,
+                   vehicle_preds = vehicle_preds)
 
 @api_routes.route("/routes")
 def bus_routes():
