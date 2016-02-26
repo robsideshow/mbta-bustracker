@@ -5,7 +5,7 @@ $btn-color:           $brand-2;
 
 /** Button Basics **/
 .btn {
-  border-radius: 2px;
+  border-radius: 4px;
   line-height: 1em;
   font-size: 1em;
   cursor: pointer;
@@ -17,6 +17,7 @@ $btn-color:           $brand-2;
 
   &:hover {
     @extend .z-depth-1;
+    background-color: linear-gradient($btn-color, darken($btn-color, 5%));
   }
 
   &.block {
@@ -49,7 +50,7 @@ $btn-color:           $brand-2;
   &.secondary  {
     color: $btn-color;
     background-color: transparent;
-    border: 2px solid $btn-color;
+    border: 1px solid $btn-color;
     
     &.disabled, 
     &:disabled {
