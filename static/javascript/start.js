@@ -1,4 +1,4 @@
-define(["jquery", "leaflet", "animation", "bus-marker", "routes", "config"],
+define(["jquery", "leaflet", "animation", "bus-marker", "routes", "config", "app"],
        function($, L, Animation, BusMarker, Routes, config) {
            return {
                init: function() {

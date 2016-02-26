@@ -98,7 +98,6 @@ def getAllRoutes():
     sortedRoute_ids = [x.attrib['route_id'] for x in allroutes]
     routes = dict([(x.attrib['route_id'], x.attrib['route_name']) for x in allroutes])
     return sortedRoute_ids, routes
-    
         
 def parseVehEntity(vent):     
     '''

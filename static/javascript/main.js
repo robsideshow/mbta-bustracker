@@ -10,7 +10,8 @@ require.config({
         "routes": "src/routes",
         "utils": "src/utils",
 
-        "start": "start"
+        "start": "start",
+        "app":"app"
     },
 
     shim: {

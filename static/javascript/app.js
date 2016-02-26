@@ -1,18 +1,18 @@
-function drawBus(bus, map){
-  return {
-    position: {lat: bus.lat, lng: bus.lon},
-    map: map,
-    icon: "/static/bus.png",
-    title: "Route: " + bus.route + "-" + "Bearing:" + bus.bearing
-  };
-}
+/* Global UI Behavior should come here */
 
-function drawStop(stop, map, zIndex){
-  return {
-    position: {lat: +stop.lat, lng: +stop.lon},
-    map: map,
-    icon: "/static/busstop.png",
-    title: stop.stop_name + " - Routes: " + stop.routes, 
-	zIndex: zIndex
-  }
-}
+define(["jquery"], function(){
+    $("#map-view").click(function(){
+        $(this).parent().addClass("active");
+        $("#graph-view").parent().removeClass("active");
+        $("#map").fadeIn("fast");
+        $("#graph").fadeOut("fast");
+        console.log("map-view is clicked!");
+    });
+
+    $("#graph-view").click(function(){
+        $(this).parent().addClass("active");
+        $("#map-view").parent().removeClass("active");
+        $("#map").fadeOut("fast");
+        $("#graph").fadeIn("fast");
+    });
+});

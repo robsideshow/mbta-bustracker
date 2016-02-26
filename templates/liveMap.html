@@ -14,8 +14,8 @@
       <ul class="col m12">
         <li class="logo">MBTA Woohoo!</li>
         <li><a href="https://github.com/robsideshow/mbta-bustracker" target="_blank">Fork Me!</a></li>
-        <li><a href="#">Graph View</a></li>
-        <li class="active"><a href="#">Map View</a></li>
+        <li><a href="#" id="graph-view">Graph View</a></li>
+        <li class="active"><a href="#" id="map-view">Map View</a></li>
       </ul>
     </nav>
   </header>
@@ -24,9 +24,10 @@
       <div class="sidenav">     
         <form>
           <fieldset class="search-route">
-            <input type="search" placeholder="Type Route Number" />
+            <button class="btn secondary">Locate me!</button>
           </fieldset>
           <fieldset class="select-route">
+            Toggle routes:<br>
           {% for rt in rnums %}
             <input type="checkbox" id="{{rt}}" class="toggle left" value="{{rt}}"/>
             <label for={{rt}}>{{routeTitles[rt]}}</label>
@@ -37,7 +38,14 @@
       </div>
     </div>
     <div class="col m9">
-      <div id="map"></div>     
+      <div class="visualization">
+        <div id="map"></div>
+        <div id="graph">
+          <img src="/static/images/graph_view.png" />
+          <h3>The actual graph view might show up at a some point of Boston history.</h3>
+          <p>Depending on how we feel like it, of course.</p>
+        </div>
+      </div>
     </div>
   </div>
 </body>
