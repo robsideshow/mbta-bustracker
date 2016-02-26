@@ -1,5 +1,5 @@
-define(["leaflet", "utils"],
-       function(L, $u) {
+define(["leaflet", "jquery", "utils"],
+       function(L, $, $u) {
            return L.FeatureGroup.extend({
                /**
                 * @param {Object} bus Object representing the state of a bus
@@ -23,9 +23,26 @@ define(["leaflet", "utils"],
 
                    this.bindPopup("popup!");
 
+                   var self = this;
                    this.on("click", function(e) {
                        console.log(this.bus);
-                   })
+                       console.log(e);
+                       if (e.originalEvent.shiftKey) {
+                           var pathMarkers = 
+                           $.map(this.bus.timepoints,
+                                  function(timepoint) {
+                                      return L.circle(
+                                          [timepoint.lat, timepoint.lon], 1)
+                                          .addTo(self);
+                                  });
+                           this.once("popupclose", function() {
+                               $.each(pathMarkers,
+                                      function(i, m) {
+                                          self.removeLayer(m);
+                                      });
+                           });
+                       }
+                       })
                        .on("popupopen", this.onPopupOpen);
                },
 
@@ -134,6 +151,10 @@ define(["leaflet", "utils"],
                },
 
                update: function(bus) {
+                   // Check if the new bus's LRP is newer than the old bus's LRP.
+                   if (this.bus && bus.timestamp <= this.bus.timestamp)
+                       return;
+
                    this.bus = bus;
                    this._pathCache = bus.timepoints;
                    this._position = L.latLng(bus.lat, bus.lon);
