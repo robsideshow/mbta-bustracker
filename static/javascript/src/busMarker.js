@@ -50,17 +50,36 @@ define(["leaflet", "jquery", "utils"],
                        .on("popupopen", this.onPopupOpen);
                },
 
+               makeIcon: function(bus, rot) {
+                   var html = [
+                       "<div class='bus-marker' ",
+                       "style='transform: rotate(", rot, "rad)'>",
+                       "</div>"
+                   ].join("");
+
+                   return L.divIcon({
+                       className: "bus-marker-container",
+                       html: html
+                   });
+               },
+
                // Called by Leaflet when the marker is added to the map.
                onAdd: function(map) {
                    this._map = map;
 
-                   this.busCircle = L.circle(this.busLatLng(), 10, {
-                       color: "black",
-                       weight: 1,
-                       fill: true,
-                       fillColor: "orange",
-                       fillOpacity: 1
-                   }).addTo(this);
+                   var html = "<div class='bus-marker'></div>";
+
+                   this.busMarker = L.marker(
+                       this.busLatLng(), {icon: this.makeIcon(null, 0)})
+                        .addTo(this);
+
+                   // this.busCircle = L.circle(this.busLatLng(), 10, {
+                   //     color: "black",
+                   //     weight: 1,
+                   //     fill: true,
+                   //     fillColor: "orange",
+                   //     fillOpacity: 1
+                   // }).addTo(this);
 
                    // this.busShape = L.polygon(this._busPoints(),
                    //                           {
@@ -76,15 +95,6 @@ define(["leaflet", "jquery", "utils"],
                    //     L.polyline(this._arrowPoints(), {color: "#ff0000",
                    //                                      weight: 3})
                    //      .addTo(this);
-
-                   var self = this;
-                   map.on("zoomend", function() {
-                       self.setZoom(map.getZoom());
-                   });
-               },
-
-               setZoom: function(level) {
-                   
                },
 
                onPopupOpen: function(e) {
@@ -216,7 +226,7 @@ define(["leaflet", "jquery", "utils"],
                            this._latSpeed = dLat/dt;
                            this._lngSpeed = dLng/dt;
                            this._position = busLL;
-                           //this._busTheta = Math.atan2(dLat, dLng);
+                           this._busTheta = Math.atan2(dLat, dLng);
                            return this._nextPoint;
                        }
                    }
@@ -240,7 +250,10 @@ define(["leaflet", "jquery", "utils"],
 
                    // this.busShape.setLatLngs(this._busPoints());
                    // this.arrowShape.setLatLngs(this._arrowPoints());
-                   this.busCircle.setLatLng(newLL);
+                   //this.busCircle.setLatLng(newLL);
+                   this.busMarker.setLatLng(newLL);
+                   this.busMarker.setIcon(
+                       this.makeIcon(this.bus, -this._busTheta));
                }
            });
        });
