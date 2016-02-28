@@ -5,13 +5,15 @@ Created on Wed Mar 04 18:50:03 2015
 @author: Rob
 """
 import math
-import random
 from lxml import etree as et
 import time
 import matplotlib.pyplot as pl
 from google.transit import gtfs_realtime_pb2
-import urllib
+import urllib, requests
 import json
+import socket
+import errno  
+
 
 api_key = 'wX9NwuHnZU2ToO7GmGR9uw'
 mbta_rt_url = 'http://realtime.mbta.com/developer/api/v2/'
@@ -174,9 +176,18 @@ def getAllTripsGTFS_Raw():
     Returns a list of unparsed GTFS trip entities
     '''
     feed = gtfs_realtime_pb2.FeedMessage()
-    response = urllib.urlopen('http://developer.mbta.com/lib/GTRTFS/Alerts/TripUpdates.pb')
-    feed.ParseFromString(response.read())
-    return feed.entity
+    #response = urllib.urlopen('http://developer.mbta.com/lib/GTRTFS/Alerts/TripUpdates.pb')
+    #feed.ParseFromString(response.read())
+
+    try:
+        url = 'http://developer.mbta.com/lib/GTRTFS/Alerts/TripUpdates.pb'
+        response = requests.get(url)
+        if response.ok:
+            feed.ParseFromString(response.content)       
+            return feed.entity
+    except socket.error as error:
+        if error.errno == errno.WSAECONNRESET:
+            return []
 
 
 def getAllVehiclesGTFS():
@@ -193,7 +204,8 @@ def getAllTripsGTFS():
     dictionaries with info for each trip. Trips that are underway already or 
     about to depart have a specific vehicle, but trips further in the future don't
     '''
-    return [parseTripEntity(t) for t in getAllTripsGTFS_Raw()]
+    raw_trips = getAllTripsGTFS_Raw()
+    return [parseTripEntity(t) for t in raw_trips]
     
 
 def getAllStops():
