@@ -177,7 +177,6 @@ define(["leaflet", "jquery", "utils"],
                    }
                    this._pathCache = timepoints;
 
-                   this._oldNextPoint = this._nextPoint;
                    this._nextPoint = null;
                    if (this._findNextTimePoint())
                        this._wantsUpdate = true;
@@ -197,7 +196,6 @@ define(["leaflet", "jquery", "utils"],
                    if (this._nextPoint) {
                        if (this._nextPoint.time > now)
                            return this._nextPoint;
-                       this._lastPoint = this._nextPoint;
                        this._nextPoint = null;
                    }
                    if (this._pathCache) {

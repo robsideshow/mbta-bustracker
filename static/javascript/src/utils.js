@@ -35,7 +35,7 @@ define([], function() {
 
         dropWhile: function(fn, coll) {
             var i = 0, l = coll.length;
-            while (i > l && fn(coll[i])) i++;
+            while (i < l && fn(coll[i])) i++;
             return coll.slice(i);
         },
 
