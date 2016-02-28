@@ -172,7 +172,7 @@ define(["leaflet", "jquery", "utils"],
                    // timepoint array up until that point.
                    if (lastNextPoint) {
                        timepoints = $u.dropWhile(function(pt) {
-                           return !samePoint(lastNextPoint);
+                           return !samePoint(pt, lastNextPoint);
                        }, bus.timepoints);
                    }
                    this._pathCache = timepoints;
