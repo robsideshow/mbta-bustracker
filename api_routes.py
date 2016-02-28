@@ -9,10 +9,6 @@ api_routes = Blueprint("api", __name__)
 @api_routes.route("/bus_updates")
 def bus_updates():
     route_ids = request.args.get("routes", "")
-    route_idlist = route_ids.split(',')
-
-    if not route_ids:
-        abort(401)
 
     vehicle_ids = request.args.get("vehicles", "")
     vehicle_idlist = vehicle_ids.split(',')
@@ -28,22 +24,24 @@ def bus_updates():
     else:
         stops = None
 
-
     # Timestamp in seconds
     since = request.args.get("since", "")
 
-    vehicles = currentdata.current_data.getVehiclesOnRoutes(route_idlist)
-    for veh in vehicles:
-        shape_id = btr.tripshapedict.get(veh.get('trip_id'), '')
-        if shape_id != '':
-            path  = btr.shapepathdict.get(shape_id, [])
-            veh['timepoints'] = btr.getAnimationPoints(path, veh.get('lat'),
-                                    veh.get('lon'), veh.get('timestamp'), 6)                                                                                   
-            
+    if route_ids:
+        route_idlist = route_ids.split(',')
+        vehicles = currentdata.current_data.getVehiclesOnRoutes(route_idlist)
+        for veh in vehicles:
+            shape_id = btr.tripshapedict.get(veh.get('trip_id'), '')
+            if shape_id != '':
+                path  = btr.shapepathdict.get(shape_id, [])
+                veh['timepoints'] = btr.getAnimationPoints(path, veh.get('lat'),
+                                        veh.get('lon'), veh.get('timestamp'), 6)
+    else:
+        vehicles = []
 
-    if since:
-        when = long(since)
-        vehicles = [veh for veh in vehicles if int(veh["timestamp"]) > when]
+    # if since:
+    #     when = long(since)
+    #     vehicles = [veh for veh in vehicles if int(veh["timestamp"]) > when]
     now_stamp = (datetime.now() - datetime.fromtimestamp(0)).total_seconds()
 
     return jsonify(buses = vehicles, 
