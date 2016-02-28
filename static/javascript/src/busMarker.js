@@ -1,5 +1,10 @@
 define(["leaflet", "jquery", "utils"],
        function(L, $, $u) {
+           function samePoint(tp1, tp2) {
+               return tp1.lat == tp2.lat &&
+                   tp1.lon == tp2.lon;
+           }
+
            return L.FeatureGroup.extend({
                /**
                 * @param {Object} bus Object representing the state of a bus
@@ -49,9 +54,9 @@ define(["leaflet", "jquery", "utils"],
                onAdd: function(map) {
                    this._map = map;
 
-                   this.busCircle = L.circle(this.busLatLng(), 7, {
+                   this.busCircle = L.circle(this.busLatLng(), 10, {
                        color: "black",
-                       weight: 2,
+                       weight: 1,
                        fill: true,
                        fillColor: "orange",
                        fillOpacity: 1
@@ -150,13 +155,30 @@ define(["leaflet", "jquery", "utils"],
                },
 
                update: function(bus) {
-                   // Check if the new bus's LRP is newer than the old bus's LRP.
+                   // Check if the new bus's LRP is newer than the old bus's
+                   // LRP; if not, ignore it.
                    if (this.bus && bus.timestamp <= this.bus.timestamp)
                        return;
+                   console.log("bus updated!");
 
                    this.bus = bus;
-                   this._pathCache = bus.timepoints;
-                   this._position = L.latLng(bus.lat, bus.lon);
+                   if (!this._position)
+                       this._position = L.latLng(bus.lat, bus.lon);
+
+                   var lastNextPoint = this._nextPoint,
+                       timepoints = bus.timepoints;
+
+                   // If there is already a next point set, slice the new
+                   // timepoint array up until that point.
+                   if (lastNextPoint) {
+                       timepoints = $u.dropWhile(function(pt) {
+                           return !samePoint(lastNextPoint);
+                       }, bus.timepoints);
+                   }
+                   this._pathCache = timepoints;
+
+                   this._oldNextPoint = this._nextPoint;
+                   this._nextPoint = null;
                    if (this._findNextTimePoint())
                        this._wantsUpdate = true;
                },
@@ -175,6 +197,7 @@ define(["leaflet", "jquery", "utils"],
                    if (this._nextPoint) {
                        if (this._nextPoint.time > now)
                            return this._nextPoint;
+                       this._lastPoint = this._nextPoint;
                        this._nextPoint = null;
                    }
                    if (this._pathCache) {
@@ -195,7 +218,7 @@ define(["leaflet", "jquery", "utils"],
                            this._latSpeed = dLat/dt;
                            this._lngSpeed = dLng/dt;
                            this._position = busLL;
-                           //this._busTheta = Math.atan2(, dx);
+                           //this._busTheta = Math.atan2(dLat, dLng);
                            return this._nextPoint;
                        }
                    }

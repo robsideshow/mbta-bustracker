@@ -25,7 +25,7 @@ define(["jquery", "leaflet", "animation", "bus-marker", "routes", "config", "app
 
                    RoutesLoader.showRoutes(routes);
 
-                   var animation = new Animation({tickInterval: 1000});
+                   var animation = new Animation({tickInterval: 20});
                    animation.start();
 
                    // TODO: Rewrite
