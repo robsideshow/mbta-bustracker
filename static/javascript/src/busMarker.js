@@ -6,13 +6,12 @@ define(["leaflet", "jquery", "utils"],
            }
 
            function calculateTimepointPosition(timepoints, stamp) {
-               var timepoint, lastTimepoint;
-               for (var i = 0, l = timepoints.length; i < l; i++) {
-                   timepoint = timepoints[i];
+               var timepoint, lastTimepoint, i = 0;
+               while ((timepoint = timepoints[i++])) {
                    if (timepoint.time > stamp)
                        break;
-
-                   lastTimepoint = timepoint;
+                   else
+                       lastTimepoint = timepoint;
                }
 
                if (lastTimepoint) {
