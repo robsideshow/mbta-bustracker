@@ -202,14 +202,13 @@ define(["leaflet", "jquery", "utils"],
                    // LRP; if not, ignore it.
                    if (this.bus && bus.timestamp <= this.bus.timestamp)
                        return;
-                   console.log("bus updated!");
 
                    this.bus = bus;
                    if (!this._position) {
                        this._position =
                            calculateTimepointPosition(
                                bus.timepoints, $u.stamp()) ||
-                           L.latLg(bus.lat, bus.lon);
+                           L.latLng(bus.lat, bus.lon);
                    }
 
                    var lastNextPoint = this._nextPoint,
