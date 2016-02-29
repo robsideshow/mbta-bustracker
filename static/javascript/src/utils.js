@@ -39,10 +39,20 @@ define([], function() {
             return coll.slice(i);
         },
 
+        /**
+         * Returns the complement of a boolean function.
+         *
+         * @param {Function} fn
+         */
         not: function(fn) {
             return function() {
                 return !fn.apply(this, arguments);
             };
+        },
+
+
+        stamp: function() {
+            return new Date().valueOf()/1000;
         }
     };
 

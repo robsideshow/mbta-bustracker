@@ -5,6 +5,39 @@ define(["leaflet", "jquery", "utils"],
                    tp1.lon == tp2.lon;
            }
 
+           function calculateTimepointPosition(timepoints, stamp) {
+               var timepoint, lastTimepoint;
+               for (var i = 0, l = timepoints.length; i < l; i++) {
+                   timepoint = timepoints[i];
+                   if (timepoint.time > stamp)
+                       break;
+
+                   lastTimepoint = timepoint;
+               }
+
+               if (lastTimepoint) {
+                   if (timepoint) {
+                       // Calculate the progress along the segment between
+                       // lastTimepoint and timepoint:
+                       var progress = (stamp - lastTimepoint.time)/
+                               (timepoint.time - lastTimepoint.time),
+                           dLat = timepoint.lat - lastTimepoint.lat,
+                           dLng = timepoint.lon - lastTimepoint.lon;
+
+                       return L.latLng(
+                           lastTimepoint.lat + dLat*progress,
+                           lastTimepoint.lon + dLng*progress);
+                   } else {
+                       // We don't have any more information about the vehicle's
+                       // next position, so use the coordinates of its last
+                       // timepoint.
+                       return L.latLng(lastTimepoint.lat, lastTimepoint.lon);
+                   }
+               }
+
+               return null;
+           }
+
            return L.FeatureGroup.extend({
                /**
                 * @param {Object} bus Object representing the state of a bus
@@ -172,8 +205,12 @@ define(["leaflet", "jquery", "utils"],
                    console.log("bus updated!");
 
                    this.bus = bus;
-                   if (!this._position)
-                       this._position = L.latLng(bus.lat, bus.lon);
+                   if (!this._position) {
+                       this._position =
+                           calculateTimepointPosition(
+                               bus.timepoints, $u.stamp()) ||
+                           L.latLg(bus.lat, bus.lon);
+                   }
 
                    var lastNextPoint = this._nextPoint,
                        timepoints = bus.timepoints;
