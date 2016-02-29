@@ -13,6 +13,7 @@ import urllib, requests
 import json
 import socket
 import errno  
+import google.protobuf.message
 
 
 api_key = 'wX9NwuHnZU2ToO7GmGR9uw'
@@ -202,6 +203,8 @@ def getAllTripsGTFS_Raw():
     except socket.error as error:
         if error.errno == errno.ECONNRESET:
             return []
+    except google.protobuf.message.DecodeError:
+        return []
 
 
 def getAllVehiclesGTFS():
