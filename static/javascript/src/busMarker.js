@@ -51,7 +51,7 @@ define(["leaflet", "jquery", "utils"],
                 */
                initialize: function(bus, options) {
                    L.FeatureGroup.prototype.initialize.apply(this, []);
-                   this.update(bus);
+                   this.bus = bus;
 
                    this.options = options || {
                        busLength: 10,
@@ -101,32 +101,11 @@ define(["leaflet", "jquery", "utils"],
 
                    var html = "<div class='bus-marker'></div>";
 
-                   this.busMarker = L.marker(
-                       this.busLatLng(), {icon: this.makeIcon(null, 0)})
-                        .addTo(this);
-
-                   // this.busCircle = L.circle(this.busLatLng(), 10, {
-                   //     color: "black",
-                   //     weight: 1,
-                   //     fill: true,
-                   //     fillColor: "orange",
-                   //     fillOpacity: 1
-                   // }).addTo(this);
-
-                   // this.busShape = L.polygon(this._busPoints(),
-                   //                           {
-                   //                               color: "#000",
-                   //                               weight: 2,
-                   //                               fill: true,
-                   //                               fillColor: "white",
-                   //                               fillOpacity: 0.9
-
-                   //                           })
-                   //     .addTo(this);
-                   // this.arrowShape =
-                   //     L.polyline(this._arrowPoints(), {color: "#ff0000",
-                   //                                      weight: 3})
-                   //      .addTo(this);
+                   this.update(this.bus);
+                   this.busMarker = L.marker(this._position,
+                                             this.makeIcon(this.bus,
+                                                           -this._busTheta))
+                       .addTo(this);
                },
 
                onPopupOpen: function(e) {
@@ -179,23 +158,6 @@ define(["leaflet", "jquery", "utils"],
                    return this._position;
                },
 
-               _busPoints: function() {
-                   var transform = this.makeTransform(),
-                       hl = this.options.busLength/2,
-                       hw = this.options.busWidth/2,
-                       polyPoints = [[-hl, hw], [hl, hw],
-                                     [hl, -hw], [-hl, -hw]];
-
-                   return polyPoints.map(transform);
-               },
-
-               _arrowPoints: function() {
-                   var transform = this.makeTransform(),
-                       points = [[5, 0], [10, 0], [8, 2], [10, 0], [8, -2]];
-
-                   return points.map(transform);
-               },
-
                update: function(bus) {
                    // Check if the new bus's LRP is newer than the old bus's
                    // LRP; if not, ignore it.
@@ -208,6 +170,10 @@ define(["leaflet", "jquery", "utils"],
                            calculateTimepointPosition(
                                bus.timepoints, $u.stamp()) ||
                            L.latLng(bus.lat, bus.lon);
+                   }
+                   if (!this._busTheta) {
+                       var degs = (360-(bus.heading-90))%360;
+                       this._busTheta = degs/180 * Math.PI;
                    }
 
                    var lastNextPoint = this._nextPoint,
@@ -278,15 +244,14 @@ define(["leaflet", "jquery", "utils"],
                    if (!point)
                        this._wantsUpdate = false;
 
-                   var oldLL = this._position,
-                       newLL = L.latLng(oldLL.lat+this._latSpeed*dt,
-                                        oldLL.lng+this._lngSpeed*dt);
-                   this._position = newLL;
+                   var oldLL = this._position;
+                   this._position = L.latLng(oldLL.lat+this._latSpeed*dt,
+                                             oldLL.lng+this._lngSpeed*dt);
+                   this._refreshMarker();
+               },
 
-                   // this.busShape.setLatLngs(this._busPoints());
-                   // this.arrowShape.setLatLngs(this._arrowPoints());
-                   //this.busCircle.setLatLng(newLL);
-                   this.busMarker.setLatLng(newLL);
+               _refreshMarker: function() {
+                   this.busMarker.setLatLng(this._position);
                    this.busMarker.setIcon(
                        this.makeIcon(this.bus, -this._busTheta));
                }
