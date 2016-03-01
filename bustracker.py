@@ -171,7 +171,7 @@ def getAllVehiclesGTFS_Raw():
     #return feed.entity
     try:
         url = 'http://developer.mbta.com/lib/GTRTFS/Alerts/VehiclePositions.pb'
-        response = requests.get(url)
+        response = requests.get(url, timeout = 10)
         if response.ok:
             feed.ParseFromString(response.content)       
             return feed.entity
@@ -182,6 +182,9 @@ def getAllVehiclesGTFS_Raw():
         if error.errno == errno.ECONNRESET:
             return []
     except (google.protobuf.message.DecodeError, requests.exceptions.ChunkedEncodingError):
+        return []
+    except requests.exceptions.RequestException as e:    
+        print e
         return []
 
 
@@ -196,7 +199,7 @@ def getAllTripsGTFS_Raw():
 
     try:
         url = 'http://developer.mbta.com/lib/GTRTFS/Alerts/TripUpdates.pb'
-        response = requests.get(url)
+        response = requests.get(url, timeout = 10)
         if response.ok:
             feed.ParseFromString(response.content)       
             return feed.entity
@@ -208,7 +211,9 @@ def getAllTripsGTFS_Raw():
             return []
     except (google.protobuf.message.DecodeError, requests.exceptions.ChunkedEncodingError):
         return []
-
+    except requests.exceptions.RequestException as e:   
+        print e
+        return []
 
 def getAllVehiclesGTFS():
     '''
