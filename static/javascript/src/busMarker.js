@@ -57,18 +57,12 @@ define(["leaflet", "jquery", "utils"],
                 * @param {number} bus.heading
                 *
                 * @param {Object} [options]
-                * @param {number} [options.busLength=10] Length in pixels of the bus
-                * shape at level 15 zoom
-                * @param {number} [options.busWidth=3]
                 */
                initialize: function(bus, options) {
                    L.FeatureGroup.prototype.initialize.apply(this, []);
                    this.bus = bus;
 
-                   this.options = options || {
-                       busLength: 10,
-                       busWidth: 3
-                   };
+                   this.options = options || {};
 
                    this.bindPopup("popup!");
 
@@ -111,13 +105,13 @@ define(["leaflet", "jquery", "utils"],
                onAdd: function(map) {
                    this._map = map;
 
-                   var html = "<div class='bus-marker'></div>";
-
                    this._update(this.bus);
-                   this.busMarker = L.marker(this._position,
-                                             this.makeIcon(this.bus,
-                                                           -this._busTheta))
-                       .addTo(this);
+                   this.busMarker = L.marker(
+                       this._position,
+                       {
+                           icon: this.makeIcon(this.bus,
+                                               -this._busTheta)
+                       }).addTo(this);
                },
 
                onPopupOpen: function(e) {
