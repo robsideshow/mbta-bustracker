@@ -37,6 +37,18 @@ define(["leaflet", "jquery", "utils"],
                return null;
            }
 
+           function totalDist(start, timepoints) {
+               var total = 0, last = start;
+               for (var i = 0, l = timepoints.length; i < l; i++) {
+                   var timepoint = timepoints[i];
+                   total += Math.sqrt(Math.pow(timepoint.lat - start.lat, 2) +
+                                      Math.pow(timepoint.lon - start.lon, 2));
+
+                   last = timepoint;
+               }
+               return total;
+           }
+
            return L.FeatureGroup.extend({
                /**
                 * @param {Object} bus Object representing the state of a bus
@@ -101,7 +113,7 @@ define(["leaflet", "jquery", "utils"],
 
                    var html = "<div class='bus-marker'></div>";
 
-                   this.update(this.bus);
+                   this._update(this.bus);
                    this.busMarker = L.marker(this._position,
                                              this.makeIcon(this.bus,
                                                            -this._busTheta))
@@ -163,7 +175,10 @@ define(["leaflet", "jquery", "utils"],
                    // LRP; if not, ignore it.
                    if (this.bus && bus.timestamp <= this.bus.timestamp)
                        return;
+                   this._update(bus);
+               },
 
+               _update: function(bus) {
                    this.bus = bus;
                    if (!this._position) {
                        this._position =
