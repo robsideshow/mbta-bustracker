@@ -5,7 +5,21 @@ define(["leaflet", "jquery", "utils"],
                    tp1.lon == tp2.lon;
            }
 
+           /**
+            * Based on an array of timepoints (where a timepoint has lat, lon,
+            * and time keys) and a timestamp (seconds since the epoch),
+            * calculate the position at that time.
+            *
+            * @param {Object[]} timepoints
+            * @param {number} [stamp]
+            */
            function calculateTimepointPosition(timepoints, stamp) {
+               // We can't calculate a meaningful position without the
+               // timepoints.
+               if (!timepoints) return null;
+
+               if (!stamp) stamp = $u.stamp();
+
                var timepoint, lastTimepoint, i = 0;
                while ((timepoint = timepoints[i++])) {
                    if (timepoint.time > stamp)
