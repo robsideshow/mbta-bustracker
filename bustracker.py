@@ -302,7 +302,7 @@ def getParentStops(stopidlist):
     parents = []
     for stop_id in stopidlist:
         stopinfo = stopinfodict[stop_id]
-        if stopinfo.get('children', '') != '':
+        if stopinfo.get('children', ''):
             route_ids = []
             for stop_id in stopinfo['children']:
                 route_ids += stoproutesdict.get(stop_id, []) 
@@ -429,7 +429,24 @@ def getAnimationPoints(path, veh_lat, veh_lon, veh_timestamp, speed = 6):
         first_i = closest_i +1
     return buildAnimationDicts(path, first_i, veh_lat, veh_lon, veh_timestamp, speed)
         
-    
+
+def getShapeForUnschedTrip(route_id, direction, destination):
+    '''
+    For unscheduled trip with trip_id not in static GTFS dictionaries, try to 
+    find a shape_id with the same direction and destination
+    '''
+    shape_ids = routeshapedict[route_id]
+    dir_shape_ids = [x for x in shape_ids if shapeinfodict.get(x).get('direction') == direction]
+    dir_shape_ids.sort(key = lambda x : len(shapepathdict[x]))
+    if len(dir_shape_ids) == 0:
+        return ''
+    ok_shape_ids = [x for x in dir_shape_ids if shapeinfodict.get(x).get('destination') == destination]
+    if len(ok_shape_ids) == 0:
+        return ''
+    else:
+        return ok_shape_ids[-1] #if multiple matches, return the shape_id with the longest path
+
+   
 
     
 def pathAnalyzer(path, longseg = 100):
