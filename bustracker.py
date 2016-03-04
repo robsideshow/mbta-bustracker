@@ -442,7 +442,7 @@ def getShapeForUnschedTrip(route_id, direction, destination):
     dir_shape_ids.sort(key = lambda x : len(shapepathdict[x]))
     if len(dir_shape_ids) == 0:
         return ''
-    ok_shape_ids = [x for x in dir_shape_ids if shapeinfodict.get(x).get('destination') == destination]
+    ok_shape_ids = [x for x in dir_shape_ids if (shapeinfodict.get(x, ' ').get('destination', ' '))[:6] == destination[:6]]
     if len(ok_shape_ids) == 0:
         return ''
     else:
