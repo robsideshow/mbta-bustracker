@@ -16,7 +16,7 @@ define([], function() {
         makeTransformFn: null,
 
         vehicleSummary: function(vehicle) {
-            return [
+            return ["vehicle id: ", vehicle.id, "<br/> ",
                 vehicle.type == "subway" ? vehicle.route :
                     ((vehicle.direction == "1" ? "Inbound " : "Outbound ") + "Route " + vehicle.route),
                 vehicle.type,
