@@ -181,7 +181,8 @@ def getAllVehiclesGTFS_Raw():
     except socket.error as error:
         if error.errno == errno.ECONNRESET:
             return []
-    except (google.protobuf.message.DecodeError, requests.exceptions.ChunkedEncodingError):
+    except (google.protobuf.message.DecodeError, requests.exceptions.ChunkedEncodingError,
+            UnicodeDecodeError):
         return []
     except requests.exceptions.RequestException as e:    
         print e
@@ -209,7 +210,8 @@ def getAllTripsGTFS_Raw():
     except socket.error as error:
         if error.errno == errno.ECONNRESET:
             return []
-    except (google.protobuf.message.DecodeError, requests.exceptions.ChunkedEncodingError):
+    except (google.protobuf.message.DecodeError, requests.exceptions.ChunkedEncodingError,
+            UnicodeDecodeError):
         return []
     except requests.exceptions.RequestException as e:   
         print e
