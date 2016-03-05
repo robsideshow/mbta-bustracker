@@ -115,6 +115,11 @@ define(["leaflet", "jquery", "utils"],
                    });
                },
 
+               updateIcon: function(bus, rot) {
+                   var busDiv = this.busMarker._icon.firstElementChild;
+                   busDiv.style = "transform: rotate(" + rot + "rad)";
+               },
+
                // Called by Leaflet when the marker is added to the map.
                onAdd: function(map) {
                    this._map = map;
@@ -183,6 +188,7 @@ define(["leaflet", "jquery", "utils"],
                    // LRP; if not, ignore it.
                    if (this.bus && bus.timestamp <= this.bus.timestamp)
                        return;
+
                    this._update(bus);
                },
 
@@ -270,13 +276,10 @@ define(["leaflet", "jquery", "utils"],
                    var oldLL = this._position;
                    this._position = L.latLng(oldLL.lat+this._latSpeed*dt,
                                              oldLL.lng+this._lngSpeed*dt);
-                   this._refreshMarker();
-               },
-
-               _refreshMarker: function() {
                    this.busMarker.setLatLng(this._position);
-                   this.busMarker.setIcon(
-                       this.makeIcon(this.bus, -this._busTheta));
+                   this.updateIcon(this.bus, -this._busTheta);
+                   // this.busMarker.setIcon(
+                   //     this.makeIcon(this.bus, -this._busTheta));
                }
            });
        });
