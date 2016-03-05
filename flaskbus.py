@@ -10,6 +10,7 @@ from flask.ext.assets import Environment, Bundle
 import bustracker as btr
 from api_routes import api_routes
 from map_routes import map_routes
+import os
 
 app = Flask(__name__)
 
@@ -178,4 +179,4 @@ def mapLocation():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=int(os.environ.get("FLASK_PORT", "5000")))
