@@ -147,6 +147,7 @@ def parseTripEntity(tent):
         tdict['destination'] = shapeinfodict[shape_id]['destination']
         tdict['direction'] = shapeinfodict[shape_id]['direction']
     tdict['trip_id'] = tent.trip_update.trip.trip_id
+    tdict['vehicle_id'] = tent.trip_update.vehicle.id
     stu = tent.trip_update.stop_time_update
     tdict['preds'] = [{'stop_seq' : x.stop_sequence,
                        'arr_time' : x.arrival.time,

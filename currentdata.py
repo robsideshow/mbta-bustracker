@@ -67,7 +67,8 @@ class CurrentData(object):
                     if pred.get('stop_id') in stopidlist:
                         stop_preds[pred.get('stop_id')].append({'route_id':trip.get('route_id'),
                                                     'direction' : trip.get('direction'),
-                                                    'arr_time' : pred.get('arr_time')})
+                                                    'arr_time' : pred.get('arr_time'),
+                                                    'vehicle_id' : trip.get('vehicle_id')})
         return stop_preds
                     
                 
