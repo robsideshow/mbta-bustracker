@@ -81,6 +81,23 @@ def route_info():
                     paths = paths, 
                    stops = stops)
 
+@api_routes.route("/locationinfo")
+def location_info():
+    lat = float(request.args.get('lat', 40))
+    lon = float(request.args.get('lon', -71))
+    radius = float(request.args.get('radius', 800))
+    numstops = int(request.args.get('numstops', 15))
+    
+    if lat == 40:
+        abort(401)
+        
+    nearby_stops = btr.getNearbyStops(lat, lon, numstops, radius)
+    routeidlist = btr.getRoutesForStops([stop.get('stop_id') for stop in nearby_stops])
+    parent_stops = btr.getParentStops([s['stop_id'] for s in nearby_stops])        
+    return jsonify(stops = nearby_stops,
+                   routes = routeidlist, 
+                   parent_stops = parent_stops)
+
 
 
 
