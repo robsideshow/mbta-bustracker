@@ -72,9 +72,10 @@ define(["leaflet", "jquery", "utils"],
                 *
                 * @param {Object} [options]
                 */
-               initialize: function(bus, options) {
+               initialize: function(bus, routeInfo, options) {
                    L.FeatureGroup.prototype.initialize.apply(this, []);
                    this.bus = bus;
+                   this.routeInfo = routeInfo;
 
                    this.options = options || {};
 
@@ -103,11 +104,22 @@ define(["leaflet", "jquery", "utils"],
                },
 
                makeIcon: function(bus, rot) {
-                   var html = [
-                       "<div class='bus-marker' ",
-                       "style='transform: rotate(", rot, "rad)'>",
-                       "</div>"
-                   ].join("");
+                  var route = this.routeInfo.routename,
+                      color = this.routeInfo.style.color;
+                  
+                  if (route.indexOf("Green-") > -1) {
+                    route = route.slice(route.indexOf("-")+1);
+                  } else if (route == "Blue Line" || 
+                             route == "Orange Line" || 
+                             route == "Red Line") {
+                    route = "T";
+                  } else {
+                    route = this.routeInfo.routename;
+                  }
+                  
+                  html = "<div class='bus-marker' style='transform: rotate(" + rot +
+                         "rad); border-color: " + color + "; color: " + color + "'>" +
+                         route + "</div>";
 
                    return L.divIcon({
                        className: "bus-marker-container",
@@ -116,8 +128,10 @@ define(["leaflet", "jquery", "utils"],
                },
 
                updateIcon: function(bus, rot) {
-                   var busDiv = this.busMarker._icon.firstElementChild;
-                   busDiv.style = "transform: rotate(" + rot + "rad)";
+                   var busDiv = this.busMarker._icon.firstElementChild,
+                       color = this.routeInfo.style.color;
+                   busDiv.style = "transform: rotate(" + rot + "rad); border-color: " + color + "; color: " + color + ";";
+
                },
 
                // Called by Leaflet when the marker is added to the map.

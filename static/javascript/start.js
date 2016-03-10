@@ -79,7 +79,7 @@ define(["jquery", "leaflet", "animation", "bus-marker", "routes", "config", "app
                            then(function(update) {
                                $.each(update.buses, function(idx, bus) {
                                    if (!busMarkers[bus.id]) {
-                                       var marker = new BusMarker(bus).addTo(busLayer);
+                                       var marker = new BusMarker(bus, RoutesLoader.routeInfo[bus.route_id]).addTo(busLayer);
                                        busMarkers[bus.id] = marker;
                                        animation.addObject(marker);
                                    } else {

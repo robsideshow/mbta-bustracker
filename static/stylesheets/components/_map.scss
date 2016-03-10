@@ -1,11 +1,19 @@
 .bus-marker-container {
-    height: 20px;
-    width: 20px;
+    font-size: 10px;
+    line-height: 1em;
+    font-weight: 500;
+
+    .bus-marker {
+        display: table-cell;
+        text-align: center;
+        vertical-align: middle;
+        background-color: white;
+        border: 2px solid black;
+        border-radius: 10px;
+        padding: 3px;
+        &:after {
+            content: "\2023"; // To be replaced by an icon font
+        }
+    }
 }
-.bus-marker {
-    background-color: white;
-    border: 1px solid black;
-    border-radius: 3px;
-    width: 20px;
-    height: 10px;
-}
+

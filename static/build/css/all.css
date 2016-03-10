@@ -927,12 +927,16 @@ ul {
       height: 98%;
       overflow: auto; }
 .bus-marker-container {
-  height: 20px;
-  width: 20px; }
-
-  .bus-marker {
+  font-size: 10px;
+  line-height: 1em;
+  font-weight: 500; }
+  .bus-marker-container .bus-marker {
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
     background-color: white;
-    border: 1px solid black;
-    border-radius: 3px;
-    width: 20px;
-    height: 10px; }
+    border: 2px solid black;
+    border-radius: 10px;
+    padding: 3px; }
+    .bus-marker-container .bus-marker:after {
+      content: "‣"; }
