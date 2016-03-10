@@ -113,8 +113,10 @@ define(["leaflet", "jquery", "utils"],
                              route == "Orange Line" || 
                              route == "Red Line") {
                     route = "T";
-                  } else {
-                    route = this.routeInfo.routename;
+                  } else if (route == "Mattapan Trolley") {
+                    route = "MT";
+                  } else if (route == "Silver Line Waterfront") {
+                    route = "SLW";
                   }
                   
                   html = "<div class='bus-marker' style='transform: rotate(" + rot +
