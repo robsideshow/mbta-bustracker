@@ -65,33 +65,28 @@ define(["leaflet", "jquery", "utils"],
 
            return L.FeatureGroup.extend({
                /**
-                * @param {Object} bus Object representing the state of a bus
-                * @param {number} bus.lat
-                * @param {number} bus.lon
-                * @param {number} bus.heading
+                * @param {Backbone.Model} bus
                 *
                 * @param {Object} [options]
                 */
-               initialize: function(bus, routeInfo, options) {
+               initialize: function(bus, options) {
                    L.FeatureGroup.prototype.initialize.apply(this, []);
                    this.bus = bus;
-                   this.routeInfo = routeInfo;
-
                    this.options = options || {};
+                   this._lastTimestamp = 0;
 
                    this.bindPopup("popup!");
 
                    var self = this;
                    this.on("click", function(e) {
-                       console.log(this.bus);
                        if (e.originalEvent.shiftKey) {
                            var pathMarkers = 
-                           $.map(this.bus.timepoints,
-                                  function(timepoint) {
-                                      return L.circle(
-                                          [timepoint.lat, timepoint.lon], 1)
-                                          .addTo(self);
-                                  });
+                                   $.map(this.bus.timepoints,
+                                         function(timepoint) {
+                                             return L.circle(
+                                                 [timepoint.lat, timepoint.lon], 1)
+                                                 .addTo(self);
+                                         });
                            this.once("popupclose", function() {
                                $.each(pathMarkers,
                                       function(i, m) {
@@ -99,29 +94,37 @@ define(["leaflet", "jquery", "utils"],
                                       });
                            });
                        }
-                       })
+                   })
                        .on("popupopen", this.onPopupOpen);
+
+                   bus.on("change", this.update, this);
+               },
+
+               // Returns the bus as a dictionary of attributes.
+               getBus: function() {
+                   return this.bus && this.bus.attributes;
                },
 
                makeIcon: function(bus, rot) {
-                  var route = this.routeInfo.routename,
-                      color = this.routeInfo.style.color;
-                  
-                  if (route.indexOf("Green-") > -1) {
-                    route = route.slice(route.indexOf("-")+1);
-                  } else if (route == "Blue Line" || 
-                             route == "Orange Line" || 
-                             route == "Red Line") {
-                    route = "T";
-                  } else if (route == "Mattapan Trolley") {
-                    route = "MT";
-                  } else if (route == "Silver Line Waterfront") {
-                    route = "SLW";
-                  }
-                  
-                  html = "<div class='bus-marker' style='transform: rotate(" + rot +
-                         "rad); border-color: " + color + "; color: " + color + "'>" +
-                         route + "</div>";
+                   var route = this.bus.getRoute(),
+                       routeName = route.getName(),
+                       color = route.getColor();
+
+                   if (routeName.indexOf("Green-") > -1) {
+                       routeName = routeName.slice(routeName.indexOf("-")+1);
+                   } else if (routeName == "Blue Line" || 
+                              routeName == "Orange Line" || 
+                              routeName == "Red Line") {
+                       routeName = "T";
+                   } else if (routeName == "Mattapan Trolley") {
+                       routeName = "MT";
+                   } else if (routeName == "Silver Line Waterfront") {
+                       routeName = "SLW";
+                   }
+
+                   var html = "<div class='bus-marker' style='transform: rotate(" + rot +
+                           "rad); border-color: " + color + "; color: " + color + "'>" +
+                           routeName + "</div>";
 
                    return L.divIcon({
                        className: "bus-marker-container",
@@ -131,30 +134,27 @@ define(["leaflet", "jquery", "utils"],
 
                updateIcon: function(bus, rot) {
                    var busDiv = this.busMarker._icon.firstElementChild,
-                       color = this.routeInfo.style.color;
-                   busDiv.style = "transform: rotate(" + rot + "rad); border-color: " + color + "; color: " + color + ";";
+                       color = this.bus.getRoute().getColor();
 
+                   busDiv.style = "transform: rotate(" + rot +
+                       "rad); border-color: " + color + "; color: " +
+                       color + ";";
                },
 
                // Called by Leaflet when the marker is added to the map.
                onAdd: function(map) {
+                   var bus = this.getBus();
                    this._map = map;
-
-                   this._update(this.bus);
+                   this._update(bus);
                    this.busMarker = L.marker(
                        this._position,
                        {
-                           icon: this.makeIcon(this.bus,
-                                               -this._busTheta)
+                           icon: this.makeIcon(bus, -this._busTheta)
                        }).addTo(this);
                },
 
                onPopupOpen: function(e) {
-                   e.popup.setContent($u.vehicleSummary(this.bus));
-               },
-
-               getCenter: function() {
-                   return L.latLng(+this.bus.lat, +this.bus.lon);
+                   e.popup.setContent(this.bus.summary());
                },
 
                /**
@@ -202,14 +202,14 @@ define(["leaflet", "jquery", "utils"],
                update: function(bus) {
                    // Check if the new bus's LRP is newer than the old bus's
                    // LRP; if not, ignore it.
-                   if (this.bus && bus.timestamp <= this.bus.timestamp)
+                   if (bus.get("timestamp") <= this._lastTimestamp)
                        return;
 
-                   this._update(bus);
+                   this._update(bus.attributes);
                },
 
                _update: function(bus) {
-                   this.bus = bus;
+                   this._lastTimestamp = bus.timestamp;
                    if (!this._position) {
                        this._position =
                            calculateTimepointPosition(
@@ -234,7 +234,7 @@ define(["leaflet", "jquery", "utils"],
                    this._pathCache = timepoints;
 
                    this._nextPoint = null;
-                   if (this._findNextTimePoint())
+                   if (this._findNextTimePoint(bus))
                        this._wantsUpdate = true;
                },
 
@@ -247,7 +247,7 @@ define(["leaflet", "jquery", "utils"],
                 * obsolete, caches several values, advances _nextPoint, and
                 * returns the timepoint.
                 */
-               _findNextTimePoint: function() {
+               _findNextTimePoint: function(bus) {
                    var now = new Date().valueOf()/1000;
                    if (this._nextPoint) {
                        if (this._nextPoint.time > now)
@@ -264,7 +264,7 @@ define(["leaflet", "jquery", "utils"],
                        if (timepoint) {
                            var ll = L.latLng(timepoint.lat, timepoint.lon),
                                busLL = this._position ||
-                                   L.latLng(this.bus.lat, this.bus.lon),
+                                   L.latLng(bus.lat, bus.lon),
                                dt = timepoint.time - now,
                                dLat = ll.lat - busLL.lat,
                                dLng = ll.lng - busLL.lng;
@@ -283,7 +283,8 @@ define(["leaflet", "jquery", "utils"],
                tick: function(dt, now) {
                    if (!this._wantsUpdate) return;
 
-                   var point = this._findNextTimePoint();
+                   var bus = this.getBus(),
+                       point = this._findNextTimePoint(bus);
 
                    // Time points exhausted!
                    if (!point)
@@ -293,9 +294,7 @@ define(["leaflet", "jquery", "utils"],
                    this._position = L.latLng(oldLL.lat+this._latSpeed*dt,
                                              oldLL.lng+this._lngSpeed*dt);
                    this.busMarker.setLatLng(this._position);
-                   this.updateIcon(this.bus, -this._busTheta);
-                   // this.busMarker.setIcon(
-                   //     this.makeIcon(this.bus, -this._busTheta));
+                   this.updateIcon(bus, -this._busTheta);
                }
            });
        });

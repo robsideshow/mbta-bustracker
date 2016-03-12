@@ -1,7 +1,8 @@
 {
     "libs": [
         "browser",
-        "jquery"
+        "jquery",
+        "underscore"
     ],
     "plugins": {
         "requirejs": {

@@ -15,18 +15,6 @@ define(["underscore"], function(_) {
 
         makeTransformFn: null,
 
-        vehicleSummary: function(vehicle) {
-            return ["vehicle id: ", vehicle.id, "<br/> ",
-                vehicle.type == "subway" ? vehicle.route :
-                    ((vehicle.direction == "1" ? "Inbound " : "Outbound ") + "Route " + vehicle.route),
-                vehicle.type,
-                "heading",
-                $u.readableHeading(vehicle.heading),
-                "toward",
-                vehicle.destination
-            ].join(" ");
-        },
-
         bind: function(fn, context) {
             return function() {
                 return fn.apply(context, arguments);

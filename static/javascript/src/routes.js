@@ -5,17 +5,10 @@ define(["jquery", "leaflet", "config", "stop-marker"],
        function($, L, config, StopMarker) {
            var colors = ["blue", "orange", "purple", "maroon",
                          "steelblue", "gray"];
-
-           function Routes(layer) {
-               this.layer = layer;
-               /** @member {Object} A cache of route objects indexed by id */
-               this.routeInfo = {};
-               /** @member {string[]} An array of route ids */
-               this.showing = [];
-               this._routeCount = 0;
-           }
-
-           $.extend(Routes.prototype, {
+           return {
+               routeInfo: {},
+               showing: [],
+               _routeCount: 0,
                loadRouteInfo: function(route_id, cacheOnly) {
                    var promise = $.Deferred();
 
@@ -66,18 +59,8 @@ define(["jquery", "leaflet", "config", "stop-marker"],
                        });
                },
 
-               getLayersForRoute: function(route_id) {
-                   return $.grep(this.layer.getLayers(), function(layer) {
-                       return (layer._route_id == route_id);
-                   });
-               },
-
                hideRoute: function(route_id) {
                    var layer = this.layer;
-                   $.each(this.getLayersForRoute(route_id),
-                          function(i, pathLayer) {
-                              layer.removeLayer(pathLayer);
-                          });
 
                    this.showing = $.grep(this.showing,
                                          function(id) { return id !== route_id; });
@@ -114,7 +97,6 @@ define(["jquery", "leaflet", "config", "stop-marker"],
 
                    return bounds;
                }
-           });
+           };
 
-           return Routes;
        });

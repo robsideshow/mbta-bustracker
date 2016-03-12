@@ -1,6 +1,6 @@
 /* Global UI Behavior should come here */
 
-define(["jquery"], function(){
+define(["jquery"], function($){
     $("#map-view").click(function(){
         $(this).parent().addClass("active");
         $("#graph-view").parent().removeClass("active");

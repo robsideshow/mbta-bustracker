@@ -2,7 +2,7 @@ define(["jquery", "backbone", "underscore", "config"],
        function($, B, _, config) {
            var RouteModel = B.Model.extend({
                initialize: function(model, options) {
-                   B.Model.initialize.call(this, model, options);
+                   B.Model.prototype.initialize.call(this, model, options);
                    this.app = options.app;
                },
 
@@ -10,7 +10,7 @@ define(["jquery", "backbone", "underscore", "config"],
                    var promise = $.Deferred();
 
                    if (this.get("_loaded")) {
-                       promise.resolve(self);
+                       promise.resolve(this);
                    } else if (cacheOnly) {
                        promise.reject("Route info not in cache.");
                    } else {
@@ -20,7 +20,6 @@ define(["jquery", "backbone", "underscore", "config"],
                        $.get("/api/routeinfo", {route: this.id})
                            .done(function(info) {
                                info._loaded = true;
-                               delete info.stops;
                                self.set(info);
                                promise.resolve(self);
                                if (!stops) return;
@@ -30,6 +29,11 @@ define(["jquery", "backbone", "underscore", "config"],
                                                    stop.route_id = self.id;
                                                    return stop;
                                                }));
+                               delete info.stops;
+                           })
+                           .fail(function(resp) {
+                               console.log(resp);
+                               promise.reject("Invalid route");
                            });
                    }
 
@@ -40,6 +44,10 @@ define(["jquery", "backbone", "underscore", "config"],
                    var style = this.get("style");
 
                    return style && style.color;
+               },
+
+               getName: function() {
+                   return this.get("routename") || "";
                }
            });
 
