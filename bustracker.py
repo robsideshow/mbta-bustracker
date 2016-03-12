@@ -449,8 +449,45 @@ def getShapeForUnschedTrip(route_id, direction, destination):
     else:
         return ok_shape_ids[-1] #if multiple matches, return the shape_id with the longest path
 
-   
 
+def seglist2Pathlist(seglist):
+    '''
+    takes a list of segments and returns a list of paths made by stitching the segments together
+    '''
+    if len(seglist) <= 1:
+        return []
+    pathlist = []
+    curr_seg = seglist.pop(0)
+    curr_path = [curr_seg[0], curr_seg[1]]
+    for seg in seglist:
+        if seg[0] == curr_path[-1]:
+            curr_path.append(seg[1])
+        else:
+            if len(curr_path) > 2: pathlist.append(curr_path)
+            curr_path = [seg[0], seg[1]]
+    pathlist.append(curr_path)        
+    return pathlist
+
+
+def pathReducer(pathlist):
+    '''
+    takes a list of paths and returns a list of paths with no overlap (repeated segments)
+    '''
+    segset = set()
+    reduced_pathlist = []
+    for path in pathlist:
+        curr_reduced_path_segs = []
+        numpts = len(path)
+        for i in range(numpts -1):
+            curr_seg = tuple(sorted([tuple(path[i]), tuple(path[i+1])]))
+            if curr_seg[0] != curr_seg[1]:
+                if curr_seg not in segset:
+                    segset.add(curr_seg)
+                    curr_reduced_path_segs.append([path[i], path[i+1]])
+        newpaths = seglist2Pathlist(curr_reduced_path_segs)
+        reduced_pathlist.extend(newpaths)     
+    return reduced_pathlist
+    
     
 def pathAnalyzer(path, longseg = 100):
     '''

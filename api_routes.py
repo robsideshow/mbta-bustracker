@@ -73,7 +73,7 @@ def route_info():
         abort(401)
 
     shape_ids = btr.routeshapedict.get(route_id)
-    paths = [btr.shapepathdict.get(shape_id) for shape_id in shape_ids]
+    paths = btr.pathReducer([btr.shapepathdict.get(shape_id) for shape_id in shape_ids])
     stop_ids = btr.routestopsdict.get(route_id)
     stops = [btr.stopinfodict.get(stop_id) for stop_id in stop_ids]
     routename = btr.routenamesdict.get(route_id)
