@@ -69,6 +69,16 @@ define(["underscore"], function(_) {
                 return bStr + "_" + aStr;
         },
 
+        /**
+         * Given a pairSet (an object with pairs as keys and boolean true
+         * values) and an array of pairs
+         *
+         * @param {Object} pairSet An object with pair strings as keys and
+         * boolean true values representing the seen pairs
+         * @param {number[][]} pairs An array of [lat, long] pairs
+         * @param {Object} [newSet] A pair set whose keys S - N, where S is the
+         * set of keys in pairSet and N is set(pairs)
+         */
         newPairs: function(pairSet, pairs, newSet) {
             var newList = [];
 
@@ -82,9 +92,9 @@ define(["underscore"], function(_) {
                     newSet[pStr] = pair;
                     newList.push(pair);
                 }
-
-                return newList;
             }
+
+            return newList;
         },
 
         partition: function(path, size) {
