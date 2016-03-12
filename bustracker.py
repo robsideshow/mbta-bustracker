@@ -468,6 +468,22 @@ def seglist2Pathlist(seglist):
     pathlist.append(curr_path)        
     return pathlist
 
+def stopPointEliminator(path):
+    '''
+    takes a path and eliminates BOTH copies of the points that are added at each stop
+    we only do this for DRAWING the paths on the map
+    '''
+    i = 0
+    numpts = len(path)
+    output_path = []
+    while i < numpts - 1:
+        if path[i] != path[i + 1]:
+            output_path.append(path[i])
+            i += 1
+        else:
+            i += 2
+    output_path.append(path[-1])
+    return output_path
 
 def pathReducer(pathlist):
     '''
@@ -475,7 +491,8 @@ def pathReducer(pathlist):
     '''
     segset = set()
     reduced_pathlist = []
-    for path in pathlist:
+    for pa in pathlist:
+        path = stopPointEliminator(pa)
         curr_reduced_path_segs = []
         numpts = len(path)
         for i in range(numpts -1):
@@ -484,6 +501,7 @@ def pathReducer(pathlist):
                 if curr_seg not in segset:
                     segset.add(curr_seg)
                     curr_reduced_path_segs.append([path[i], path[i+1]])
+            
         newpaths = seglist2Pathlist(curr_reduced_path_segs)
         reduced_pathlist.extend(newpaths)     
     return reduced_pathlist
