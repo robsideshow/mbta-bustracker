@@ -12,6 +12,8 @@ require.config({
         "vehicles-collection": "src/collection/vehicles",
         "vehicle-model": "src/model/vehicle",
 
+        "legend": "src/view/legend",
+
         "config": "config",
         "animation": "src/animation",
         "bus-marker": "src/busMarker",

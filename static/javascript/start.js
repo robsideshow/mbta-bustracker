@@ -1,6 +1,6 @@
-define(["jquery", "leaflet", "animation", "map", "config", "app-state", "app",
+define(["jquery", "leaflet", "animation", "map", "legend", "config", "app-state", "app",
         "utils"],
-       function($, L, Animation, Map, config, AppState, _, $u) {
+       function($, L, Animation, Map, Legend, config, AppState, _, $u) {
            return {
                init: function() {
                    var app = new AppState(),
@@ -25,6 +25,11 @@ define(["jquery", "leaflet", "animation", "map", "config", "app-state", "app",
                                app.removeRoute(route_id);
                            }
                        });
+
+                   new Legend({
+                       el: "#legend",
+                       app: app
+                   });
                }
            };
        });

@@ -128,7 +128,9 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                },
 
                getSelectedRoutes: function() {
-                   _.map(this.route_ids, this.routes.get, this.routes);
+                   var routes = this.routes;
+                   return _.map(this.route_ids,
+                                function(id) { return routes.get(id); });
                },
 
                getVehicle: function(id) {
