@@ -47,7 +47,7 @@ define(["jquery", "leaflet", "backbone", "routes", "stop-marker",
 
                    if (marker) return;
 
-                   marker = new BusMarker(bus).addTo(this.map);
+                   marker = new BusMarker(bus).addTo(this.busLayer);
                    marker._route_id = bus.get("route_id");
                    this.busMarkers[bus.id] = marker;
                    this.animation.addObject(marker);
@@ -86,6 +86,16 @@ define(["jquery", "leaflet", "backbone", "routes", "stop-marker",
                        });
                },
 
+               onRouteUnselected: function(route_id) {
+                   var routesLayer = this.routesLayer,
+                       self = this;
+
+                   _.each(routesLayer.getLayers(), function(layer) {
+                       if (layer._route_id == route_id)
+                           routesLayer.removeLayer(layer);
+                   });
+               },
+
                getRouteLayers: function(route_id) {
                    return $.grep(this.routesLayer.getLayers(), function(layer) {
                        return (layer._route_id == route_id);
@@ -121,20 +131,6 @@ define(["jquery", "leaflet", "backbone", "routes", "stop-marker",
                getRouteVehicles: function(route_id) {
                    return $.grep(this.busLayer.getLayers(), function(layer) {
                        return layer._route_id == route_id;
-                   });
-               },
-
-               onRouteUnselected: function(event, route_id) {
-                   var routesLayer = this.routesLayer,
-                       busLayer = this.busLayer;
-
-                   $.each(routesLayer.getLayers(), function(i, layer) {
-                       if (layer._route_id == route_id)
-                           routesLayer.removeLayer(layer);
-                   });
-                   $.each(busLayer.getLayers(), function(i, layer) {
-                       if (layer._route_id == route_id)
-                           busLayer.removeLayer(layer);
                    });
                }
            });

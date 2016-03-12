@@ -107,11 +107,17 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                 */
                addVehicle: function(id) {
                    this.addItem("vehicle_ids", id);
-                   $(this).trigger("vehicleSelected", id);
+
+                   var vehicle = this.vehicles.get(id);
+                   if (!vehicle) return;
+                   $(this).trigger("vehicleSelected", id, vehicle);
                },
 
                removeVehicle: function(id) {
-                   this.removeItem("vehicle_ids", "vehicleUnselected", id);
+                   var vehicle = this.vehicles.get(id);
+                   if (!vehicle) return;
+                   this.removeItem("vehicle_ids", "vehicleUnselected", id,
+                                  vehicle);
                },
 
                addRoute: function(id) {
@@ -125,6 +131,8 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
 
                removeRoute: function(route_id) {
                    this.removeItem("route_ids", "routeUnselected", route_id);
+                   this.vehicles.remove(
+                       this.vehicles.where({route_id: route_id}));
                },
 
                getSelectedRoutes: function() {
@@ -133,8 +141,10 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                                 function(id) { return routes.get(id); });
                },
 
-               getVehicle: function(id) {
-                   return this.vehicles[id];
+               getSelectedVehicles: function() {
+                   var vehicles = this.vehicles;
+                   return _.map(this.vehicle_ids,
+                                function(id) { return vehicles.get(id); });
                },
 
                tick: function(params, noReschedule) {
