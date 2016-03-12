@@ -471,7 +471,7 @@ def seglist2Pathlist(seglist):
 
 def pathReducer(pathlist):
     '''
-    takes a list of paths and returns a list of paths with no overlap (repeated segments)
+    takes a list of paths and returns a list of paths with no overlap (no repeated segments)
     '''
     segset = set()
     reduced_pathlist = []

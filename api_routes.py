@@ -30,6 +30,7 @@ def bus_updates():
     if route_ids:
         route_idlist = route_ids.split(',')
         vehicles = currentdata.current_data.getVehiclesOnRoutes(route_idlist)
+        active_shapes = []
         for veh in vehicles:
             shape_id = btr.tripshapedict.get(veh.get('trip_id'), '')
             if shape_id == '': #Unscheduled trip. Try to get shape_id by matching direction and destination
@@ -37,6 +38,7 @@ def bus_updates():
                                                       veh.get('direction', ''), 
                                                       veh.get('destination', ''))
             if shape_id != '':
+                active_shapes.append(shape_id)
                 path  = btr.shapepathdict.get(shape_id, [])
                 veh['timepoints'] = btr.getAnimationPoints(path, veh.get('lat'),
                                         veh.get('lon'), veh.get('timestamp'), 6)
@@ -52,7 +54,8 @@ def bus_updates():
     #     vehicles = [veh for veh in vehicles if int(veh["timestamp"]) > when]
     now_stamp = (datetime.now() - datetime.fromtimestamp(0)).total_seconds()
 
-    return jsonify(buses = vehicles, 
+    return jsonify(buses = vehicles,
+                   active_shapes = sorted(list(set(active_shapes))), 
                    stamp = int(now_stamp),
                    stops = stops,
                    vehicle_preds = vehicle_preds)
@@ -73,13 +76,15 @@ def route_info():
         abort(401)
 
     shape_ids = btr.routeshapedict.get(route_id)
+    shape2path = dict([(shid, btr.shapepathdict.get(shid)) for shid in shape_ids])
     paths = btr.pathReducer([btr.shapepathdict.get(shape_id) for shape_id in shape_ids])
     stop_ids = btr.routestopsdict.get(route_id)
     stops = [btr.stopinfodict.get(stop_id) for stop_id in stop_ids]
     routename = btr.routenamesdict.get(route_id)
     return jsonify(routename = routename,
-                    paths = paths, 
-                   stops = stops)
+                   paths = paths, 
+                   stops = stops,
+                   shape2path = shape2path)
 
 @api_routes.route("/locationinfo")
 def location_info():
