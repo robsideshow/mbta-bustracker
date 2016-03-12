@@ -71,18 +71,22 @@ def bus_routes():
 @api_routes.route("/routeinfo")
 def route_info():
     route_id = request.args.get("route", "")
-    
-    if not route_id:
-        abort(401)
 
-    shape_ids = btr.routeshapedict.get(route_id)
+    if not route_id:
+        abort(404)
+
+    try:
+        shape_ids = btr.routeshapedict[route_id]
+    except KeyError:
+        abort(404)
+
     shape2path = dict([(shid, btr.shapepathdict.get(shid)) for shid in shape_ids])
     paths = btr.pathReducer([btr.shapepathdict.get(shape_id) for shape_id in shape_ids])
     stop_ids = btr.routestopsdict.get(route_id)
     stops = [btr.stopinfodict.get(stop_id) for stop_id in stop_ids]
     routename = btr.routenamesdict.get(route_id)
     return jsonify(routename = routename,
-                   paths = paths, 
+                   paths = paths,
                    stops = stops,
                    shape2path = shape2path)
 
