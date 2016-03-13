@@ -111,6 +111,7 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                    var vehicle = this.vehicles.get(id);
                    if (!vehicle) return;
                    this.trigger("vehicleSelected", id, vehicle);
+                   vehicle.set("_selected", true);
                },
 
                removeVehicle: function(id) {
@@ -118,6 +119,7 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                    if (!vehicle) return;
                    this.removeItem("vehicle_ids", "vehicleUnselected", id,
                                   vehicle);
+                   vehicle.set("_selected", false);
                },
 
                addRoute: function(id) {

@@ -76,7 +76,8 @@ define(["backbone", "utils", "underscore"],
                                     function(pred, i) {
                                         return (
                                             "<div>" +
-                                                pred.stop_name + " " +
+                                                "<span class='stop-name'>" +
+                                                pred.stop_name + "</span> " +
                                                 $u.briefRelativeTime(pred.arr_time - stamp) +
                                                 "</div>"
                                         );

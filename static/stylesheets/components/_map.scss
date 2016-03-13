@@ -25,15 +25,24 @@
 
     > div {
         background-color: white;
-        border: 1px solid black;
+        border: 1px solid #ddd;
         box-shadow: 0 0 5px darkgray;
         display: none;
-        margin-left: 1em;
+        margin-top: 1em;
         padding: 1em;
     }
 }
 
 #info {
+    .vehicle-description {
+        border-bottom: 2px solid #ddd;
+        margin-bottom: 0.5em;
+        padding-bottom: 0.5em;
+    }
+
+    .stop-name {
+        font-weight: 500;
+    }
 }
 
 #legend {
