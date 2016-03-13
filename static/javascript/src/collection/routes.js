@@ -1,8 +1,8 @@
 /**
  * 
  */
-define(["jquery", "backbone", "route-model", "config"],
-       function($, B, Route, config) {
+define(["underscore", "backbone", "route-model", "config"],
+       function(_, B, Route, config) {
            var colors = ["blue", "orange", "purple", "maroon",
                          "steelblue", "gray"];
 
@@ -26,11 +26,11 @@ define(["jquery", "backbone", "route-model", "config"],
                    if (route)
                        return route;
 
-                   var style = $.extend({
+                   var style = _.extend({
                        color: config.colors[(this._routeCount++)%10]
                    },
                                         config.defaultRouteStyle,
-                                        config.routeStyles[this.id]);
+                                        config.routeStyles[route_id]);
 
                    route = new Route({style: style,
                                       id: route_id},
