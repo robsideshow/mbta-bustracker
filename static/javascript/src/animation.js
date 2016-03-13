@@ -1,4 +1,4 @@
-define(["jquery", "utils"], function($, $u) {
+define(["utils", "underscore"], function($u, _) {
     var defaultOptions = {
         tickInterval: 100
     };
@@ -11,13 +11,13 @@ define(["jquery", "utils"], function($, $u) {
         if (!this instanceof Animation)
             return new Animation(options);
 
-        this.options = $.extend(defaultOptions, options);
+        this.options = _.extend(defaultOptions, options);
         this.objects = [];
 
         return this;
     };
 
-    $.extend(Animation.prototype, {
+    _.extend(Animation.prototype, {
         addObject: function(object) {
             this.objects.push(object);
         },
@@ -36,7 +36,8 @@ define(["jquery", "utils"], function($, $u) {
         runTick: function() {
             var now = new Date().getTime(),
                 dt = (now - this._lastRun)/1000;
-            $.each(this.objects, function(i, thing) {
+            _.each(this.objects, function(thing) {
+                // Run tick on each object... dt = delta t, not datetime
                 thing.tick(dt, now);
             });
             this._lastRun = now;
