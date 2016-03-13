@@ -7,9 +7,7 @@ import currentdata
 api_routes = Blueprint("api", __name__)
 
 @api_routes.route("/bus_updates")
-def bus_updates():
-    route_ids = request.args.get("routes", "")
-
+def bus_updates():   
     vehicle_ids = request.args.get("vehicles", "")
     vehicle_idlist = vehicle_ids.split(',')
     if vehicle_ids:
@@ -23,14 +21,12 @@ def bus_updates():
         stops = currentdata.current_data.getPredsForStops(stop_idlist)
     else:
         stops = None
-
-    # Timestamp in seconds
-    since = request.args.get("since", "")
-
+    
+    route_ids = request.args.get("routes", "")    
+    active_shapes = []
     if route_ids:
         route_idlist = route_ids.split(',')
         vehicles = currentdata.current_data.getVehiclesOnRoutes(route_idlist)
-        active_shapes = []
         for veh in vehicles:
             shape_id = btr.tripshapedict.get(veh.get('trip_id'), '')
             if shape_id == '': #Unscheduled trip. Try to get shape_id by matching direction and destination
@@ -48,14 +44,16 @@ def bus_updates():
                                         'time' :veh.get('timestamp')}]
     else:
         vehicles = []
-
+    active_shapes = sorted(list(set(active_shapes)))
+    
+    since = request.args.get("since", "") # Timestamp in seconds
     # if since:
     #     when = long(since)
     #     vehicles = [veh for veh in vehicles if int(veh["timestamp"]) > when]
     now_stamp = (datetime.now() - datetime.fromtimestamp(0)).total_seconds()
 
     return jsonify(buses = vehicles,
-                   active_shapes = sorted(list(set(active_shapes))), 
+                   active_shapes = active_shapes, 
                    stamp = int(now_stamp),
                    stops = stops,
                    vehicle_preds = vehicle_preds)
