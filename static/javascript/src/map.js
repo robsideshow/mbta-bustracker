@@ -51,6 +51,19 @@ define(["jquery", "leaflet", "backbone", "routes", "stop-marker",
                    marker._route_id = bus.get("route_id");
                    this.busMarkers[bus.id] = marker;
                    this.animation.addObject(marker);
+
+                   var self = this;
+                   marker.on("click", function() {
+                       // Temporary:
+                       if (self._selectedId) {
+                           self.appState.removeVehicle(self._selectedId);
+                       }
+
+                       var vehId = bus.id;
+
+                       self.appState.addVehicle(vehId);
+                       self._selectedId = vehId;
+                   });
                },
 
                onVehicleRemoved: function(bus, vehicles) {

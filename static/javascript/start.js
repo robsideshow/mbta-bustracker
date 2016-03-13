@@ -1,6 +1,6 @@
-define(["jquery", "leaflet", "animation", "map", "legend", "config", "app-state", "app",
-        "utils"],
-       function($, L, Animation, Map, Legend, config, AppState, _, $u) {
+define(["jquery", "leaflet", "animation", "map", "legend", "infobox", "config",
+        "app-state", "app", "utils"],
+       function($, L, Animation, Map, Legend, InfoBox, config, AppState, _, $u) {
            return {
                init: function() {
                    var app = new AppState(),
@@ -30,6 +30,13 @@ define(["jquery", "leaflet", "animation", "map", "legend", "config", "app-state"
                        el: "#legend",
                        app: app
                    });
+
+                   var info = new InfoBox({
+                       el: "#info",
+                       app: app
+                   });
+
+                   animation.addObject(info);
                }
            };
        });

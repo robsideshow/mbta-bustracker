@@ -21,10 +21,11 @@ define(["underscore"], function(_) {
             };
         },
 
-        dropWhile: function(fn, coll) {
+        dropWhile: function(fn, coll, n) {
+            coll = _.toArray(coll);
             var i = 0, l = coll.length;
             while (i < l && fn(coll[i])) i++;
-            return coll.slice(i);
+            return coll.slice(i, n || l);
         },
 
         /**
@@ -40,6 +41,58 @@ define(["underscore"], function(_) {
 
         stamp: function() {
             return new Date().valueOf()/1000;
+        },
+
+        /**
+         * @param {Number} delta The (positive or negative) time difference in
+         * seconds.
+         */
+        relativeTime: function(delta) {
+            return {
+                future: delta > 0,
+                delta: Math.abs(delta),
+                hours: Math.floor(delta / 3600),
+                minutes: Math.floor((delta % 3600) / 60),
+                seconds: Math.floor(delta % 60)
+            };
+        },
+
+        prettyRelativeTime: function(delta) {
+            var r = $u.relativeTime(delta),
+                p = function(x) { return x == 1 ? "" : "s"; },
+                pieces = [];
+
+            if (r.hours > 0)
+                pieces.push(r.hours + " hour" + p(r.hours));
+            if (r.minutes > 0)
+                pieces.push(r.minutes + " minute" + p(r.minutes));
+            if (r.seconds > 0)
+                pieces.push(r.seconds + " second" + p(r.seconds));
+
+            return pieces.join(", ") + (r.future ? " from now" : " ago");
+        },
+
+        briefRelativeTime: function(delta) {
+            var r = $u.relativeTime(delta),
+                timestr = [r.hours,
+                           $u.rpad(r.minutes, 2, "0"),
+                           $u.rpad(r.seconds, 2, "0")].join(":");
+
+            return timestr + (r.future ? " from now" : " ago");
+        },
+
+        /**
+         * Pad string s to a length of n by prepending the character c.
+         */
+        rpad: function(s, n, c) {
+            if (!c) c = " ";
+            else c = c[0];
+
+            var i = n - (""+s).length;
+
+            while (i-- > 0) s = c + s;
+
+            return s;
         },
 
         /**
@@ -85,13 +138,18 @@ define(["underscore"], function(_) {
             return newList;
         },
 
-        partition: function(path, size) {
+        /**
+         * Breaks up an array into subarrays of length size, advancing the head
+         * of each subarray by step.
+         */
+        partition: function(list, size, step) {
             var out = [];
 
             if (!size) size = 2;
+            if (!step) step = size;
 
-            for (var i = 0, l = path.length-size+1; i < l; i++)
-                out.push(path.slice(i, i+size));
+            for (var i = 0, l = list.length-size+1; i < l; i+=step)
+                out.push(list.slice(i, i+size));
 
             return out;
         },

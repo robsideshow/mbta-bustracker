@@ -13,6 +13,7 @@ require.config({
         "vehicle-model": "src/model/vehicle",
 
         "legend": "src/view/legend",
+        "infobox": "src/view/infobox",
 
         "config": "config",
         "animation": "src/animation",

@@ -76,11 +76,11 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                    return params;
                },
 
-               scheduleTick: function() {
+               scheduleTick: function(wait) {
+                   if (!_.isNumber(wait)) wait = this.options.tickInterval;
                    clearTimeout(this._timeout);
                    return (this._timeout =
-                           setTimeout($u.bind(this.tick, this),
-                                      this.options.tickInterval));
+                           setTimeout($u.bind(this.tick, this), wait));
                },
 
                addItem: function(listprop, id) {
@@ -88,7 +88,7 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                    if (ids.indexOf(id) == -1) {
                        ids.push(id);
 
-                       this.tick();
+                       this.scheduleTick(0);
                    }
                },
 
@@ -110,7 +110,7 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
 
                    var vehicle = this.vehicles.get(id);
                    if (!vehicle) return;
-                   $(this).trigger("vehicleSelected", id, vehicle);
+                   this.trigger("vehicleSelected", id, vehicle);
                },
 
                removeVehicle: function(id) {

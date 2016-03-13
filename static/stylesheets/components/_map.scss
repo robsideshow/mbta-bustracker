@@ -17,28 +17,26 @@
     }
 }
 
-#info {
-    background-color: white;
-    border: 1px solid black;
-    bottom: 1em;
-    box-shadow: 1px 1px 3px black;
-    display: none;
+#info-overlays {
     position: absolute;
     right: 1em;
-    padding: 1em;
+    bottom: 1em;
+    z-index: 10;
+
+    > div {
+        background-color: white;
+        border: 1px solid black;
+        box-shadow: 0 0 5px darkgray;
+        display: none;
+        margin-left: 1em;
+        padding: 1em;
+    }
+}
+
+#info {
 }
 
 #legend {
-    background-color: white;
-    border: 1px solid black;
-    box-shadow: 0 0 5px darkgray;
-    display: none;
-    position: absolute;
-    right: 1em;
-    bottom: 1em;
-    padding: 1em;
-    z-index: 10;
-
     .route {
         line-height: 15px;
 

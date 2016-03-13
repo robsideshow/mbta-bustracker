@@ -1,5 +1,5 @@
-define(["leaflet", "jquery", "utils"],
-       function(L, $, $u) {
+define(["leaflet", "jquery", "underscore", "utils"],
+       function(L, $, _, $u) {
            function samePoint(tp1, tp2) {
                return tp1.lat == tp2.lat &&
                    tp1.lon == tp2.lon;
@@ -75,8 +75,6 @@ define(["leaflet", "jquery", "utils"],
                    this.options = options || {};
                    this._lastTimestamp = 0;
 
-                   this.bindPopup("popup!");
-
                    var self = this;
                    this.on("click", function(e) {
                        if (e.originalEvent.shiftKey) {
@@ -87,15 +85,8 @@ define(["leaflet", "jquery", "utils"],
                                                  [timepoint.lat, timepoint.lon], 1)
                                                  .addTo(self);
                                          });
-                           this.once("popupclose", function() {
-                               $.each(pathMarkers,
-                                      function(i, m) {
-                                          self.removeLayer(m);
-                                      });
-                           });
                        }
-                   })
-                       .on("popupopen", this.onPopupOpen);
+                   });
 
                    bus.on("change", this.update, this);
                },
@@ -151,10 +142,6 @@ define(["leaflet", "jquery", "utils"],
                        {
                            icon: this.makeIcon(bus, -this._busTheta)
                        }).addTo(this);
-               },
-
-               onPopupOpen: function(e) {
-                   e.popup.setContent(this.bus.summary());
                },
 
                /**
