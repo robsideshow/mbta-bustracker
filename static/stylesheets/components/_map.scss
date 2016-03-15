@@ -12,7 +12,10 @@
         border-radius: 10px;
         padding: 3px;
         &:after {
-            content: "\2023"; // To be replaced by an icon font
+            vertical-align: middle;
+            font-family: 'Material Icons';
+            content: "\e5c8";
+            font-size: 1.2em;
         }
     }
 }
