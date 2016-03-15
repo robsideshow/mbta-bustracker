@@ -30,7 +30,13 @@ app.secret_key = 'F12Zr47j\3yX R~X@H!jmM]Lwf/,?KT'
 sortedRoute_ids, routeTitles = btr.getAllRoutes()
 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/")
+def live_map():
+    return render_template('liveMap.html', 
+                          routeTitles = btr.routenamesdict,
+                          rnums = sortedRoute_ids);
+
+@app.route("/text", methods=["GET", "POST"])
 def hello():
     if request.method == 'GET':
         return render_template('chooseRoute.html', routeTitles = btr.routenamesdict,
