@@ -92,13 +92,10 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                    }
                },
 
-               removeItem: function(listprop, event, id) {
-                   var ids = this[listprop],
-                       idx = ids.indexOf(id);
-                   if (idx >= 0) {
-                       ids.splice(idx, 1);
-                       this.trigger(event, id);
-                   }
+               removeItem: function(coll, id) {
+                   var idx = coll.indexOf(id);
+                   if (idx >= 0)
+                       coll.splice(idx, 1);
                },
 
                /**
@@ -117,8 +114,8 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                removeVehicle: function(id) {
                    var vehicle = this.vehicles.get(id);
                    if (!vehicle) return;
-                   this.removeItem("vehicle_ids", "vehicleUnselected", id,
-                                  vehicle);
+                   this.removeItem(this.vehicle_ids, id);
+                   this.trigger("vehicleUnselected", id, vehicle);
                    vehicle.set("_selected", false);
                },
 
@@ -132,7 +129,8 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                },
 
                removeRoute: function(route_id) {
-                   this.removeItem("route_ids", "routeUnselected", route_id);
+                   this.removeItem(this.route_id, route_id);
+                   this.trigger("routeUnselected", route_id);
                    this.vehicles.remove(
                        this.vehicles.where({route_id: route_id}));
                },

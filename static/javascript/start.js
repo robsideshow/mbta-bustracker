@@ -31,12 +31,12 @@ define(["jquery", "leaflet", "animation", "map", "legend", "infobox", "config",
                        app: app
                    });
 
-                   var info = new InfoBox({
-                       el: "#info",
-                       app: app
-                   });
+                   // var info = new InfoBox({
+                   //     el: "#info",
+                   //     app: app
+                   // });
 
-                   animation.addObject(info);
+                   // animation.addObject(info);
                }
            };
        });
