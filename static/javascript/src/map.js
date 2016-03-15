@@ -242,12 +242,13 @@ define(["jquery", "leaflet", "backbone", "routes", "stop-marker",
                    if (stamp < this._nextTick || !this._selectedId)
                        return;
 
+                   this._nextTick = stamp + 1000;
+
                    // predictions are in seconds:
                    stamp /= 1000;
 
                    this.updateStopPopups(stamp);
 
-                   this._nextTick = stamp + 1000;
                }
            });
 
