@@ -1,5 +1,5 @@
 define(["underscore", "utils"],
-       function(_) {
+       function(_, $u) {
            var paths = {
                /**
                 * A line segment from point A to point B is equivalent to a segment
@@ -134,6 +134,64 @@ define(["underscore", "utils"],
                    });
 
                    return _.values(paths);
+               },
+
+               /**
+                * For any timepoints at the front of the array that are in the
+                * past, recalculates the estimated arrival time based on the
+                * estimated arrival time of the first timepoint that's in the
+                * future.
+                *
+                * @param {Number} stamp
+                * @param {Number} start.lat
+                * @param {Number} start.lon
+                * @param {Object[]} timepoints
+                *
+                * @returns {Object[]} The timepoints array, modified with new
+                * time properties
+                */
+               fastTimepoints: function(stamp, start, timepoints) {
+                   var idx = $u.findIndex(function(timepoint) {
+                       return timepoint.time > stamp;
+                   });
+
+                   // If the first timepoint is in the future, or if there is no
+                   // matching timepoint, don't do anything.
+                   if (idx > 0) {
+                       var target = timepoints[idx],
+                           lastPoint = start, totalDist, i = 0, point;
+
+                       while (i < idx && (point = timepoints[i++])) {
+                           var dist = Math.sqrt(
+                               Math.pow(point.lat - lastPoint.lat, 2) +
+                                   Math.pow(point.lon - lastPoint.lon, 2));
+                           point.dist = dist;
+                           totalDist += dist;
+                           lastPoint = point;
+                       }
+
+                       i = 0;
+
+                       var deltaT = target.time - stamp;
+
+                       while(i < idx && (point = timepoints[i++])) {
+                           point.time = stamp + (deltaT * point.dist/totalDist);
+                       }
+                   }
+
+                   return timepoints;
+               },
+
+               totalDist: function(start, timepoints) {
+                   var total = 0, last = start;
+                   for (var i = 0, l = timepoints.length; i < l; i++) {
+                       var timepoint = timepoints[i];
+                       total += Math.sqrt(Math.pow(timepoint.lat - start.lat, 2) +
+                                          Math.pow(timepoint.lon - start.lon, 2));
+
+                       last = timepoint;
+                   }
+                   return total;
                }
            };
 

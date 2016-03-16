@@ -1,6 +1,3 @@
-/**
- * 
- */
 define(["underscore", "backbone", "route-model", "config"],
        function(_, B, Route, config) {
            var colors = ["blue", "orange", "purple", "maroon",

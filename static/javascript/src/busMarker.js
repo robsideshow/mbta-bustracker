@@ -1,5 +1,5 @@
-define(["leaflet", "jquery", "underscore", "utils"],
-       function(L, $, _, $u) {
+define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
+       function(L, $, _, $u, $p) {
            function samePoint(tp1, tp2) {
                return tp1.lat == tp2.lat &&
                    tp1.lon == tp2.lon;
@@ -49,18 +49,6 @@ define(["leaflet", "jquery", "underscore", "utils"],
                }
 
                return null;
-           }
-
-           function totalDist(start, timepoints) {
-               var total = 0, last = start;
-               for (var i = 0, l = timepoints.length; i < l; i++) {
-                   var timepoint = timepoints[i];
-                   total += Math.sqrt(Math.pow(timepoint.lat - start.lat, 2) +
-                                      Math.pow(timepoint.lon - start.lon, 2));
-
-                   last = timepoint;
-               }
-               return total;
            }
 
            return L.FeatureGroup.extend({
@@ -148,6 +136,8 @@ define(["leaflet", "jquery", "underscore", "utils"],
                 * Create and return a function for transforming a point from the
                 * coordinate system of the bus to latitude and longitude.
                 *
+                * NOTE: currently unused!
+                *
                 * @return {Function} A function that takes an array [x, y] and
                 * returns a L.LatLng instance.
                 */
@@ -218,7 +208,10 @@ define(["leaflet", "jquery", "underscore", "utils"],
                            return !samePoint(pt, lastNextPoint);
                        }, bus.timepoints);
                    }
-                   this._pathCache = timepoints;
+
+                   this._pathCache = $p.fastTimepoints($u.stamp(),
+                                                       this._position,
+                                                       timepoints);
 
                    this._nextPoint = null;
                    if (this._findNextTimePoint(bus))

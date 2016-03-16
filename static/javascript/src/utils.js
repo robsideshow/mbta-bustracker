@@ -28,6 +28,14 @@ define(["jquery", "underscore"], function($, _) {
             return coll.slice(i, n || l);
         },
 
+        findIndex: function(fn, coll) {
+            coll = _.toArray(coll);
+            var i = -1, l = coll.length;
+            while ((++i) < l)
+                if (fn(coll[i])) return i;
+            return -1;
+        },
+
         /**
          * Returns the complement of a boolean function.
          *

@@ -21,8 +21,8 @@ require.config({
         "animation": "src/animation",
         "bus-marker": "src/busMarker",
         "stop-marker": "src/stopMarker",
-        "routes": "src/routes",
         "utils": "src/utils",
+        "path-utils": "src/util/paths",
 
         "app-state": "src/appState",
         "map": "src/map",
