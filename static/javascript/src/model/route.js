@@ -1,9 +1,8 @@
 define(["jquery", "backbone", "underscore", "config"],
        function($, B, _, config) {
            var RouteModel = B.Model.extend({
-               initialize: function(model, options) {
-                   B.Model.prototype.initialize.call(this, model, options);
-                   this.app = options.app;
+               getApp: function() {
+                   return this.collection.app;
                },
 
                loadInfo: function(cacheOnly) {
@@ -15,7 +14,9 @@ define(["jquery", "backbone", "underscore", "config"],
                        promise.reject("Route info not in cache.");
                    } else {
                        var self = this,
-                           stops = this.app && this.app.stops;
+                           app = this.getApp(),
+                           stops = app && app.stops,
+                           shapes = app && app.shapes;
 
                        $.get("/api/routeinfo", {route: this.id})
                            .done(function(info) {
@@ -30,6 +31,16 @@ define(["jquery", "backbone", "underscore", "config"],
                                                    return stop;
                                                }));
                                delete info.stops;
+
+                               // Add shapes:
+                               shapes.add(_.map(info.shape2path,
+                                                function(path, id) {
+                                                    return {
+                                                        id: id,
+                                                        path: path
+                                                    };
+                                                }));
+                               delete info.shape2path;
                            })
                            .fail(function(resp) {
                                console.log(resp);

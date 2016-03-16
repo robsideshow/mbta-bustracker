@@ -1,6 +1,6 @@
-define(["jquery", "leaflet", "backbone", "routes", "stop-marker",
+define(["jquery", "leaflet", "backbone", "stop-marker",
         "bus-marker", "utils", "underscore"],
-       function($, L, B, Routes, StopMarker, BusMarker, $u, _) {
+       function($, L, B, StopMarker, BusMarker, $u, _) {
            /**
             * @param {HTMLElement|string} elt Element or selector string
             * @param {AppState} app
@@ -26,7 +26,8 @@ define(["jquery", "leaflet", "backbone", "routes", "stop-marker",
                    .listenTo(app, "vehicleSelected", this.onVehicleSelected)
                    .listenTo(app, "vehicleUnselected", this.onVehicleUnselected)
                    .listenTo(app.vehicles, "add", this.onVehicleAdded)
-                   .listenTo(app.vehicles, "remove", this.onVehicleRemoved);
+                   .listenTo(app.vehicles, "remove", this.onVehicleRemoved)
+                   .listenTo(app.stops, "remove", this.onStopRemoved);
 
                this.init();
 
@@ -64,12 +65,13 @@ define(["jquery", "leaflet", "backbone", "routes", "stop-marker",
 
                    var self = this;
                    marker.on("click", function() {
-                       // Temporary:
+                       var vehId = bus.id;
+
+                       if (vehId == self._selectedId) return;
+
                        if (self._selectedId) {
                            self.app.removeVehicle(self._selectedId);
                        }
-
-                       var vehId = bus.id;
 
                        self.app.addVehicle(vehId);
                        self._selectedId = vehId;
@@ -84,6 +86,14 @@ define(["jquery", "leaflet", "backbone", "routes", "stop-marker",
                        this.busLayer.removeLayer(marker);
                        delete this.busMarkers[bus.id];
                    }
+               },
+
+               onStopRemoved: function(stop) {
+                   var stopMarker = this.stopMarkers[stop.id];
+
+                   if (stopMarker)
+                       this.routesLayer.removeLayer(stopMarker);
+                   delete this.stopMarkers[stop.id];
                },
 
                onRouteSelected: function(route_id, route) {
@@ -154,20 +164,30 @@ define(["jquery", "leaflet", "backbone", "routes", "stop-marker",
                // Displaying stop predictions:
                onVehicleSelected: function(id, vehicle) {
                    this.listenTo(vehicle, "change:preds",
-                                 this.onVehiclePredsUpdate);
+                                 this.onVehiclePredsUpdate)
+                       .listenTo(vehicle, "remove", function() {
+                           // Cleanup and hide predictions if the vehicle is removed:
+                           this.onVehicleUnselected(id, vehicle);
+                       });
                    this._nextTick = 0;
                },
 
                onVehicleUnselected: function(id, vehicle) {
+                   this.stopListening(vehicle);
                    var preds = vehicle.get("preds");
 
                    if (preds) {
                        var popups = this.stopPopups,
                            self = this;
+
                        _.each(preds, function(pred) {
                            var popup = popups[pred.stop_id];
 
-                           self.map.removeLayer(popup);
+                           try {
+                               self.map.removeLayer(popup);
+                           } catch (err) {
+                               console.error(err);
+                           }
                            delete popups[pred.stop_id];
                            delete self._stopPreds[pred.stop_id];
                        });
