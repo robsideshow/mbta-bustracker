@@ -5,52 +5,6 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
                    tp1.lon == tp2.lon;
            }
 
-           /**
-            * Based on an array of timepoints (where a timepoint has lat, lon,
-            * and time keys) and a timestamp (seconds since the epoch),
-            * calculate the position at that time.
-            *
-            * @param {Object[]} timepoints
-            * @param {number} [stamp]
-            */
-           function calculateTimepointPosition(timepoints, stamp) {
-               // We can't calculate a meaningful position without the
-               // timepoints.
-               if (!timepoints) return null;
-
-               if (!stamp) stamp = $u.stamp();
-
-               var timepoint, lastTimepoint, i = 0;
-               while ((timepoint = timepoints[i++])) {
-                   if (timepoint.time > stamp)
-                       break;
-                   else
-                       lastTimepoint = timepoint;
-               }
-
-               if (lastTimepoint) {
-                   if (timepoint) {
-                       // Calculate the progress along the segment between
-                       // lastTimepoint and timepoint:
-                       var progress = (stamp - lastTimepoint.time)/
-                               (timepoint.time - lastTimepoint.time),
-                           dLat = timepoint.lat - lastTimepoint.lat,
-                           dLng = timepoint.lon - lastTimepoint.lon;
-
-                       return L.latLng(
-                           lastTimepoint.lat + dLat*progress,
-                           lastTimepoint.lon + dLng*progress);
-                   } else {
-                       // We don't have any more information about the vehicle's
-                       // next position, so use the coordinates of its last
-                       // timepoint.
-                       return L.latLng(lastTimepoint.lat, lastTimepoint.lon);
-                   }
-               }
-
-               return null;
-           }
-
            return L.FeatureGroup.extend({
                /**
                 * @param {Backbone.Model} bus
@@ -189,7 +143,7 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
                    this._lastTimestamp = bus.timestamp;
                    if (!this._position) {
                        this._position =
-                           calculateTimepointPosition(
+                           $p.calculateTimepointPosition(
                                bus.timepoints, $u.stamp()) ||
                            L.latLng(bus.lat, bus.lon);
                    }
