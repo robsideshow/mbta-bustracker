@@ -1,5 +1,5 @@
-define(["jquery", "backbone", "underscore", "config"],
-       function($, B, _, config) {
+define(["jquery", "backbone", "underscore", "config", "leaflet"],
+       function($, B, _, config, L) {
            var RouteModel = B.Model.extend({
                getApp: function() {
                    return this.collection.app;
@@ -59,6 +59,16 @@ define(["jquery", "backbone", "underscore", "config"],
 
                getName: function() {
                    return this.get("routename") || "";
+               },
+
+               getActiveBounds: function() {
+                   var shapes = this.getApp().shapes;
+
+                   return shapes.where({route_id: this.id,
+                                        active: true})
+                       .reduce(function(shape) {
+                           return bounds.extend(shape.getBounds());
+                       }, L.latLngBounds([]));
                }
            });
 
