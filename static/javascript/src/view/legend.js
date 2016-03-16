@@ -14,7 +14,7 @@ define(["backbone", "jquery"],
                },
 
                events: {
-                   "click .route-name": "onClick"
+                   "click": "onClick"
                },
 
                deferRender: function() {
@@ -60,9 +60,8 @@ define(["backbone", "jquery"],
                    _.each(routeInfo, function(info, route_id) {
                        var route = routes.get(route_id);
                        $content.append(
-                           "<tr class='route'>" +
-                               "<td class='route-name' data-route-id='" +
-                               route_id + "''>" +
+                           "<tr class='route' data-route-id='" + route_id + "''>" +
+                               "<td class='route-name'>" +
                                "<div class='swatch' style='background-color:" +
                                route.getColor() + "'>" +
                                "</div> " + _.escape(route.getName()) +
@@ -77,7 +76,7 @@ define(["backbone", "jquery"],
                },
 
                onClick: function(e) {
-                   var route_id = $(e.target).data("route-id");
+                   var route_id = $(e.target).closest("tr").data("route-id");
                    if (route_id) {
                        this.app.trigger("focusRoute", route_id);
                        return false;

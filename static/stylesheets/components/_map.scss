@@ -51,6 +51,11 @@
 #legend {
     .route {
         line-height: 15px;
+        cursor: pointer;
+
+        &:hover {
+            background-color: #eee;
+        }
 
         .swatch {
             border-color: black;
