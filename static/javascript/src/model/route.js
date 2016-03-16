@@ -37,7 +37,8 @@ define(["jquery", "backbone", "underscore", "config", "leaflet"],
                                                 function(path, id) {
                                                     return {
                                                         id: id,
-                                                        path: path
+                                                        path: path,
+                                                        route_id: self.id
                                                     };
                                                 }));
                                delete info.shape2path;
@@ -66,9 +67,16 @@ define(["jquery", "backbone", "underscore", "config", "leaflet"],
 
                    return shapes.where({route_id: this.id,
                                         active: true})
-                       .reduce(function(shape) {
+                       .reduce(function(bounds, shape) {
                            return bounds.extend(shape.getBounds());
                        }, L.latLngBounds([]));
+               },
+
+               getBounds: function() {
+                   if (!this._bounds)
+                       this._bounds = L.latLngBounds(this.get("path"));
+
+                   return this._bounds;
                }
            });
 

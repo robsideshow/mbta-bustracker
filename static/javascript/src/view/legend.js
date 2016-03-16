@@ -1,5 +1,5 @@
-define(["backbone"],
-       function(B) {
+define(["backbone", "jquery"],
+       function(B, $) {
            var LegendView = B.View.extend({
                initialize: function(options) {
                    console.assert(options.app,
@@ -14,7 +14,7 @@ define(["backbone"],
                },
 
                events: {
-                   "click route-name": "onClick"
+                   "click .route-name": "onClick"
                },
 
                deferRender: function() {
@@ -61,7 +61,8 @@ define(["backbone"],
                        var route = routes.get(route_id);
                        $content.append(
                            "<tr class='route'>" +
-                               "<td class='route-name'>" + 
+                               "<td class='route-name' data-route-id='" +
+                               route_id + "''>" +
                                "<div class='swatch' style='background-color:" +
                                route.getColor() + "'>" +
                                "</div> " + _.escape(route.getName()) +
@@ -75,8 +76,14 @@ define(["backbone"],
                    $el.show();
                },
 
-               onClick: function() {
-                   // TODO: Refocus the map on the clicked legend
+               onClick: function(e) {
+                   var route_id = $(e.target).data("route-id");
+                   if (route_id) {
+                       this.app.trigger("focusRoute", route_id);
+                       return false;
+                   }
+
+                   return true;
                }
            });
 

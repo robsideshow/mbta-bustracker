@@ -25,6 +25,7 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                    .listenTo(app, "routeUnselected", this.onRouteUnselected)
                    .listenTo(app, "vehicleSelected", this.onVehicleSelected)
                    .listenTo(app, "vehicleUnselected", this.onVehicleUnselected)
+                   .listenTo(app, "focusRoute", this.onRouteFocused)
                    .listenTo(app.vehicles, "add", this.onVehicleAdded)
                    .listenTo(app.vehicles, "remove", this.onVehicleRemoved)
                    .listenTo(app.stops, "remove", this.onStopRemoved);
@@ -129,6 +130,10 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                    });
                },
 
+               onRouteFocused: function(route_id) {
+                   this.fitRoute(route_id);
+               },
+
                /**
                 * Calculates and returns the bounds of all the current visible
                 * route paths.  If there are no routes displayed, returns null.
@@ -149,10 +154,35 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                    return bounds;
                },
 
+               /**
+                * Fit the map's view area to fit all currently displayed routes.
+                */
                fitRouteBounds: function() {
                    var bounds = this.getRoutesBound();
 
                    if (bounds) this.fitBounds(bounds);
+               },
+
+               /**
+                * Fits the map view area to fit the active shapes for the route
+                * with the given id.
+                *
+                * @param {String|Number} route_id
+                */
+               fitRoute: function(route_id) {
+                   var route = this.app.routes.get(route_id);
+
+                   this.map.fitBounds(route.getActiveBounds());
+               },
+
+               /**
+                * Fits the map view area to fit all shapes for the route with
+                * the given id.
+                */
+               fitWholeRoute: function(route_id) {
+                   var route = this.app.routes.get(route_id);
+
+                   this.map.fitBounds(route.getBounds());
                },
 
                getRouteVehicles: function(route_id) {
