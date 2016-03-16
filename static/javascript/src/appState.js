@@ -44,18 +44,18 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                        stop.set({predictions: preds});
                    });
 
-                   _.each(updates.buses, function(bus) {
-                       var lastBus = vehicles.get(bus.id);
+                   _.each(updates.vehicles, function(vehicle) {
+                       var lastBus = vehicles.get(vehicle.id);
 
                        if (!lastBus) {
-                           vehicles.add(bus);
+                           vehicles.add(vehicle);
                            return;
                        }
 
-                       if (lastBus.get("timestamp") >= bus.timestamp)
+                       if (lastBus.get("timestamp") >= vehicle.timestamp)
                            return;
 
-                       lastBus.set(bus);
+                       lastBus.set(vehicle);
                    });
 
                    _.each(updates.vehicle_preds, function(preds, veh_id) {
@@ -178,7 +178,7 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                tick: function(params, noReschedule) {
                    var self = this;
                    params = params || this.getTickParams();
-                   $.get("/api/bus_updates", params).
+                   $.get("/api/updates", params).
                        then(function(update) {
                            self.mergeUpdates(update);
                            if (!noReschedule)

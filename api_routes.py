@@ -6,8 +6,8 @@ import currentdata
 
 api_routes = Blueprint("api", __name__)
 
-@api_routes.route("/bus_updates")
-def bus_updates():   
+@api_routes.route("/updates")
+def updates():
     vehicle_ids = request.args.get("vehicles", "")
     vehicle_idlist = vehicle_ids.split(',')
     if vehicle_ids:
@@ -21,8 +21,8 @@ def bus_updates():
         stops = currentdata.current_data.getPredsForStops(stop_idlist)
     else:
         stops = None
-    
-    route_ids = request.args.get("routes", "")    
+
+    route_ids = request.args.get("routes", "")
     active_shapes = []
     if route_ids:
         route_idlist = route_ids.split(',')
@@ -45,14 +45,14 @@ def bus_updates():
     else:
         vehicles = []
     active_shapes = sorted(list(set(active_shapes)))
-    
+
     since = request.args.get("since", "") # Timestamp in seconds
     # if since:
     #     when = long(since)
     #     vehicles = [veh for veh in vehicles if int(veh["timestamp"]) > when]
     now_stamp = (datetime.now() - datetime.fromtimestamp(0)).total_seconds()
 
-    return jsonify(buses = vehicles,
+    return jsonify(vehicles = vehicles,
                    active_shapes = active_shapes, 
                    stamp = int(now_stamp),
                    stops = stops,
