@@ -9,6 +9,8 @@ require.config({
         "routes-collection": "src/collection/routes",
         "stop-model": "src/model/stop",
         "stops-collection": "src/collection/stops",
+        "shape-model": "src/model/shape",
+        "shapes-collection": "src/collection/shapes",
         "vehicles-collection": "src/collection/vehicles",
         "vehicle-model": "src/model/vehicle",
 

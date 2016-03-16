@@ -1,6 +1,6 @@
 define(["jquery", "underscore", "utils", "backbone", "routes-collection",
-        "vehicles-collection", "stops-collection"],
-       function($, _, $u, B, Routes, Vehicles, Stops) {
+        "vehicles-collection", "stops-collection", "shapes-collection"],
+       function($, _, $u, B, Routes, Vehicles, Stops, Shapes) {
            var defaultOptions = {tickInterval: 10000};
            function AppState(options) {
                if (!(this instanceof AppState))
@@ -18,6 +18,8 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                // predictions. 
                this.vehicles = new Vehicles([], {app: this});
                this.routes = new Routes([], {app: this});
+               this.shapes = new Shapes([], {app: this});
+               this._last_active_shapes = {};
                // The timestamp of the last server fetch.
                this.last_tick = 0;
 
@@ -42,7 +44,7 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                        stop.set({predictions: preds});
                    });
 
-                   $.each(updates.buses, function(i, bus) {
+                   _.each(updates.buses, function(bus) {
                        var lastBus = vehicles.get(bus.id);
 
                        if (!lastBus) {
@@ -56,12 +58,25 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                        lastBus.set(bus);
                    });
 
-                   $.each(updates.vehicle_preds, function(veh_id, preds) {
+                   _.each(updates.vehicle_preds, function(preds, veh_id) {
                        var bus = vehicles.get(veh_id);
 
                        if (!bus) return;
 
                        bus.set({preds: preds});
+                   });
+
+                   var active_shapes = {},
+                       shapes = self.shapes;
+                   _.each(updates.active_shapes, function(shape_id) {
+                       active_shapes[shape_id] = true;
+                       if (!self._last_active_shapes[shape_id]) {
+                           shapes.get(shape_id).set("active", true);
+                       }
+                   });
+                   _.each(this._last_active_shapes, function(_, shape_id) {
+                       if (!active_shapes[shape_id])
+                           shapes.get(shape_id).set("active", false);
                    });
                },
 
@@ -131,8 +146,21 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                removeRoute: function(route_id) {
                    this.removeItem(this.route_ids, route_id);
                    this.trigger("routeUnselected", route_id);
+
+                   // // Ugh...
+                   // var self = this;
+                   // _.each(this.vehicle_ids, function(id) {
+                   //     var vehicle = self.vehicles.get(id);
+                   //     if (!vehicle) return;
+                   //     if (vehicle.get("route_id") == route_id) {
+                   //         self.removeVehicle(vehicle.id);
+                   //     }
+                   // });
+
                    this.vehicles.remove(
                        this.vehicles.where({route_id: route_id}));
+                   this.stops.remove(
+                       this.stops.where({route_id: route_id}));
                },
 
                getSelectedRoutes: function() {
