@@ -1,6 +1,9 @@
 define(["backbone", "utils"],
        function(B, $u) {
            var VehicleModel = B.Model.extend({
+               defaults: {
+                   _selected: false
+               },
                getRoute: function() {
                    var route_id = this.get("route_id");
                    return this.collection.app.routes.get(route_id);

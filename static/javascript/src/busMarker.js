@@ -66,12 +66,9 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
                },
 
                updateIcon: function(bus, rot) {
-                   var busDiv = this.busMarker._icon.firstElementChild,
-                       color = this.bus.getRoute().getColor();
+                   var busDiv = this.busMarker._icon.firstElementChild;
 
-                   busDiv.style = "transform: rotate(" + rot +
-                       "rad); border-color: " + color + "; color: " +
-                       color + ";";
+                   busDiv.style.transform = "rotate(" + rot + "rad)";
                },
 
                // Called by Leaflet when the marker is added to the map.
@@ -131,6 +128,23 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
                },
 
                update: function(bus) {
+                   if (bus.changed.hasOwnProperty("_selected")) {
+                       var color = this.bus.getRoute().getColor(),
+                           div = this.busMarker._icon.firstElementChild;
+                       if (bus.changed._selected) {
+                           div.style.backgroundColor = color;
+                           div.style.color = "white";
+                           div.style.textShadow = "0 0 2px black";
+                       } else {
+                           div.style.backgroundColor = "white";
+                           div.style.color = color;
+                           div.style.textShadow = "none";
+                       }
+
+                       $(this.busMarker._icon).toggleClass("selected",
+                                                           bus.changed._selected);
+                   }
+
                    // Check if the new bus's LRP is newer than the old bus's
                    // LRP; if not, ignore it.
                    if (bus.get("timestamp") <= this._lastTimestamp)
