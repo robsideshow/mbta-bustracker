@@ -28,6 +28,7 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                    .listenTo(app, "focusRoute", this.onRouteFocused)
                    .listenTo(app.vehicles, "add", this.onVehicleAdded)
                    .listenTo(app.vehicles, "remove", this.onVehicleRemoved)
+                   .listenTo(app.stops, "add", this.onStopAdded)
                    .listenTo(app.stops, "remove", this.onStopRemoved);
 
                this.init();
@@ -89,6 +90,15 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                    }
                },
 
+               onStopAdded: function(stop) {
+                   var parent_id = stop.get("parent");
+
+                   if (!parent_id ) {
+                       this.stopMarkers[stop.id] =
+                           new StopMarker(stop).addTo(this.routesLayer);
+                   }
+               },
+
                onStopRemoved: function(stop) {
                    var stopMarker = this.stopMarkers[stop.id];
 
@@ -109,13 +119,6 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                                        .addTo(self.routesLayer)
                                        .bringToBack();
                                line._route_id = route_id;
-                           });
-
-                           _.each(route.stops, function(stop) {
-                               var marker = new StopMarker(stop)
-                                       .addTo(self.routesLayer);
-                               marker._route_id = route_id;
-                               self.stopMarkers[stop.stop_id] = marker;
                            });
                        });
                },
