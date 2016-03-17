@@ -2,7 +2,7 @@ $navbar-height: 40px;
 
 .topnav {
   color: $brand-5;
-  background-color: $brand-3;
+  background-color: $brand-2;
   width: 100%;
   height: $navbar-height;
 
@@ -29,7 +29,7 @@ $navbar-height: 40px;
         float: right;
         &:hover, &.active {
           a {color: white;}
-          background-color: $brand-2;
+          background-color: $brand-3;
         }
       }
     }

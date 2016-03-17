@@ -9,52 +9,12 @@ table, th, td {
 table {
   width:100%;
   display: table;
-  background-color: white;
-  & th {
-    color: $neutral-4;
-  }
-  & td, & th {
-    padding-left: 0.5em;
-  }
-
-  &.bordered > thead > tr,
-  &.bordered > tbody > tr {
-    border-bottom: 1px solid $neutral-6;
-  }
-
-  &.striped > tbody {
-    > tr:nth-child(odd) {
-      background-color: $neutral-10;
-    }
-
-    > tr > td {
-      border-radius: 0px;
-    }
-  }
-
-  &.highlight > tbody > tr {
-    transition: background-color .1s ease;
-    &:hover {
-      background-color: $neutral-10;
-    }
-  }
-
-  &.centered {
-    thead tr th, tbody tr td {
-      text-align: center;
-
-    }
-  }
-
-}
-
-thead {
-  border-bottom: 1px solid $neutral-6;
+  background-color: transparent;
 }
 
 td, th{
-  padding: 1em 0.25em;
   display: table-cell;
   text-align: left;
   vertical-align: middle;
+  font-weight: normal;
 }
