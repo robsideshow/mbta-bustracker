@@ -10,7 +10,10 @@ define(["backbone", "jquery"],
                    this.listenTo(vehicles , "add", this.deferRender)
                        .listenTo(vehicles, "remove", this.deferRender)
                        .listenTo(vehicles, "change:direction", this.deferRender)
-                       .listenTo(vehicles, "change:route_id", this.deferRender);
+                       .listenTo(vehicles, "change:route_id", this.deferRender)
+                       .listenTo(this.app, "routeSelected", this.deferRender)
+                       .listenTo(this.app, "routeUnselected", this.deferRender);
+
                },
 
                events: {
