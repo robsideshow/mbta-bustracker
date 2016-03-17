@@ -298,9 +298,10 @@ def getRoutesForStops(stopidlist):
     return routeidlist
 
 
-def getParentStops(stopidlist):
+def getParentsAmongStops(stopidlist):
     '''
-    takes a list of stop_ids and returns a list of dictionaries 
+    takes a list of stop_ids and returns a list of dictionaries, one for each 
+    of the parent stops that is in the list stopidlist
     '''
     parents = []
     for stop_id in stopidlist:
@@ -314,6 +315,30 @@ def getParentStops(stopidlist):
             stopinfo['routes'] = ', '.join(routenames)  
             parents.append(stopinfo)
     return parents
+    
+
+def getParentsForStops(stopidlist):
+    '''
+    takes a list of stop_ids and returns a list of dictionaries, one for each 
+    parent stop that has children in the list stopidlist
+    '''
+    parent_ids = []
+    for stop_id in stopidlist:
+        stopinfo = stopinfodict[stop_id]
+        if stopinfo.get('parent', ''):
+            parent_ids.append(stopinfo.get('parent'))
+    parent_ids = list(set(parent_ids))
+    parents = []
+    for parent_id in parent_ids:
+        stopinfo = stopinfodict[parent_id]
+        route_ids = []
+        for stop_id in stopinfo['children']:
+            route_ids += stoproutesdict.get(stop_id, []) 
+        route_ids = sorted(list(set(route_ids)))
+        stopinfo['route_ids'] = route_ids
+        parents.append(stopinfo)        
+    return parents
+
         
  
 def angularSquaredDist(lat1, lon1, lat2, lon2):
@@ -463,7 +488,7 @@ def seglist2Pathlist(seglist):
         if seg[0] == curr_path[-1]:
             curr_path.append(seg[1])
         else:
-            if len(curr_path) > 2: pathlist.append(curr_path)
+            if len(curr_path) > 1: pathlist.append(curr_path)
             curr_path = [seg[0], seg[1]]
     pathlist.append(curr_path)        
     return pathlist

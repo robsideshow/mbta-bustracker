@@ -83,7 +83,9 @@ def route_info():
     stop_ids = btr.routestopsdict.get(route_id)
     stops = [btr.stopinfodict.get(stop_id) for stop_id in stop_ids]
     routename = btr.routenamesdict.get(route_id)
-    return jsonify(routename = routename,
+    parent_stops = btr.getParentsForStops(stop_ids)
+    return jsonify(parent_stops = parent_stops,
+                   routename = routename,
                    paths = paths,
                    stops = stops,
                    shape2path = shape2path)
@@ -100,7 +102,7 @@ def location_info():
         
     nearby_stops = btr.getNearbyStops(lat, lon, numstops, radius)
     routeidlist = btr.getRoutesForStops([stop.get('stop_id') for stop in nearby_stops])
-    parent_stops = btr.getParentStops([s['stop_id'] for s in nearby_stops])        
+    parent_stops = btr.getParentsAmongStops([s['stop_id'] for s in nearby_stops])        
     return jsonify(stops = nearby_stops,
                    routes = routeidlist, 
                    parent_stops = parent_stops)
