@@ -157,20 +157,11 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                    this.removeItem(this.route_ids, route_id);
                    this.trigger("routeUnselected", route_id);
 
-                   // // Ugh...
-                   // var self = this;
-                   // _.each(this.vehicle_ids, function(id) {
-                   //     var vehicle = self.vehicles.get(id);
-                   //     if (!vehicle) return;
-                   //     if (vehicle.get("route_id") == route_id) {
-                   //         self.removeVehicle(vehicle.id);
-                   //     }
-                   // });
-
                    this.vehicles.remove(
                        this.vehicles.where({route_id: route_id}));
                    this.stops.remove(
                        this.stops.where({route_id: route_id}));
+                   this.routes.remove([route_id]);
                },
 
                addStop: function(stop_id) {
