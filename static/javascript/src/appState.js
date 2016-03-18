@@ -41,7 +41,7 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
 
                        if (!stop) return;
 
-                       stop.set({predictions: preds});
+                       stop.set({preds: preds});
                    });
 
                    _.each(updates.vehicles, function(vehicle) {
@@ -80,14 +80,23 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                    });
                },
 
+               /**
+                * @returns {Object|null} null if there are no updates to fetch;
+                * otherwise, a map of query parameters to strings
+                */
                getTickParams: function() {
-                   var params = {since: this.last_tick};
+                   var params = {};
                    if (this.route_ids.length)
                        params.routes = this.route_ids.join(",");
                    if (this.stop_ids.length)
                        params.stops = this.stop_ids.join(",");
                    if (this.vehicle_ids.length)
                        params.vehicles = this.vehicle_ids.join(",");
+
+                   if (_.isEmpty(params))
+                       return null;
+
+                   params.since = this.last_tick;
                    return params;
                },
 
@@ -178,6 +187,13 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                tick: function(params, noReschedule) {
                    var self = this;
                    params = params || this.getTickParams();
+
+                   // Don't bother if we don't have anything to fetch
+                   if (!params) {
+                       this.scheduleTick();
+                       return;
+                   }
+
                    $.get("/api/updates", params).
                        then(function(update) {
                            self.mergeUpdates(update);
