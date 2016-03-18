@@ -31,7 +31,7 @@ define(["backbone", "leaflet", "underscore"],
                },
 
                isParent: function() {
-                   return !!this.get("isParent");
+                   return !!this.get("is_parent");
                }
            });
 

@@ -20,7 +20,7 @@ define(["backbone", "stop-model"],
                        parent = new StopModel({stop_id: parent_id,
                                                lat: stop.get("lat"),
                                                lon: stop.get("lon"),
-                                               isParent: true});
+                                               is_parent: true});
                        parent.children = {};
                        this.add(parent);
                    }
