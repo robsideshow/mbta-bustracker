@@ -173,9 +173,10 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                 * @param {String|Number} route_id
                 */
                fitRoute: function(route_id) {
-                   var route = this.app.routes.get(route_id);
+                   var route = this.app.routes.get(route_id),
+                       bounds = route.getActiveBounds() || route.getBounds();
 
-                   this.map.fitBounds(route.getActiveBounds());
+                   this.map.fitBounds(bounds);
                },
 
                /**

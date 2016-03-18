@@ -63,18 +63,19 @@ define(["jquery", "backbone", "underscore", "config", "leaflet"],
                },
 
                getActiveBounds: function() {
-                   var shapes = this.getApp().shapes;
+                   var shapes = this.getApp().shapes.where(
+                       {route_id: this.id, active: true});
 
-                   return shapes.where({route_id: this.id,
-                                        active: true})
-                       .reduce(function(bounds, shape) {
-                           return bounds.extend(shape.getBounds());
-                       }, L.latLngBounds([]));
+                   if (!shapes.length) return null;
+
+                   return shapes.reduce(function(bounds, shape) {
+                       return bounds.extend(shape.getBounds());
+                   }, L.latLngBounds([]));
                },
 
                getBounds: function() {
                    if (!this._bounds)
-                       this._bounds = L.latLngBounds(this.get("path"));
+                       this._bounds = L.latLngBounds(this.get("paths"));
 
                    return this._bounds;
                }
