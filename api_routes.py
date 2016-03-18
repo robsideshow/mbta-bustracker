@@ -50,11 +50,11 @@ def updates():
     # if since:
     #     when = long(since)
     #     vehicles = [veh for veh in vehicles if int(veh["timestamp"]) > when]
-    now_stamp = (datetime.now() - datetime.fromtimestamp(0)).total_seconds()
+    now_stamp = long(btr.time.time())
 
     return jsonify(vehicles = vehicles,
                    active_shapes = active_shapes, 
-                   stamp = int(now_stamp),
+                   stamp = now_stamp,
                    stops = stops,
                    vehicle_preds = vehicle_preds)
 
