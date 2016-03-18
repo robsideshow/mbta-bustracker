@@ -26,10 +26,6 @@ class CurrentData(object):
         self.trips = btr.getAllTripsGTFS()
         self.addDestAndDir()
         self.timestamp = long(time.time())
-        print '============================'
-        print len(self.supplement)
-        print self.supplement.get('612_1','')
-        print        
         threading.Timer(veh_update_period, self.updateData).start()
  
 
