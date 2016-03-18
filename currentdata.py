@@ -10,6 +10,7 @@ import time, json, threading, urllib
 
 veh_update_period = 22
 trip_update_period = 22
+unscheduled_trip_update_period = 60
 
 
 class CurrentData(object):    
@@ -24,7 +25,6 @@ class CurrentData(object):
     def updateData(self):
         self.vehicles = btr.getAllVehiclesGTFS()
         self.trips = btr.getAllTripsGTFS()
-        self.addDestAndDir()
         self.timestamp = long(time.time())
         threading.Timer(veh_update_period, self.updateData).start()
  
@@ -40,6 +40,7 @@ class CurrentData(object):
                     self.getData4UnschedTrip(veh.get('route_id',''))
                     veh['destination'] = self.supplement.get(trip_id, {}).get('destination', '?')
                     veh['direction'] = self.supplement.get(trip_id, {}).get('direction', '?')
+        threading.Timer(unscheduled_trip_update_period, self.addDestAndDir).start()
         
         
     def getData4UnschedTrip(self, route_id):
@@ -103,5 +104,5 @@ class CurrentData(object):
 
 current_data = CurrentData()
 current_data.updateData()
-
+current_data.addDestAndDir()
 
