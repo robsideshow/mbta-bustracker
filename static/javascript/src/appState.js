@@ -136,9 +136,10 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                },
 
                removeVehicle: function(id) {
+                   this.removeItem(this.vehicle_ids, id);
+
                    var vehicle = this.vehicles.get(id);
                    if (!vehicle) return;
-                   this.removeItem(this.vehicle_ids, id);
                    this.trigger("vehicleUnselected", id, vehicle);
                    vehicle.set("_selected", false);
                },
@@ -156,20 +157,29 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                    this.removeItem(this.route_ids, route_id);
                    this.trigger("routeUnselected", route_id);
 
-                   // // Ugh...
-                   // var self = this;
-                   // _.each(this.vehicle_ids, function(id) {
-                   //     var vehicle = self.vehicles.get(id);
-                   //     if (!vehicle) return;
-                   //     if (vehicle.get("route_id") == route_id) {
-                   //         self.removeVehicle(vehicle.id);
-                   //     }
-                   // });
-
                    this.vehicles.remove(
                        this.vehicles.where({route_id: route_id}));
                    this.stops.remove(
                        this.stops.where({route_id: route_id}));
+                   this.routes.remove([route_id]);
+               },
+
+               addStop: function(stop_id) {
+                   this.addItem("stop_ids", stop_id);
+
+                   var stop = this.stops.get(stop_id);
+                   if (!stop) return;
+                   this.trigger("stopSelected", stop_id, stop);
+                   stop.set("_selected", true);
+               },
+
+               removeStop: function(stop_id) {
+                   this.removeItem("stop_ids", stop_id);
+                   var stop = this.stops.get(stop_id);
+                   if (!stop) return;
+                   this.trigger("stopUnselected", stop_id, stop);
+                   stop.set("_selected", false);
+
                },
 
                getSelectedRoutes: function() {
