@@ -20,6 +20,7 @@ alldicts = ['shapepathdict', 'routenamesdict', 'tripshapedict',
 #routestopsdict - route_id : [List of stops for that route]
 #stoproutesdict - stop_id : [List of routes for that stop]
 #stopinfodict - stop_id : {Dict of 'stop_id', 'stop_name', 'lat', 'lon', 'parent' (if a child), 'children' (if a parent)}}
+#shapeinfodict - shape_id : {Dict of 'route_id', 'destination', 'direction'}  
     
 def makeShapePathDict(filename = 'MBTA_GTFS_texts/shapes.txt'):
     #reads the 'shapes.txt' file and returns a dictionary of 
@@ -116,7 +117,7 @@ def makeStopsDicts(tripshapedict, shaperoutedict,
     f.readline()
     tripstopsdict = dict()
     for line in f:
-        if line[1] == '2':
+        if line[1] in '23':
             l = line.split(',') 
             trip_id = l[0].strip('"')
             stop_id = l[3].strip('"')
@@ -136,6 +137,8 @@ def makeStopsDicts(tripshapedict, shaperoutedict,
         shape_id = tripshapedict[trip_id]
         if shape_id not in shapestopsdict:
             shapestopsdict[shape_id] = tripstopsdict[trip_id]  
+        elif len(tripstopsdict[trip_id]) > len(shapestopsdict[shape_id]):
+            shapestopsdict[shape_id] = tripstopsdict[trip_id]
     routestopsdict = dict()
     for shape_id in shapestopsdict:
         route_id = shaperoutedict[shape_id]
@@ -218,9 +221,38 @@ def makeAllDicts():
     routeshapedict = makeRouteShapeDict(shaperoutedict)
     shapestopsdict, routestopsdict = makeStopsDicts(tripshapedict, shaperoutedict)
     stoproutesdict = makeStopRoutesDict(routestopsdict)
+    stopinfodict = makeStopInfoDict()
     shapeinfodict = makeShapeInfoDict()
     for dic in alldicts:
         f = open(dic + '.json', 'w')
         json.dump(eval(dic), f)
         f.close()
-    
+ 
+
+
+
+def makeShapePathSequenceDict(shaperoutedict, filename = 'MBTA_GTFS_texts/shapes.txt'):
+    #reads the 'shapes.txt' file and returns a dictionary of 
+    # shape_id : [list of LISTS of [latlon path points]] divided by the shape_pt_seq field
+    f = open(filename, 'r')
+    f.readline()
+    rawlines = f.readlines()
+    f.close()
+    splitlines = [l.split(',') for l in rawlines]
+    shape_ids = set()
+    for l in splitlines:
+        shape_id = l[0].strip('"')
+        if shaperoutedict.get(shape_id, 'CR')[0] != 'C':
+            shape_ids.add(shape_id)
+    shapepathseqdict = dict([(shape_id, []) for shape_id in shape_ids])
+    for l in splitlines:
+        if l[0].strip('"') in shape_ids:
+            latlon = (float(l[1].strip('"')), float(l[2].strip('"')))
+            shape_pt_seq = int(l[3])
+            shapepathseqdict[l[0].strip('"')].append((shape_pt_seq,latlon))
+    for shape_id in shape_ids:
+        tmp = sorted(shapepathseqdict[shape_id])
+        tmp = [(int(str(x[0])[:-4]), x[1]) for x in tmp]
+        shapepathseqdict[shape_id] = tmp
+    return shapepathseqdict
+   
