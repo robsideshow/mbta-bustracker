@@ -14,6 +14,8 @@ import socket
 import errno  
 import google.protobuf.message
 
+green_line_slowdown_factor = 10 #BIGGER number means we hit the api LESS OFTEN
+
 api_key = 'wX9NwuHnZU2ToO7GmGR9uw' #open public development key
 with open('ignore/mbta_api_key.txt', 'r') as f:
 	api_key = f.readline().rstrip("\n")

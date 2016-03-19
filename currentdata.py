@@ -10,7 +10,7 @@ import time, json, threading, urllib
 
 veh_update_period = 20
 trip_update_period = 20
-unscheduled_trip_update_period = 60
+unsch_update_period_factor = btr.green_line_slowdown_factor
 
 
 class CurrentData(object):    
@@ -39,7 +39,7 @@ class CurrentData(object):
                 if trip_id in self.supplement:
                     veh['destination'] = self.supplement[trip_id].get('destination', '?')
                     veh['direction'] = self.supplement[trip_id].get('direction', '?')
-                elif self.counter % 3 == 1:
+                elif self.counter % unsch_update_period_factor == 1:
                     self.getData4UnschedTrip(veh.get('route_id',''))
                     veh['destination'] = self.supplement.get(trip_id, {}).get('destination', '?')
                     veh['direction'] = self.supplement.get(trip_id, {}).get('direction', '?')
