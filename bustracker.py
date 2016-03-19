@@ -7,16 +7,17 @@ Created on Wed Mar 04 18:50:03 2015
 import math
 from lxml import etree as et
 import time
-import matplotlib.pyplot as pl
 from google.transit import gtfs_realtime_pb2
-import urllib, requests
+import requests
 import json
 import socket
 import errno  
 import google.protobuf.message
 
-
-api_key = 'xMXMD3_l4E63sIVvwZW_ww' #public key:'wX9NwuHnZU2ToO7GmGR9uw'
+api_key = 'wX9NwuHnZU2ToO7GmGR9uw' #open public development key
+with open('ignore/mbta_api_key.txt', 'r') as f:
+	api_key = f.readline()
+print api_key
 mbta_rt_url = 'http://realtime.mbta.com/developer/api/v2/'
 
 #AG Mednet stopid:234 LatLon:(42.3639399, -71.0511499)   xyCoords:(3423, 749)
