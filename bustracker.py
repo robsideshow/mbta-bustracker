@@ -17,7 +17,6 @@ import google.protobuf.message
 api_key = 'wX9NwuHnZU2ToO7GmGR9uw' #open public development key
 with open('ignore/mbta_api_key.txt', 'r') as f:
 	api_key = f.readline()
-print api_key
 mbta_rt_url = 'http://realtime.mbta.com/developer/api/v2/'
 
 #AG Mednet stopid:234 LatLon:(42.3639399, -71.0511499)   xyCoords:(3423, 749)

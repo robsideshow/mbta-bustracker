@@ -8,13 +8,14 @@ Created on Fri Feb 19 11:43:12 2016
 import bustracker as btr
 import time, json, threading, urllib
 
-veh_update_period = 22
-trip_update_period = 22
+veh_update_period = 20
+trip_update_period = 20
 unscheduled_trip_update_period = 60
 
 
 class CurrentData(object):    
     def __init__(self):
+        self.counter = 0
         self.vehicles = []
         self.trips = []
         self.stop_preds = []
@@ -23,9 +24,11 @@ class CurrentData(object):
         self.supplement = dict() #this will contain data for unscheduled trips
         
     def updateData(self):
+        self.counter += 1
         self.vehicles = btr.getAllVehiclesGTFS()
         self.trips = btr.getAllTripsGTFS()
         self.timestamp = long(time.time())
+        self.addDestAndDir()
         threading.Timer(veh_update_period, self.updateData).start()
  
 
@@ -36,27 +39,27 @@ class CurrentData(object):
                 if trip_id in self.supplement:
                     veh['destination'] = self.supplement[trip_id].get('destination', '?')
                     veh['direction'] = self.supplement[trip_id].get('direction', '?')
-                else:
+                elif self.counter % 3 == 1:
                     self.getData4UnschedTrip(veh.get('route_id',''))
                     veh['destination'] = self.supplement.get(trip_id, {}).get('destination', '?')
                     veh['direction'] = self.supplement.get(trip_id, {}).get('direction', '?')
-        threading.Timer(unscheduled_trip_update_period, self.addDestAndDir).start()
         
         
     def getData4UnschedTrip(self, route_id):
-        routejson = json.load(urllib.urlopen(btr.mbta_rt_url + 'predictionsbyroute?api_key=' 
-                                            + btr.api_key 
-                                            + '&route=' + str(route_id) 
-                                            + '&format=json'))
-        for direction in routejson.get('direction', []):
-            for trip in direction.get('trip', []):
-                trip_id = trip.get('trip_id', '')
-                if trip_id not in btr.tripshapedict:
-                    if trip_id not in self.supplement:
-                        self.supplement[trip_id] = {'direction': direction.get('direction_id', '?'),
-                                                       'destination' : trip.get('trip_headsign', '?'),
-                                                       'preds' : trip.get('stop', []),
-                                                        'veh_info' : trip.get('vehicle', {})}
+        if route_id:
+            routejson = json.load(urllib.urlopen(btr.mbta_rt_url + 'predictionsbyroute?api_key=' 
+                                                + btr.api_key 
+                                                + '&route=' + str(route_id) 
+                                                + '&format=json'))
+            for direction in routejson.get('direction', []):
+                for trip in direction.get('trip', []):
+                    trip_id = trip.get('trip_id', '')
+                    if trip_id not in btr.tripshapedict:
+                        if trip_id not in self.supplement:
+                            self.supplement[trip_id] = {'direction': direction.get('direction_id', '?'),
+                                                           'destination' : trip.get('trip_headsign', '?'),
+                                                           'preds' : trip.get('stop', []),
+                                                            'veh_info' : trip.get('vehicle', {})}
                 
     def getPredsForStops(self, stopidlist):
         stop_preds = dict([(stop_id, []) for stop_id in stopidlist])
@@ -104,5 +107,4 @@ class CurrentData(object):
 
 current_data = CurrentData()
 current_data.updateData()
-current_data.addDestAndDir()
 
