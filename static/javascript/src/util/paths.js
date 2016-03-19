@@ -5,6 +5,11 @@ define(["underscore", "utils"],
                 * A line segment from point A to point B is equivalent to a segment
                 * from B to A. Always perform a typographic sort on the stringified
                 * points so that this is true.
+                *
+                * @param {Number[]} pointA A [lat, long] point
+                * @param {Number[]} pointB A [lat, long] point
+                *
+                * @returns {String} 
                 */
                pairString: function(pointA, pointB) {
                    var aStr = pointA.toString(),
@@ -17,14 +22,34 @@ define(["underscore", "utils"],
                },
 
                /**
+                * Creates a 'pair set' that can be used to test if a pair of
+                * points has already been encountered.
+                *
+                * @param {Number[][]} path An array of [lat, long] points
+                * representing a path.
+                *
+                * @returns {Object} An object with keys corresponding to each
+                * pair of points in the path
+                */
+               pairSet: function(path) {
+                   var pairs = $u.step(path, paths.pairString, 2, 1);
+                   return _.reduce(pairs,
+                                   function(ps, pairstring) {
+                                       ps[pairstring] = true;
+                                       return ps;
+                                   }, {});
+               },
+
+               /**
                 * Given a pairSet (an object with pairs as keys and boolean true
                 * values) and an array of pairs
                 *
                 * @param {Object} pairSet An object with pair strings as keys and
                 * boolean true values representing the seen pairs
-                * @param {number[][]} pairs An array of [lat, long] pairs
-                * @param {Object} [newSet] A pair set whose keys S - N, where S is the
-                * set of keys in pairSet and N is set(pairs)
+                * @param {number[][][]} pairs An array of [[latA, longA], [latB,
+                * longB]] pairs
+                * @param {Object} [newSet] A pair set whose keys are S - N,
+                * where S is the set of keys in pairSet and N is set(pairs) 
                 */
                newPairs: function(pairSet, pairs, newSet) {
                    var newList = [];
@@ -46,16 +71,22 @@ define(["underscore", "utils"],
 
 
                /**
-                * Given an array of pairs, create an array of paths.
+                * Given an array of pairs, create an array of paths from those
+                * pairs.
+                *
+                * @param {Number[][]} pairs An array of unique [pointA, pointB]
+                * pairs
                 */
                joinPairs: function(pairs) {
+                   // ends: keeps track of end points; keys are stringified
+                   // points, values are arrays of [pathIndex, front]
                    var ends = {},
                        paths = {},
                        nextIndex = 0;
 
                    _.each(pairs, function(pair) {
-                       var a = pairs[0],
-                           b = pairs[1], 
+                       var a = pair[0],
+                           b = pair[1], 
                            pathrefA = ends[a],
                            pathrefB = ends[b],
                            idx, idxB, pathA, pathB;
@@ -102,34 +133,33 @@ define(["underscore", "utils"],
                                ends[newA] = [idx, true];
                                ends[newB] = [idx, false];
                                delete paths[idxB];
+                               paths[pathrefA[0]] = newPath;
                            } else {
                                if (pathrefA[1])
                                    pathA.unshift(b);
                                else
-                                   pathA.push(a);
+                                   pathA.push(b);
                                ends[b] = pathrefA;
                                delete ends[a];
                            }
+                       } else if (pathrefB) {
+                           pathB = paths[pathrefB[0]];
+
+                           // True if the point should be inserted at the front:
+                           if (pathrefB[1])
+                               pathB.unshift(a);
+                           else
+                               pathB.push(a);
+
+                           ends[a] = pathrefB;
+                           // B is no longer an end
+                           delete ends[b];
                        } else {
-                           if (pathrefB) {
-                               pathB = paths[pathrefB[0]];
-
-                               // True if the point should be inserted at the front:
-                               if (pathrefB[1])
-                                   pathB.unshift(a);
-                               else
-                                   pathB.push(a);
-
-                               ends[a] = pathrefB;
-                               // B is no longer an end
-                               delete ends[b];
-                           } else {
-                               // Both ends are new:
-                               idx = nextIndex++;
-                               ends[a] = [idx, true];
-                               ends[b] = [idx, false];
-                               paths[idx] = [a, b];
-                           }
+                           // Both ends are new:
+                           idx = nextIndex++;
+                           ends[a] = [idx, true];
+                           ends[b] = [idx, false];
+                           paths[idx] = [a, b];
                        }
                    });
 
