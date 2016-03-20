@@ -164,22 +164,26 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                    this.routes.remove([route_id]);
                },
 
-               addStop: function(stop_id) {
-                   this.addItem("stop_ids", stop_id);
+               selectStop: function(stop_id) {
+                   var self = this;
+                   _.each(this.stop_ids, function(id) {
+                       var stop = self.stops.get(id);
+
+                       if (stop) {
+                           self.trigger("stopUnselected", id, stop);
+                           stop.set("_selected", false);
+                       }
+                   });
 
                    var stop = this.stops.get(stop_id);
-                   if (!stop) return;
-                   this.trigger("stopSelected", stop_id, stop);
+
+                   if (stop.isParent()) {
+                       this.stop_ids = stop.getChildIds();
+                   } else if (stop) {
+                       this.stop_ids = [stop_id];
+                   }
                    stop.set("_selected", true);
-               },
-
-               removeStop: function(stop_id) {
-                   this.removeItem("stop_ids", stop_id);
-                   var stop = this.stops.get(stop_id);
-                   if (!stop) return;
-                   this.trigger("stopUnselected", stop_id, stop);
-                   stop.set("_selected", false);
-
+                   this.trigger("stopSelected", stop_id, stop);
                },
 
                getSelectedRoutes: function() {
