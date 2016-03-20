@@ -123,18 +123,51 @@ define(["jquery", "underscore"], function($, _) {
 
         /**
          * Breaks up an array into subarrays of length size, advancing the head
-         * of each subarray by step.
+         * of each subarray by step, then calls fn on each subarray.
+         *
+         * @param {} list
+         * @param {Function} fn The function to be called on each subarray
+         * @param {Number} size The size of each subarray
+         * @param {Number} step The number of places to advance the head of the
+         * subarray at each step
+         * @param {Object} ctx
+         *
+         * @returns {Array} An array 
          */
-        partition: function(list, size, step) {
+        step: function(list, fn, size, step, ctx) {
             var out = [];
+            ctx = ctx || this;
 
             if (!size) size = 2;
             if (!step) step = size;
 
             for (var i = 0, l = list.length-size+1; i < l; i+=step)
-                out.push(list.slice(i, i+size));
+                out.push(fn.apply(ctx, list.slice(i, i+size)));
 
             return out;
+        },
+
+        partition: function(list, size, step) {
+            return $u.step(list, Array, size, step);
+        },
+
+        mapcat: function(list, fn) {
+            return _.reduce(list, function(l, item) {
+                return l.concat(fn(item));
+            }, []);
+        },
+
+        asKeys: function(keys, vals) {
+            if (vals === undefined) vals = null;
+
+            var valfn = _.isArray(vals) ?
+                    function(i) { return vals[i]; }
+                : function(i) { return vals; };
+
+            return _.reduce(keys, function(m, k, i) {
+                m[k] = valfn(i);
+                return m;
+            }, {});
         }
     };
 
