@@ -31,11 +31,11 @@ define(["backbone", "jquery"],
 
                render: function() {
                    var $el = this.$el,
-                       $content = $el.find("tbody");
+                       $content = $el.find("tbody").html("");
+
                    if (!this.app.route_ids.length) {
-                       $content.html("");
                        $el.hide();
-                       return;
+                       return this;
                    }
 
                    var routes = this.app.routes,
@@ -58,8 +58,6 @@ define(["backbone", "jquery"],
                            }
                        });
 
-                   $content.html("");
-
                    _.each(routeInfo, function(info, route_id) {
                        var route = routes.get(route_id);
                        $content.append(
@@ -76,6 +74,8 @@ define(["backbone", "jquery"],
                    });
 
                    $el.show();
+
+                   return this;
                },
 
                onClick: function(e) {
