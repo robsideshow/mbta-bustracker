@@ -151,12 +151,27 @@ define(["jquery", "underscore"], function($, _) {
             return $u.step(list, Array, size, step);
         },
 
+        /**
+         * Maps iteratee fn over list, concatenating the returned functions.
+         *
+         * @param {[]} list
+         * @param {Function|String} fn
+         */
         mapcat: function(list, fn) {
+            fn = _.iteratee(fn);
             return _.reduce(list, function(l, item) {
                 return l.concat(fn(item));
             }, []);
         },
 
+        /**
+         * Creates a new object with keys mapped to values. If values is an
+         * array, maps keys to the corresponding value in the values array. If
+         * values is a non-array, the values will all be set to the same thing.
+         *
+         * @param {String[]} keys
+         * @param {}
+         */
         asKeys: function(keys, vals) {
             if (vals === undefined) vals = null;
 

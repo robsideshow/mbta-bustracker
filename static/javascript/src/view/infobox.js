@@ -66,7 +66,7 @@ define(["backbone", "utils", "underscore"],
                },
 
                render: function(stamp) {
-                   if (!this._vehicle) return;
+                   if (!this._vehicle) return this;
 
                    // predictions are in seconds since the epoch
                    stamp /= 1000;
@@ -89,6 +89,8 @@ define(["backbone", "utils", "underscore"],
                            this._vehicle.summary());
                        this._lastVehicleId = this._vehicle.id;
                    }
+
+                   return this;
                }
            });
 

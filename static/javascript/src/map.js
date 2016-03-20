@@ -1,6 +1,6 @@
 define(["jquery", "leaflet", "backbone", "stop-marker",
-        "bus-marker", "utils", "underscore"],
-       function($, L, B, StopMarker, BusMarker, $u, _) {
+        "bus-marker", "stop-vehicles-view", "utils", "underscore"],
+       function($, L, B, StopMarker, BusMarker, StopVehiclesView, $u, _) {
            /**
             * @param {HTMLElement|string} elt Element or selector string
             * @param {AppState} app
@@ -17,6 +17,7 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                this.stopMarkers = {};
                // Map of stop id -> Popups
                this.stopPopups = {};
+               this.stopPredsPopup = null;
                this._stopPreds = {};
                // vehicle id -> BusMarker
                this.busMarkers = {};
@@ -25,6 +26,8 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                    .listenTo(app, "routeUnselected", this.onRouteUnselected)
                    .listenTo(app, "vehicleSelected", this.onVehicleSelected)
                    .listenTo(app, "vehicleUnselected", this.onVehicleUnselected)
+                   .listenTo(app, "stopSelected", this.onStopSelected)
+                   .listenTo(app, "stopUnselected", this.onStopUnselected)
                    .listenTo(app, "focusRoute", this.onRouteFocused)
                    .listenTo(app.vehicles, "add", this.onVehicleAdded)
                    .listenTo(app.vehicles, "remove", this.onVehicleRemoved)
@@ -95,7 +98,7 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
 
                    if (!parent_id ) {
                        this.stopMarkers[stop.id] =
-                           new StopMarker(stop).addTo(this.routesLayer);
+                           new StopMarker(stop, this.app).addTo(this.routesLayer);
                    }
                },
 
@@ -105,6 +108,47 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                    if (stopMarker)
                        this.routesLayer.removeLayer(stopMarker);
                    delete this.stopMarkers[stop.id];
+               },
+
+               /**
+                * Vehicle ETA predictions for the selected stop:
+                */
+               onStopSelected: function(id, stop) {
+                   this.selectedStop = id;
+                   var popup = L.popup({autoPan: false,
+                                                  keepInView: false,
+                                                  closeButton: false,
+                                                  closeOnClick: false,
+                                                  className: ""})
+                       .setLatLng(stop.getLatLng())
+                       .addTo(this.map);
+
+                   this.selectedStopView = new StopVehiclesView({
+                       app: this.app,
+                       model: stop,
+                       popup: popup
+                   }).render();
+
+                   this._nextTick = 0;
+               },
+
+               onStopUnselected: function(id) {
+                   if (this.selectedStop == id) {
+                       this.selectedStop = null;
+                       this.selectedStopView.remove();
+                       this.map.removeLayer(this.selectedStopView.popup);
+                       this.selectedStopView = null;
+                   }
+               },
+
+               /**
+                * Redraw the contents of the vehicle ETA popup for the selected
+                * stop.
+                *
+                * @param {Number} stamp
+                */
+               updateStopVehiclePopup: function(stamp) {
+
                },
 
                onRouteSelected: function(route_id, route) {
@@ -217,11 +261,10 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                        _.each(preds, function(pred) {
                            var popup = popups[pred.stop_id];
 
-                           try {
+                           if (popup) {
                                self.map.removeLayer(popup);
-                           } catch (err) {
-                               console.error(err);
                            }
+
                            delete popups[pred.stop_id];
                            delete self._stopPreds[pred.stop_id];
                        });
@@ -291,9 +334,17 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                    });
                },
 
+               /**
+                * Update the contents of the 
+                */
+               updateVehiclePredictions: function(stamp) {
+
+               },
+
                // Animations:
                tick: function(dt, stamp) {
-                   if (stamp < this._nextTick || !this._selectedId)
+                   if (stamp < this._nextTick || (!this._selectedId &&
+                                                  !this.selectedStopView))
                        return;
 
                    this._nextTick = stamp + 1000;
@@ -301,8 +352,11 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                    // predictions are in seconds:
                    stamp /= 1000;
 
-                   this.updateStopPopups(stamp);
+                   if (this._selectedId)
+                       this.updateStopPopups(stamp);
 
+                   if (this.selectedStopView)
+                       this.selectedStopView.render(stamp);
                }
            });
 

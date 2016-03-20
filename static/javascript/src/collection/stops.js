@@ -25,7 +25,7 @@ define(["backbone", "stop-model"],
                        this.add(parent);
                    }
 
-                   parent.children[stop.id] = stop;
+                   parent.addChild(stop);
                },
 
                onRemove: function(stop) {

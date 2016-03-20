@@ -11,9 +11,26 @@ define(["backbone", "leaflet", "underscore"],
                    return this.get("stop_name");
                },
 
+               addChild: function(stop) {
+                   this.children[stop.id] = stop;
+                   this.trigger("childAdded", stop);
+                   this.listenTo(stop, "removed", this.removeChild);
+               },
+
+               removeChild: function(stop) {
+                   delete this.children[stop.id];
+                   this.stopListening(stop);
+                   this.trigger("childRemoved", stop);
+               },
+
+               getChildIds: function() {
+                   return _.keys(this.children);
+               },
+
                getChildren: function() {
+                   // Returns only non-null children
                    if (this.children)
-                       return _.values(this.children);
+                       return _.filter(this.children);
 
                    return [];
                },

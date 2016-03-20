@@ -16,6 +16,7 @@ require.config({
 
         "legend": "src/view/legend",
         "infobox": "src/view/infobox",
+        "stop-vehicles-view": "src/view/stopVehicles",
 
         "config": "config",
         "animation": "src/animation",

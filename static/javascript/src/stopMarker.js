@@ -1,13 +1,14 @@
 define(["leaflet", "underscore"],
        function(L, _) {
            return L.FeatureGroup.extend({
-               initialize: function(stop) {
+               initialize: function(stop, app) {
                    L.FeatureGroup.prototype.initialize.apply(this, []);
                    this.stop = stop;
                    this.shape = L.circle(stop.getLatLng(), 10, this.style)
                        .addTo(this);
-                   this.bindPopup("");
-                   this.on("popupopen", this.onPopup);
+                   this.on("click", function() {
+                       app.selectStop(stop.id);
+                   });
                },
 
                style: {
@@ -18,7 +19,8 @@ define(["leaflet", "underscore"],
                },
 
                onPopup: function(e) {
-                   var html, stop = this.stop;
+                   var html, stop = this.stop,
+                       stopAttrs = stop.attributes;
                    if (stop.isParent()) {
                        var childStops = stop.getChildren();
 
@@ -35,6 +37,9 @@ define(["leaflet", "underscore"],
                    html = ["Stop id: ", this.stop.id,
                            "<br/> Stop Name:", this.stop.getName()].join("");
                    e.popup.setContent(html);
+               },
+
+               onPopupClose: function(e) {
                }
            });
        });

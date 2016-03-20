@@ -184,6 +184,7 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                    }
                    stop.set("_selected", true);
                    this.trigger("stopSelected", stop_id, stop);
+                   this.scheduleTick(0);
                },
 
                getSelectedRoutes: function() {

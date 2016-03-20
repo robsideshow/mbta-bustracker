@@ -1,6 +1,11 @@
-define(["jquery", "backbone", "underscore", "config", "leaflet"],
-       function($, B, _, config, L) {
+define(["jquery", "backbone", "underscore", "config", "leaflet", "path-utils",
+        "stop-model", "utils"],
+       function($, B, _, config, L, $p, Stop, $u) {
            var RouteModel = B.Model.extend({
+               initialize: function(attrs, options) {
+                   B.Model.prototype.initialize.call(this, attrs, options);
+               },
+
                getApp: function() {
                    return this.collection.app;
                },
@@ -21,9 +26,38 @@ define(["jquery", "backbone", "underscore", "config", "leaflet"],
                        $.get("/api/routeinfo", {route: this.id})
                            .done(function(info) {
                                info._loaded = true;
-                               self.set(info);
-                               promise.resolve(self);
-                               if (!stops) return;
+
+                               // Add parent stops:
+                               var all_children = [];
+                               stops.add(_.map(
+                                   info.parent_stops,
+                                   function(parent) {
+                                       var child_ids = parent.children;
+                                       delete parent.children;
+                                       _.extend(parent, {
+                                           is_parent: true
+                                       });
+                                       var stop = new Stop(parent),
+                                           children = {};
+
+                                       _.each(child_ids, function(id) {
+                                           var stop = new Stop(
+                                               {stop_id: id,
+                                                parent: parent.stop_id,
+                                                lat: parent.lat,
+                                                lon: parent.lon,
+                                                stop_name: parent.stop_name});
+                                           all_children.push(stop);
+                                           children[id] = stop;
+                                       });
+
+                                       stop.children = children;
+
+                                       return stop;
+                                   }));
+                               delete info.parent_stops;
+
+                               stops.add(all_children);
 
                                stops.add(_.map(info.stops,
                                                function(stop) {
@@ -42,9 +76,11 @@ define(["jquery", "backbone", "underscore", "config", "leaflet"],
                                                     };
                                                 }));
                                delete info.shape2path;
+
+                               self.set(info);
+                               promise.resolve(self);
                            })
                            .fail(function(resp) {
-                               console.log(resp);
                                promise.reject("Invalid route");
                            });
                    }
@@ -62,10 +98,13 @@ define(["jquery", "backbone", "underscore", "config", "leaflet"],
                    return this.get("routename") || "";
                },
 
-               getActiveBounds: function() {
-                   var shapes = this.getApp().shapes.where(
+               getActiveShapes: function() {
+                   return this.getApp().shapes.where(
                        {route_id: this.id, active: true});
+               },
 
+               getActiveBounds: function() {
+                   var shapes = this.getActiveShapes();
                    if (!shapes.length) return null;
 
                    return shapes.reduce(function(bounds, shape) {
@@ -78,6 +117,24 @@ define(["jquery", "backbone", "underscore", "config", "leaflet"],
                        this._bounds = L.latLngBounds(this.get("paths"));
 
                    return this._bounds;
+               },
+
+               /**
+                * Calculates a non-overlapping array of paths from the active
+                * shapes.
+                */
+               getActivePaths: function() {
+                   var shapes = this.getActiveShapes(),
+                       pairSet = {},
+                       pairList = [];
+
+                   _.each(shapes, function(shape) {
+                       var pairs = $p.makePairs(shape.get("path"));
+                       pairList = pairList.concat(
+                           $p.newPairs(pairSet, pairs));
+                   });
+
+                   return $p.joinPairs(pairList);
                }
            });
 
