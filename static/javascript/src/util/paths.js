@@ -27,17 +27,22 @@ define(["underscore", "utils"],
                 *
                 * @param {Number[][]} path An array of [lat, long] points
                 * representing a path.
+                * @param {Object} [init={}] If provided, 
                 *
                 * @returns {Object} An object with keys corresponding to each
                 * pair of points in the path
                 */
-               pairSet: function(path) {
+               pairSet: function(path, init) {
                    var pairs = $u.step(path, paths.pairString, 2, 1);
                    return _.reduce(pairs,
                                    function(ps, pairstring) {
                                        ps[pairstring] = true;
                                        return ps;
-                                   }, {});
+                                   }, init || {});
+               },
+
+               makePairs: function(path) {
+                   return $u.partition(path, 2, 1);
                },
 
                /**
@@ -45,23 +50,20 @@ define(["underscore", "utils"],
                 * values) and an array of pairs
                 *
                 * @param {Object} pairSet An object with pair strings as keys and
-                * boolean true values representing the seen pairs
+                * truthy values representing the seen pairs. This object will be
+                * modified in place.
                 * @param {number[][][]} pairs An array of [[latA, longA], [latB,
                 * longB]] pairs
-                * @param {Object} [newSet] A pair set whose keys are S - N,
-                * where S is the set of keys in pairSet and N is set(pairs) 
                 */
-               newPairs: function(pairSet, pairs, newSet) {
+               newPairs: function(pairSet, pairs) {
                    var newList = [];
-
-                   if (!newSet) newSet = {};
 
                    for (var i = 0, l = pairs.length; i < l; i++) {
                        var pair = pairs[i],
-                           pStr = paths.pairString(pair);
+                           pStr = paths.pairString(pair[0], pair[1]);
 
-                       if (!pairSet[pStr] && !newSet[pStr]) {
-                           newSet[pStr] = pair;
+                       if (!pairSet[pStr]) {
+                           pairSet[pStr] = pair;
                            newList.push(pair);
                        }
                    }
