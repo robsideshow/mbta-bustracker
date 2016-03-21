@@ -1,3 +1,10 @@
+.swatch {
+    display: inline-block;
+    height: 15px;
+    width: 15px;            
+    margin-right: 3px;
+}
+
 .bus-marker-container {
     font-size: 10px;
     line-height: 1em;
@@ -51,12 +58,6 @@
     .route {
         cursor: pointer;
         transition: background-color .1s ease;
-        .swatch {
-            display: inline-block;
-            height: 15px;
-            width: 15px;            
-            margin-right: 3px;
-        }
         &:hover {
           background-color: white;
         }
@@ -80,5 +81,15 @@
     td:not(.route-name){
         text-align: center;
         color: $neutral-4;
+    }
+}
+
+.vehicle-pred {
+    .pred-time {
+        float: right;
+    }
+
+    .route-name {
+        font-weight: 400;
     }
 }
