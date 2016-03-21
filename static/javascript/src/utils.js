@@ -93,6 +93,20 @@ define(["jquery", "underscore"], function($, _) {
             return timestr + (r.future ? " from now" : " ago");
         },
 
+        briefRelTime: function(delta) {
+            var r = $u.relativeTime(delta),
+                pieces = [];
+
+            if (r.hours)
+                pieces.push(r.hours + "h");
+            if (r.minutes)
+                pieces.push(r.minutes + "m");
+            if (!r.hours && r.seconds)
+                pieces.push(r.seconds + "s");
+
+            return pieces.join(", ");
+        },
+
         /**
          * Pad string s to a length of n by prepending the character c.
          */
@@ -183,6 +197,39 @@ define(["jquery", "underscore"], function($, _) {
                 m[k] = valfn(i);
                 return m;
             }, {});
+        },
+
+        insertSorted: function(l, val, cmp) {
+            if (!cmp)
+                cmp = function(a, b) { return a > b ? 1 : a < b ? -1 : 0; };
+
+            var from = 0, to = l.length, cursor = 0, place, oval;
+
+            while (true) {
+                if (from === to) break;
+
+                cursor = from + Math.floor((to-from)/2);
+
+                // Compare val to the midpoint:
+                place = cmp(val, l[cursor]);
+
+                if (place === 0) break;
+
+                if (place === -1) {
+                    if (to - cursor <= 1)
+                        break;
+                    to = cursor;
+                } else {
+                    if (cursor - from < 1) {
+                        cursor++;
+                        break;
+                    }
+
+                    from = cursor;
+                }
+            }
+
+            l.splice(cursor, 0, val);
         }
     };
 
