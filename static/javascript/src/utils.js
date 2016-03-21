@@ -202,6 +202,16 @@ define(["jquery", "underscore"], function($, _) {
         insertSorted: function(l, val, cmp) {
             if (!cmp)
                 cmp = function(a, b) { return a > b ? 1 : a < b ? -1 : 0; };
+            else if (!_.isFunction(cmp)) {
+                var fn = _.iteratee(cmp);
+
+                cmp = function(a, b) {
+                    var aval = fn(a), bval = fn(b);
+                    return aval > bval ? 1 : aval < bval ? -1 : 0;
+                };
+            }
+
+            if (!l) l = [];
 
             var from = 0, to = l.length, cursor = 0, place, oval;
 
@@ -216,7 +226,7 @@ define(["jquery", "underscore"], function($, _) {
                 if (place === 0) break;
 
                 if (place === -1) {
-                    if (to - cursor <= 1)
+                    if (to - cursor < 1)
                         break;
                     to = cursor;
                 } else {
@@ -230,6 +240,8 @@ define(["jquery", "underscore"], function($, _) {
             }
 
             l.splice(cursor, 0, val);
+
+            return l;
         }
     };
 
