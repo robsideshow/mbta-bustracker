@@ -5,6 +5,9 @@ define([], function() {
             opacity: 0.5,
             weight: 4
         },
+        // If the route_id matches this pattern, the route is considered a
+        // subway:
+        subwayPattern: /^Red|Orange|Green-|Blue/,
         routeStyles: {
             "Red": {color: "red",
                     opacity: 0.2},

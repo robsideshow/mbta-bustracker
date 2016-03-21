@@ -98,6 +98,10 @@ define(["jquery", "backbone", "underscore", "config", "leaflet", "path-utils",
                    return this.get("routename") || "";
                },
 
+               isSubwayRoute: function() {
+                   return !!config.subwayPattern.exec(this.id);
+               },
+
                getActiveShapes: function() {
                    return this.getApp().shapes.where(
                        {route_id: this.id, active: true});
