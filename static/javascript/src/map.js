@@ -27,7 +27,6 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                    .listenTo(app, "vehicleSelected", this.onVehicleSelected)
                    .listenTo(app, "vehicleUnselected", this.onVehicleUnselected)
                    .listenTo(app, "stopSelected", this.onStopSelected)
-                   .listenTo(app, "stopUnselected", this.onStopUnselected)
                    .listenTo(app, "focusRoute", this.onRouteFocused)
                    .listenTo(app.vehicles, "add", this.onVehicleAdded)
                    .listenTo(app.vehicles, "remove", this.onVehicleRemoved)
@@ -114,12 +113,23 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                 * Vehicle ETA predictions for the selected stop:
                 */
                onStopSelected: function(id, stop) {
+                   if (this.selectedStop) {
+                       // Allow coerced comparision?
+                       if (this.selectedStop == id)
+                           return;
+
+                       this.selectedStopView.remove();
+                       this.map.removeLayer(this.selectedStopView.popup);
+                   }
+
+
                    this.selectedStop = id;
                    var popup = L.popup({autoPan: false,
-                                                  keepInView: false,
-                                                  closeButton: false,
-                                                  closeOnClick: false,
-                                                  className: ""})
+                                        keepInView: false,
+                                        closeButton: false,
+                                        closeOnClick: false,
+                                        className: "eta-preds",
+                                        minWidth: 200})
                        .setLatLng(stop.getLatLng())
                        .addTo(this.map);
 
@@ -132,13 +142,13 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                    this._nextTick = 0;
                },
 
-               onStopUnselected: function(id) {
-                   if (this.selectedStop == id) {
-                       this.selectedStop = null;
+               hideVehicleETAs: function(id) {
+                   if (this.selectedStopView) {
                        this.selectedStopView.remove();
                        this.map.removeLayer(this.selectedStopView.popup);
-                       this.selectedStopView = null;
                    }
+                   this.selectedStop = null;
+                   this.selectedStopView = null;
                },
 
                /**
