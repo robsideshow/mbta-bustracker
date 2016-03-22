@@ -183,7 +183,7 @@ define(["jquery", "underscore"], function($, _) {
          * array, maps keys to the corresponding value in the values array. If
          * values is a non-array, the values will all be set to the same thing.
          *
-         * @param {String[]} keys
+         * @param {string[]} keys
          * @param {}
          */
         asKeys: function(keys, vals) {
@@ -199,14 +199,27 @@ define(["jquery", "underscore"], function($, _) {
             }, {});
         },
 
+        /**
+         * Given a sorted list and a value, insert val into the list at the
+         * correct position. Modifies the list in place.
+         *
+         * @param {Array.} l The sorted list where val is to be inserted
+         * @param {} val The value to be inserted
+         * @param {Function|String} [cmp] Can be a comparison function that
+         * takes two arguments and returns -1, 0, or 1; or a string specifying
+         * the attribute to be retrieved on 
+         */
         insertSorted: function(l, val, cmp) {
             if (!cmp)
                 cmp = function(a, b) { return a > b ? 1 : a < b ? -1 : 0; };
             else if (!_.isFunction(cmp)) {
-                var fn = _.iteratee(cmp);
+                var fn = _.iteratee(cmp),
+                    // Since val is always the first argument, just compute its
+                    // comparision value once:
+                    aval = fn(val);
 
-                cmp = function(a, b) {
-                    var aval = fn(a), bval = fn(b);
+                cmp = function(_a, b) {
+                    var bval = fn(b);
                     return aval > bval ? 1 : aval < bval ? -1 : 0;
                 };
             }
