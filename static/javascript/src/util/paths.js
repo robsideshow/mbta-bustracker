@@ -1,6 +1,7 @@
 define(["underscore", "utils"],
        function(_, $u) {
-           var paths = {
+           var $p, paths;
+           $p = paths = {
                /**
                 * A line segment from point A to point B is equivalent to a segment
                 * from B to A. Always perform a typographic sort on the stringified
@@ -76,22 +77,48 @@ define(["underscore", "utils"],
                 * Given an array of pairs, create an array of paths from those
                 * pairs.
                 *
-                * @param {Number[][]} pairs An array of unique [pointA, pointB]
-                * pairs
+                * @param {Number[][][]} pairs An array of unique point pairs
+                * [pointA, pointB], where each point is a 2-tuple (array) of
+                * lat, long.
+                * @param {Number[][]} [seedPath] If provided, this specifies the
+                * initial path to use.
                 */
-               joinPairs: function(pairs) {
+               joinPairs: function(pairs, seedPath) {
                    // ends: keeps track of end points; keys are stringified
                    // points, values are arrays of [pathIndex, front]
                    var ends = {},
                        paths = {},
+                       pairSet = {},
                        nextIndex = 0;
+
+                   if (seedPath) {
+                       var seedPairs = $u.partition(seedPath, 2, 1);
+
+                       // Add all the seed pairs to the pairSet.
+                       _.each(seedPairs, function(pair) {
+                           pairSet[$p.pairString(pair[0], pair[1])] = pair;
+                       });
+
+                       // Add the ends:
+                       var start = seedPath[0],
+                           end = seedPath[seedPath.length-1];
+                       paths[0] = seedPath;
+                       ends[start] = [0, true];
+                       ends[end] = [0, false];
+                       nextIndex = 1;
+                   }
 
                    _.each(pairs, function(pair) {
                        var a = pair[0],
                            b = pair[1], 
                            pathrefA = ends[a],
                            pathrefB = ends[b],
+                           ps = $p.pairString(a, b),
                            idx, idxB, pathA, pathB;
+
+                       if (pairSet[ps]) return;
+
+                       pairSet[ps] = pair;
 
                        if (pathrefA) {
                            idx = pathrefA[0];
