@@ -17,7 +17,7 @@ define(["backbone", "underscore", "utils", "config"],
                    this.routeDirections = {};
                    // Map of route_id -> true, where true indicates that a route
                    // is toggled OFF.
-                   this.routeToggles = {};
+                   //this.routeToggles = {};
 
                    this.popup.setContent(this.el);
                },
@@ -27,9 +27,14 @@ define(["backbone", "underscore", "utils", "config"],
                },
 
                // TODO: Cache information about vehicle predictions, so that it
-               // doesn't have to be recalculated every frame.
+               // doesn't have to be recalculated once per sec.
                _updatePreds: function() {
 
+               },
+
+               // Redraw the view using the last stamp
+               rerender: function() {
+                   this.render(this.lastStamp);
                },
 
                render: function(stamp) {
@@ -37,12 +42,14 @@ define(["backbone", "underscore", "utils", "config"],
 
                    var stop = this.model,
                        dirs = this.routeDirections,
-                       off = this.routeToggles,
                        html = ["<div class='stop-name'>",
                                _.escape(stop.getName()),
                                "</div>Next Vehicles ETA<hr>"],
                        vehicles = this.app.vehicles,
                        routes = this.app.routes,
+                       // Keep track of the disabled routes for which we have
+                       // predictions available:
+                       off = {},
                        preds;
 
                    this.lastStamp = stamp;
@@ -77,7 +84,10 @@ define(["backbone", "underscore", "utils", "config"],
 
                        if (pred.arr_time > threshold) return;
                        // Ignore disabled routes:
-                       if (off[route_id]) return;
+                       if (!routes.get(route_id)) {
+                           off[route_id] = true;
+                           return;
+                       }
                        // And vehicles going in the wrong direction:
                        if (dirs[route_id] &&
                            pred.direction !== dirs[route_id]) return;
@@ -136,7 +146,8 @@ define(["backbone", "underscore", "utils", "config"],
 
                    if (t.is(".show-route-vehicles")) {
                        route_id = t.data("route");
-                       delete this.routeToggles[route_id];
+                       //delete this.routeToggles[route_id];
+                       this.app.addRoute(route_id);
                        e.preventDefault();
                        return false;
                    }
@@ -148,13 +159,14 @@ define(["backbone", "underscore", "utils", "config"],
                    if (t.is("a.swatch")) {
                        // Toggle the route on or off when the user clicks the
                        // swatch:
-                       //this.app.toggleRoute(route_id);
-                       this.routeToggles[route_id] = true;
+                       this.app.toggleRoute(route_id);
+                       //this.routeToggles[route_id] = true;
                    } else {
 
                    }
 
                    e.preventDefault();
+                   this.rerender();
 
                    return false;
                }
