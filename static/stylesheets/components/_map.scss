@@ -93,3 +93,29 @@
         font-weight: 400;
     }
 }
+
+.vehicle-etas {
+    .mode-head {
+        
+    }
+
+    .swatch {
+        cursor: pointer;
+    }
+
+    .route-toggles {
+        a {
+            border: 1px solid #aaa;
+            border-radius: 3px;
+            margin-right: 0.1em;
+            padding: 0.1em;
+            padding-left: 0.2em;
+            padding-right: 0.2em;
+
+            &:hover {
+                background-color: navy;
+                color: white;
+            }
+        }
+    }
+}

@@ -22,6 +22,8 @@ define(["backbone", "underscore", "utils", "config"],
                    this.popup.setContent(this.el);
                },
 
+               className: "vehicle-etas",
+
                events: {
                    "click": "onClick"
                },
@@ -113,12 +115,14 @@ define(["backbone", "underscore", "utils", "config"],
                                return;
 
                            var route = routes.get(route_id),
-                               color = route ? route.getColor() : "#aaa";
+                               color = route ? route.getColor() : "#aaa",
+                               name = route ? route.getName() : route_id;
                            html.push(
                                "<div class='vehicle-pred' data-route='",
                                route_id, "'><a class='swatch' ",
                                "style='background-color:",
-                               color, "'></a> <span class='route-name'>",
+                               color, "'></a> ", name,
+                               " &rarr; <span class='route-name'>",
                                _.escape(pred.destination),
                                "</span> <div class='pred-time'>",
                                $u.briefRelTime(dt), "</div>");
@@ -130,7 +134,7 @@ define(["backbone", "underscore", "utils", "config"],
                        // Show links to toggle routes on:
                        _.each(off, function(_nada, route_id) {
                            html.push("<a href='#' data-route='",
-                                     route_id, "' class='show-route-vehicles'>",
+                                     route_id, "'>",
                                      _.escape(route_id), "</a>");
                        });
                    }
@@ -144,10 +148,12 @@ define(["backbone", "underscore", "utils", "config"],
                    // Toggle a route to show outbound/inbound
                    var t = $(e.target), route_id;
 
-                   if (t.is(".show-route-vehicles")) {
+                   if (t.is(".route-toggles a")) {
                        route_id = t.data("route");
                        //delete this.routeToggles[route_id];
                        this.app.addRoute(route_id);
+                       // Since the route information won't be instantly
+                       // available, don't bother re-rendering right away.
                        e.preventDefault();
                        return false;
                    }
@@ -161,8 +167,6 @@ define(["backbone", "underscore", "utils", "config"],
                        // swatch:
                        this.app.toggleRoute(route_id);
                        //this.routeToggles[route_id] = true;
-                   } else {
-
                    }
 
                    e.preventDefault();
