@@ -10,11 +10,13 @@ define(["underscore", "backbone", "route-model", "config"],
             */
            var RoutesCollection = B.Collection.extend({
                model: Route,
-               _routeCount: 0,
                initialize: function(models, options) {
                    B.Collection.prototype.initialize.call(this, models, options);
 
                    this.app = options.app;
+                   // Save colors even when routes are removed from view:
+                   this.savedColors = {};
+                   this._routeCount = 0;
                },
 
                getRoute: function(route_id) {
@@ -23,11 +25,16 @@ define(["underscore", "backbone", "route-model", "config"],
                    if (route)
                        return route;
 
-                   var style = _.extend({
-                       color: config.colors[(this._routeCount++)%10]
-                   },
+                   var style = _.extend({},
                                         config.defaultRouteStyle,
                                         config.routeStyles[route_id]);
+                   if (this.savedColors[route_id])
+                       style.color = this.savedColors[route_id];
+                   else if (!style.color) {
+                       var n = config.colors.length;
+                       style.color = config.colors[(this._routeCount++)%n];
+                       this.savedColors[route_id] = style.color;
+                   }
 
                    route = new Route({style: style,
                                       id: route_id},
