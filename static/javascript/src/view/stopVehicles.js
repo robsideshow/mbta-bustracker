@@ -44,9 +44,9 @@ define(["backbone", "underscore", "utils", "config"],
 
                    var stop = this.model,
                        dirs = this.routeDirections,
-                       html = ["<div class='stop-name'>",
+                       html = ["<div class='popup-header'><div class='stop-name'>",
                                _.escape(stop.getName()),
-                               "</div>Next Vehicles ETA<hr>"],
+                               "</div>Next Vehicles ETA</div>"],
                        vehicles = this.app.vehicles,
                        routes = this.app.routes,
                        // Keep track of the disabled routes for which we have
@@ -130,7 +130,7 @@ define(["backbone", "underscore", "utils", "config"],
                    });
 
                    if (!_.isEmpty(off)) {
-                       html.push("<div class='route-toggles'>");
+                       html.push("<div class='route-toggles popup-content'>");
                        // Show links to toggle routes on:
                        _.each(off, function(_nada, route_id) {
                            html.push("<a href='#' data-route='",

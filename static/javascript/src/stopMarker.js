@@ -4,20 +4,16 @@ define(["leaflet", "underscore"],
                initialize: function(stop, app) {
                    L.FeatureGroup.prototype.initialize.apply(this, []);
                    this.stop = stop;
-                   this.shape = L.circle(stop.getLatLng(), 10, this.style)
-                       .addTo(this);
                    this.on("click", function() {
                        app.selectStop(stop.id);
                    });
                },
-
-               style: {
-                   color: "black",
-                   fillColor: "white",
-                   fillOpacity: 1,
-                   weight: 2
+               onAdd: function(map) {
+                   this.stopMarker = L.marker(
+                                       this.stop.getLatLng(),
+                                       {icon: this.makeIcon()}
+                                       ).addTo(this);
                },
-
                onPopup: function(e) {
                    var html, stop = this.stop,
                        stopAttrs = stop.attributes;
@@ -40,6 +36,15 @@ define(["leaflet", "underscore"],
                },
 
                onPopupClose: function(e) {
+               },
+
+               makeIcon: function() {
+                var html = '<div class="stop-marker">AAA</div>';
+
+                return L.divIcon({
+                  className: "stop-wrapper",
+                  html: html
+                });
                }
            });
        });

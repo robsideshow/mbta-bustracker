@@ -134,7 +134,7 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
                        if (bus.changed._selected) {
                            div.style.backgroundColor = color;
                            div.style.color = "white";
-                           div.style.textShadow = "0 0 2px black";
+                           div.style.textShadow = "0 0 1px rgba(0, 0, 0, 0.5)";
                        } else {
                            div.style.backgroundColor = "white";
                            div.style.color = color;
