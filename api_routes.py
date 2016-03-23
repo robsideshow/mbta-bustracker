@@ -62,8 +62,9 @@ def updates():
 def bus_routes():
     #the route_ids are in a reasonable order for a user to choose from
     route_ids, routeTitles = btr.getAllRoutes()
+    route_names = btr.routenamesdict
     return jsonify(route_ids = route_ids, 
-                   routeTitles = routeTitles)
+                   route_names = route_names)
 
 
 @api_routes.route("/routeinfo")

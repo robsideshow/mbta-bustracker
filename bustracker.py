@@ -169,9 +169,6 @@ def getAllVehiclesGTFS_Raw():
     Returns a list of unparsed GTFS vehicle entities
     '''
     feed = gtfs_realtime_pb2.FeedMessage()
-    #response = urllib.urlopen('http://developer.mbta.com/lib/GTRTFS/Alerts/VehiclePositions.pb')
-    #feed.ParseFromString(response.read())
-    #return feed.entity
     try:
         url = 'http://developer.mbta.com/lib/GTRTFS/Alerts/VehiclePositions.pb'
         response = requests.get(url, timeout = 10)
@@ -198,9 +195,6 @@ def getAllTripsGTFS_Raw():
     Returns a list of unparsed GTFS trip entities
     '''
     feed = gtfs_realtime_pb2.FeedMessage()
-    #response = urllib.urlopen('http://developer.mbta.com/lib/GTRTFS/Alerts/TripUpdates.pb')
-    #feed.ParseFromString(response.read())
-
     try:
         url = 'http://developer.mbta.com/lib/GTRTFS/Alerts/TripUpdates.pb'
         response = requests.get(url, timeout = 10)
