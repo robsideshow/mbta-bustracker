@@ -4,6 +4,9 @@
         "jquery",
         "underscore"
     ],
+    "loadEagerly": [
+        "main.js"
+    ],
     "plugins": {
         "requirejs": {
             "baseURL": "./",

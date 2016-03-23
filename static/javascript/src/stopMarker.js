@@ -4,16 +4,14 @@ define(["leaflet", "underscore"],
                initialize: function(stop, app) {
                    L.FeatureGroup.prototype.initialize.apply(this, []);
                    this.stop = stop;
+                   this.marker = L.marker(stop.getLatLng(),
+                                          {icon: this.makeIcon()})
+                       .addTo(this);
                    this.on("click", function() {
                        app.selectStop(stop.id);
                    });
                },
-               onAdd: function(map) {
-                   this.stopMarker = L.marker(
-                                       this.stop.getLatLng(),
-                                       {icon: this.makeIcon()}
-                                       ).addTo(this);
-               },
+
                onPopup: function(e) {
                    var html, stop = this.stop,
                        stopAttrs = stop.attributes;

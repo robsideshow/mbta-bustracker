@@ -138,7 +138,7 @@ define(["jquery", "backbone", "underscore", "config", "leaflet", "path-utils",
                            $p.newPairs(pairSet, pairs));
                    });
 
-                   return $p.joinPairs(pairList);
+                   return $p.joinPairs(pairList, shapes[0].get("path"));
                }
            });
 
