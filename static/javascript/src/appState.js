@@ -145,8 +145,9 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                },
 
                addRoute: function(id) {
+                   id = ""+id;
                    var self = this;
-                   this.routes.getAndLoadRoute(id)
+                   this.routes.getAndLoadRoute(""+id)
                        .done(function(route) {
                            self.addItem("route_ids", id);
                            self.trigger("routeSelected", id, route);
@@ -154,6 +155,7 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                },
 
                removeRoute: function(route_id) {
+                   route_id = ""+route_id;
                    this.removeItem(this.route_ids, route_id);
                    this.trigger("routeUnselected", route_id);
 
