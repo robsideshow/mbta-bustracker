@@ -61,6 +61,7 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
 
                    return L.divIcon({
                        className: "bus-marker-container",
+                       iconSize: L.point(36, 24),
                        html: html
                    });
                },
