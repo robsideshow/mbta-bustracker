@@ -130,14 +130,22 @@ define(["backbone", "underscore", "utils", "config"],
                    });
 
                    if (!_.isEmpty(off)) {
+                       var route_ids = _.keys(off);
                        html.push("<div class='route-toggles popup-content'>");
                        // Show links to toggle routes on:
-                       _.each(off, function(_nada, route_id) {
+                       _.each(route_ids, function(route_id) {
                            html.push("<a href='#' data-route='",
                                      route_id, "'>",
                                      _.escape(routes.getRouteShortName(route_id)),
                                      "</a>");
                        });
+                       html.push("</div>");
+
+                       if (route_ids.length > 1) {
+                           html.push("<a href='#' data-routes='",
+                                     route_ids.join(","), "' class='all-on'>",
+                                     "All", "</a>");
+                       }
                    }
 
                    this.$el.html(html.join(""));
@@ -155,6 +163,17 @@ define(["backbone", "underscore", "utils", "config"],
                        this.app.addRoute(route_id);
                        // Since the route information won't be instantly
                        // available, don't bother re-rendering right away.
+                       e.preventDefault();
+                       return false;
+                   }
+
+                   if (t.is("a.all-on")) {
+                       var ids = t.data("routes").split(","),
+                           app = this.app;
+
+                       _.each(ids, function(id) {
+                           app.addRoute(id);
+                       });
                        e.preventDefault();
                        return false;
                    }
