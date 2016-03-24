@@ -109,7 +109,14 @@
     }
 
     .swatch {
+        color: transparent;
         cursor: pointer;
+        line-height: 15px;
+        text-align: center;
+
+        &:hover {
+            color: white;
+        }
     }
 
     .route-toggles {
