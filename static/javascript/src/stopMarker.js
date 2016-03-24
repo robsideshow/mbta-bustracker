@@ -37,7 +37,7 @@ define(["leaflet", "underscore"],
                },
 
                makeIcon: function() {
-                var html = '<div class="stop-marker">AAA</div>';
+                var html = '<div class="stop-marker"></div>';
 
                 return L.divIcon({
                   className: "stop-wrapper",
