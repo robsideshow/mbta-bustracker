@@ -40,8 +40,9 @@ define(["leaflet", "underscore"],
                 var html = '<div class="stop-marker"></div>';
 
                 return L.divIcon({
-                  className: "stop-wrapper",
-                  html: html
+                    className: "stop-wrapper",
+                    iconSize: L.point(24, 36),
+                    html: html
                 });
                }
            });
