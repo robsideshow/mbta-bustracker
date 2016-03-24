@@ -108,6 +108,26 @@
         font-weight: 500;
     }
 
+    .mode-head {
+        background-color: rgba(57, 87, 109, 0.65);
+        color: white;
+        font-size: 0.75em;
+        font-weight: 500;
+        padding: 0.2em;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+
+        .change-dir {
+            color: white;
+            float: right;
+            font-size: smaller;
+
+            &:hover {
+                background-color: #222f3f;
+            }
+        }
+    }
+
     .swatch {
         color: transparent;
         cursor: pointer;

@@ -129,7 +129,7 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                                         closeButton: false,
                                         closeOnClick: false,
                                         className: "eta-preds",
-                                        minWidth: 200})
+                                        minWidth: 225})
                        .setLatLng(stop.getLatLng())
                        .addTo(this.map);
 

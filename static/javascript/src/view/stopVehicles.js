@@ -7,17 +7,10 @@ define(["backbone", "underscore", "utils", "config"],
                    this.popup = options.popup;
                    this.app = options.app;
 
-                   // this.listenTo(this.model, "childAdded", this.updatePreds)
-                   //     .listenTo(this.model, "childRemoved", kVj)
                    this.lastStamp = 0;
 
-                   // Map of route id -> "0"/"1"; determines whether the view
-                   // will show predictions for vehicles with direction 0 or
-                   // direction 1.
-                   this.routeDirections = {};
-                   // Map of route_id -> true, where true indicates that a route
-                   // is toggled OFF.
-                   //this.routeToggles = {};
+                   // Map of mode -> "0"/"1"
+                   this.modeDirections = {bus: "1", subway: "1"};
 
                    this.popup.setContent(this.el);
                },
@@ -25,7 +18,10 @@ define(["backbone", "underscore", "utils", "config"],
                className: "vehicle-etas",
 
                events: {
-                   "click": "onClick"
+                   "click .route-toggles a": "showRoute",
+                   "click a.all-on": "allOn",
+                   "click a.swatch": "hideRoute",
+                   "click a.change-dir": "changeDirection"
                },
 
                // TODO: Cache information about vehicle predictions, so that it
@@ -43,10 +39,9 @@ define(["backbone", "underscore", "utils", "config"],
                    if (!stamp) stamp = $u.stamp();
 
                    var stop = this.model,
-                       dirs = this.routeDirections,
+                       dirs = this.modeDirections,
                        html = ["<div class='popup-header'><div class='stop-name'>",
-                               _.escape(stop.getName()),
-                               "</div>Next Vehicles ETA</div>"],
+                               _.escape(stop.getName()), "</div>"],
                        vehicles = this.app.vehicles,
                        routes = this.app.routes,
                        // Keep track of the disabled routes for which we have
@@ -83,19 +78,18 @@ define(["backbone", "underscore", "utils", "config"],
 
                    _.each(preds, function(pred) {
                        var route_id = pred.route_id;
-
+ 
                        if (pred.arr_time > threshold) return;
                        // Ignore disabled routes:
                        if (!routes.get(route_id)) {
                            off[route_id] = true;
                            return;
                        }
-                       // And vehicles going in the wrong direction:
-                       if (dirs[route_id] &&
-                           pred.direction !== dirs[route_id]) return;
-
                        var subway = config.subwayPattern.exec(route_id),
                            key = subway ? "subway" : "bus";
+
+                       // Ignore vehicles traveing in the wrong direction:
+                       if (dirs[key] !== pred.direction) return;
 
                        $u.insertSorted(groupedPreds[key], pred, cmp);
                    });
@@ -103,20 +97,22 @@ define(["backbone", "underscore", "utils", "config"],
                    _.each(groupedPreds, function(group, gk) {
                        if (!group.length) return;
 
-                       html.push("<div class='mode-head'>" +
-                                 groupNames[gk] + "</div>");
+                       html.push("<div class='mode-head'>",
+                                 groupNames[gk],
+                                 "<a href='#' class='material-icons change-dir' ",
+                                 "data-mode='", gk, "'>",
+                                 (dirs[gk] === "0" ?
+                                  "arrow_downward" : "arrow_upward"),
+                                 "</a></div>");
 
                        _.each(group, function(pred) {
                            var route_id = pred.route_id,
-                               dir = dirs[route_id] || "0",
                                dt = pred.arr_time - stamp;
-
-                           if (pred.direction !== dir || dt <= 0)
-                               return;
 
                            var route = routes.get(route_id),
                                color = route ? route.getColor() : "#aaa",
-                               name = route ? route.getName() : route_id;
+                               name = routes.getRouteShortName(route_id);
+
                            html.push(
                                "<div class='vehicle-pred' data-route='",
                                route_id, "'><a class='swatch' ",
@@ -153,46 +149,42 @@ define(["backbone", "underscore", "utils", "config"],
                    return this;
                },
 
-               onClick: function(e) {
-                   // Toggle a route to show outbound/inbound
-                   var t = $(e.target), route_id;
+               changeDirection: function(e) {
+                   var mode = $(e.target).data("mode"),
+                       dir = this.modeDirections[mode];
 
-                   if (t.is(".route-toggles a")) {
-                       route_id = t.data("route");
-                       //delete this.routeToggles[route_id];
-                       this.app.addRoute(route_id);
-                       // Since the route information won't be instantly
-                       // available, don't bother re-rendering right away.
-                       e.preventDefault();
-                       return false;
-                   }
+                   this.modeDirections[mode] = dir == "1" ? "0" : "1";
+                   this.rerender();
+                   e.preventDefault();
+               },
 
-                   if (t.is("a.all-on")) {
-                       var ids = t.data("routes").split(","),
-                           app = this.app;
+               showRoute: function(e) {
+                   var route_id = $(e.target).data("route");
+                   this.app.addRoute(route_id);
+                   // Since the route information won't be instantly
+                   // available, don't bother re-rendering right away.
+                   e.preventDefault();
+               },
 
-                       _.each(ids, function(id) {
-                           app.addRoute(id);
-                       });
-                       e.preventDefault();
-                       return false;
-                   }
+               hideRoute: function(e) {
+                   var route_id = $(e.target).data("route");
 
-                   route_id = t.closest(".vehicle-pred").data("route");
-
-                   if (!route_id) return true;
-
-                   if (t.is("a.swatch")) {
-                       // Toggle the route on or off when the user clicks the
-                       // swatch:
+                   if (route_id) {
                        this.app.toggleRoute(route_id);
-                       //this.routeToggles[route_id] = true;
+                       this.rerender();
                    }
 
                    e.preventDefault();
-                   this.rerender();
+               },
 
-                   return false;
+               allOn: function(e) {
+                   var ids = $(e.target).data("routes").split(","),
+                       app = this.app;
+
+                   _.each(ids, function(id) {
+                       app.addRoute(id);
+                   });
+                   e.preventDefault();
                }
            });
 
