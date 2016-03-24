@@ -135,7 +135,8 @@ define(["backbone", "underscore", "utils", "config"],
                        _.each(off, function(_nada, route_id) {
                            html.push("<a href='#' data-route='",
                                      route_id, "'>",
-                                     _.escape(route_id), "</a>");
+                                     _.escape(routes.getRouteShortName(route_id)),
+                                     "</a>");
                        });
                    }
 

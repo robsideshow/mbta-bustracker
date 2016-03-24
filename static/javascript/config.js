@@ -24,6 +24,13 @@ define([], function() {
             "Blue": {color: "blue",
                     opacity: 0.3}
         },
+        routeNicknames: {
+            "Red": "Red",
+            "Blue": "Blue",
+            "Orange": "Orange",
+            // Silver Line Waterfront
+            "746": "SLW"
+        },
         colors: ["salmon", "#6CB31B", "teal", "gold", "orchid", "darkgoldenrod", "deepskyblue", "deeppink", "sienna", "burlywood"]
     };
 });
