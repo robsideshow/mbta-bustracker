@@ -19,7 +19,9 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                this.vehicles = new Vehicles([], {app: this});
                this.routes = new Routes([], {app: this});
                this.shapes = new Shapes([], {app: this});
-               this._last_active_shapes = {};
+               this._lastActiveShapes = {};
+               // Track consecutive error responses from the server:
+               this._updateFailures = 0;
                // The timestamp of the last server fetch.
                this.last_tick = 0;
 
@@ -70,11 +72,11 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                        shapes = self.shapes;
                    _.each(updates.active_shapes, function(shape_id) {
                        active_shapes[shape_id] = true;
-                       if (!self._last_active_shapes[shape_id]) {
+                       if (!self._lastActiveShapes[shape_id]) {
                            shapes.get(shape_id).set("active", true);
                        }
                    });
-                   _.each(this._last_active_shapes, function(_, shape_id) {
+                   _.each(this._lastActiveShapes, function(_, shape_id) {
                        if (!active_shapes[shape_id])
                            shapes.get(shape_id).set("active", false);
                    });
@@ -223,9 +225,26 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                    $.get("/api/updates", params).
                        then(function(update) {
                            self.mergeUpdates(update);
+                           self._updateFailures = 0;
                            if (!noReschedule)
                                self.scheduleTick();
-                       });
+                       },
+                            function(err) {
+                                if (noReschedule) return;
+
+                                // Display a message about connectivity issues:
+                                console.log("error", err);
+
+                                // Increase the wait time for each consecutive
+                                // failure:
+                                self.scheduleTick(
+                                    Math.pow(1.5, self._updateFailures++) *
+                                        self.options.tickInterval);
+
+                                // Either cap the max wait time, or stop
+                                // updating altogether. Could expose a UI that
+                                // lets the user resume updates manually.
+                            });
                },
 
                start: function() {
