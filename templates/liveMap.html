@@ -27,10 +27,7 @@
           </fieldset>
           <fieldset class="select-route">
             Toggle routes:<br>
-          {% for rt in rnums %}
-            <input type="checkbox" id="{{rt}}" class="toggle left" value="{{rt}}"/>
-            <label for={{rt}}>{{routeTitles[rt]}}</label>
-          {% endfor %}
+              <div id="route-selector"></div>
           </fieldset>
           <div class="clearfix"></div>
         </form>

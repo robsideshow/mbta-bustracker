@@ -1,5 +1,5 @@
-define(["underscore", "backbone", "route-model", "config"],
-       function(_, B, Route, config) {
+define(["jquery", "underscore", "backbone", "route-model", "config"],
+       function($, _, B, Route, config) {
            var colors = ["blue", "orange", "purple", "maroon",
                          "steelblue", "gray"];
 
@@ -16,7 +16,20 @@ define(["underscore", "backbone", "route-model", "config"],
                    this.app = options.app;
                    // Save colors even when routes are removed from view:
                    this.savedColors = {};
-                   this._routeCount = 0;
+                   // Used to assign colors:
+                   this._colorCount = 0;
+               },
+
+               getFullList: function() {
+                   if (this._routeNames) {
+                       return $.Deferred().resolve(this._routeNames);
+                   }
+
+                   var self = this;
+                   return $.getJSON("/api/routes")
+                       .then(function(response) {
+                           return self._routeNames = response.route_names;
+                       });
                },
 
                getRoute: function(route_id) {
@@ -32,7 +45,7 @@ define(["underscore", "backbone", "route-model", "config"],
                        style.color = this.savedColors[route_id];
                    else if (!style.color) {
                        var n = config.colors.length;
-                       style.color = config.colors[(this._routeCount++)%n];
+                       style.color = config.colors[(this._colorCount++)%n];
                        this.savedColors[route_id] = style.color;
                    }
 
@@ -42,6 +55,17 @@ define(["underscore", "backbone", "route-model", "config"],
                    this.add(route);
 
                    return route;
+               },
+
+               getRouteName: function(route_id) {
+                   return (this._routeNames && this._routeNames[route_id]) ||
+                       route_id;
+               },
+
+               getRouteShortName: function(route_id) {
+                   return config.routeNicknames[route_id] ||
+                       (this._routeNames && this._routeNames[route_id]) ||
+                       route_id;
                },
 
                getAndLoadRoute: function(route_id) {

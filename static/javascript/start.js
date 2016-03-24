@@ -1,6 +1,6 @@
 define(["jquery", "leaflet", "animation", "map", "legend", "infobox", "config",
-        "app-state", "app", "utils"],
-       function($, L, Animation, Map, Legend, InfoBox, config, AppState, _, $u) {
+        "app-state", "app", "utils", "route-list-view"],
+       function($, L, Animation, Map, Legend, InfoBox, config, AppState, _, $u, RouteList) {
            return {
                init: function() {
                    var app = new AppState(),
@@ -14,29 +14,15 @@ define(["jquery", "leaflet", "animation", "map", "legend", "infobox", "config",
                    app.start();
                    animation.start();
 
-                   $("fieldset.select-route")
-                       .on("change", "input", function() {
-                           var route_id = this.value,
-                               checked = this.checked;
-
-                           if (checked) {
-                               app.addRoute(route_id);
-                           } else {
-                               app.removeRoute(route_id);
-                           }
-                       });
+                   new RouteList({
+                       app: app,
+                       el: "#route-selector"
+                   }).render();
 
                    new Legend({
                        el: "#legend",
                        app: app
                    });
-
-                   // var info = new InfoBox({
-                   //     el: "#info",
-                   //     app: app
-                   // });
-
-                   // animation.addObject(info);
                }
            };
        });
