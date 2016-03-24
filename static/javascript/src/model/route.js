@@ -40,9 +40,13 @@ define(["jquery", "backbone", "underscore", "config", "leaflet", "path-utils",
                                        var stop = new Stop(parent),
                                            children = {};
 
+                                       // Record the ids of stops that share a
+                                       // parent stop with the current route but
+                                       // are not themselves on the route.
                                        _.each(child_ids, function(id) {
                                            var stop = new Stop(
                                                {stop_id: id,
+                                                route_ids: {},
                                                 parent: parent.stop_id,
                                                 lat: parent.lat,
                                                 lon: parent.lon,
@@ -59,11 +63,12 @@ define(["jquery", "backbone", "underscore", "config", "leaflet", "path-utils",
 
                                stops.add(all_children);
 
-                               stops.add(_.map(info.stops,
-                                               function(stop) {
-                                                   stop.route_id = self.id;
-                                                   return stop;
-                                               }));
+                               _.each(info.stops,
+                                      function(stop_info) {
+                                          var stop = stops.add(stop_info);
+                                          stop.addRoute(self.id);
+                                      });
+
                                delete info.stops;
 
                                // Add shapes:

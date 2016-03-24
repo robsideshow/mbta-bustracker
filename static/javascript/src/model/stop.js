@@ -1,5 +1,8 @@
 define(["backbone", "leaflet", "underscore"],
        function(B, L, _) {
+           /**
+            * 
+            */
            var StopModel = B.Model.extend({
                idAttribute: "stop_id",
 
@@ -49,6 +52,23 @@ define(["backbone", "leaflet", "underscore"],
 
                isParent: function() {
                    return !!this.get("is_parent");
+               },
+
+               // route_ids serves as a set of route_ids, where the routes with
+               // those ids are active (selected) routes
+               addRoute: function(route_id) {
+                   var route_map = this.get("route_ids") || {};
+                   route_map[route_id] = true;
+                   // Trigger change, if any:
+                   this.set("route_ids", route_map);
+               },
+
+               removeRoute: function(route_id) {
+                   var route_map = this.get("route_ids");
+                   delete route_map[route_id];
+                   this.set("route_ids", route_map);
+
+                   return _.isEmpty(route_map);
                }
            });
 

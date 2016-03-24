@@ -163,9 +163,15 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
 
                    this.vehicles.remove(
                        this.vehicles.where({route_id: route_id}));
-                   this.stops.remove(
-                       this.stops.where({route_id: route_id}));
-                   this.routes.remove([route_id]);
+
+                   var remove_stops = [];
+                   this.stops.each(function(stop) {
+                       if (stop.removeRoute(route_id))
+                           remove_stops.push(stop);
+                   });
+                   this.stops.remove(remove_stops);
+
+                   this.routes.remove(route_id);
                },
 
                toggleRoute: function(route_id, on) {

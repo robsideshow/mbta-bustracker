@@ -38,6 +38,16 @@ define(["backbone", "stop-model"],
                            this.remove(parent);
                        }
                    }
+               },
+
+               /**
+                * Find all Stops on a given route.
+                */
+               forRoute: function(route_id) {
+                   return this.filter(function(stop) {
+                       var id_map = stop.get("route_ids");
+                       return id_map[route_id];
+                   });
                }
            });
 
