@@ -14,6 +14,14 @@ define(["jquery", "leaflet", "animation", "map", "legend", "infobox", "config",
                    app.start();
                    animation.start();
 
+                   // Pause the animation while the map is zooming:
+                   map.map.on("zoomstart", function() {
+                       animation.pause();
+                   })
+                       .on("zoomend", function() {
+                           animation.start();
+                       });
+
                    new RouteList({
                        app: app,
                        el: "#route-selector"
