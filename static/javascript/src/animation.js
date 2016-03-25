@@ -14,6 +14,7 @@ define(["utils", "underscore", "jquery"], function($u, _, $) {
 
         this.options = _.extend(defaultOptions, options);
         this.objects = [];
+        this.onVisibilityChange = _.bind(this.onVisibilityChange, this);
 
         return this;
     }
@@ -64,14 +65,22 @@ define(["utils", "underscore", "jquery"], function($u, _, $) {
         },
 
         start: function() {
-            this._lastRun = new Date().getTime();
+            if (!this._lastRun)
+                this._lastRun = new Date().getTime();
 
-            $(document).on("visibilitychange",
-                           _.bind(this.onVisibilityChange, this));
+            $(document).on("visibilitychange", this.onVisibilityChange);
             this.onVisibilityChange();
         },
 
-        stop: function() {
+        pause: function() {
+            return this.stop(true);
+        },
+
+        stop: function(pause) {
+            if (!pause)
+                this._lastRun = null;
+
+            $(document).off("visibilitychange", this.onVisibilityChange);
             return clearInterval(this._interval);
         }
     });
