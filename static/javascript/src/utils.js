@@ -15,12 +15,6 @@ define(["jquery", "underscore"], function($, _) {
 
         makeTransformFn: null,
 
-        bind: function(fn, context) {
-            return function() {
-                return fn.apply(context, arguments);
-            };
-        },
-
         dropWhile: function(fn, coll, n) {
             coll = _.toArray(coll);
             var i = 0, l = coll.length;
@@ -63,21 +57,6 @@ define(["jquery", "underscore"], function($, _) {
                 minutes: Math.floor((delta % 3600) / 60),
                 seconds: Math.floor(delta % 60)
             };
-        },
-
-        prettyRelativeTime: function(delta) {
-            var r = $u.relativeTime(delta),
-                p = function(x) { return x == 1 ? "" : "s"; },
-                pieces = [];
-
-            if (r.hours > 0)
-                pieces.push(r.hours + " hour" + p(r.hours));
-            if (r.minutes > 0)
-                pieces.push(r.minutes + " minute" + p(r.minutes));
-            if (r.seconds > 0)
-                pieces.push(r.seconds + " second" + p(r.seconds));
-
-            return pieces.join(", ") + (r.future ? " from now" : " ago");
         },
 
         /**

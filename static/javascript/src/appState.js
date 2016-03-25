@@ -106,7 +106,7 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                    if (!_.isNumber(wait)) wait = this.options.tickInterval;
                    clearTimeout(this._timeout);
                    return (this._timeout =
-                           setTimeout($u.bind(this.tick, this), wait));
+                           setTimeout(_.bind(this.tick, this), wait));
                },
 
                addItem: function(listprop, id) {
