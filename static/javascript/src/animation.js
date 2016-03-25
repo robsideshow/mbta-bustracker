@@ -1,6 +1,7 @@
-define(["utils", "underscore"], function($u, _) {
+define(["utils", "underscore", "jquery"], function($u, _, $) {
     var defaultOptions = {
-        tickInterval: 100
+        tickInterval: 100,
+        idleInterval: 2000
     };
 
     /**
@@ -8,14 +9,14 @@ define(["utils", "underscore"], function($u, _) {
      * @param {number} options.tickInterval The delay between updates
      */
     function Animation(options) {
-        if (!this instanceof Animation)
+        if (!(this instanceof Animation) )
             return new Animation(options);
 
         this.options = _.extend(defaultOptions, options);
         this.objects = [];
 
         return this;
-    };
+    }
 
     _.extend(Animation.prototype, {
         addObject: function(object) {
@@ -44,11 +45,30 @@ define(["utils", "underscore"], function($u, _) {
             this._ticks++;
         },
 
+        /**
+         * Update less frequently when the application is in the background:
+         */
+        onVisibilityChange: function() {
+            clearInterval(this._interval);
+
+            if (document.visibilityState === "hidden") {
+                // Put this condition first, so that browsers that don't support
+                // the page visibility API will use the standard tick interval:
+                this._currentInterval = this.options.idleInterval;
+            } else {
+                this._currentInterval = this.options.tickInterval;
+            }
+
+            this._interval = setInterval(_.bind(this.runTick, this),
+                                         this._currentInterval);
+        },
+
         start: function() {
             this._lastRun = new Date().getTime();
 
-            this._interval = setInterval($u.bind(this.runTick, this),
-                                         this.options.tickInterval);
+            $(document).on("visibilitychange",
+                           _.bind(this.onVisibilityChange, this));
+            this.onVisibilityChange();
         },
 
         stop: function() {
