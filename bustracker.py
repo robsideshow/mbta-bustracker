@@ -54,7 +54,7 @@ with open('data/routeshapedict.json', 'r') as f:
 
 with open('data/shapestopsdict.json', 'r') as f:
 	shapestopsdict = json.load(f)
-#dict of shape_id : [LIST of stops (in order) for that shape]
+#dict of shape_id : [LIST of stop_ids (in order) for that shape]
 
 with open('data/routestopsdict.json', 'r') as f:
 	routestopsdict = json.load(f)
@@ -219,7 +219,11 @@ def getAllVehiclesGTFS():
     downloads the most recent protobuffer Vehicles feed and returns a list of 
     dictionaries with info for each vehicle
     '''
-    return [parseVehEntity(v) for v in getAllVehiclesGTFS_Raw()]
+    parsed_vehicles = []
+    for v in getAllVehiclesGTFS_Raw():
+        if v.vehicle.trip.route_id in routenamesdict:
+            parsed_vehicles.append(parseVehEntity(v))
+    return parsed_vehicles
 
 
 def getAllTripsGTFS():
@@ -228,8 +232,11 @@ def getAllTripsGTFS():
     dictionaries with info for each trip. Trips that are underway already or 
     about to depart have a specific vehicle, but trips further in the future don't
     '''
-    raw_trips = getAllTripsGTFS_Raw()
-    return [parseTripEntity(t) for t in raw_trips]
+    parsed_trips = []
+    for t in getAllTripsGTFS_Raw():
+        if t.trip_update.trip.route_id in routenamesdict:
+            parsed_trips.append(parseTripEntity(t))
+    return parsed_trips
     
 
 def getAllStops():
@@ -413,7 +420,28 @@ def findClosestPoint(lat, lon, path):
             closest_i = i
             min_asdist = asdist
     return closest_i
-    
+ 
+   
+def findClosestPointFast(lat, lon, path):
+    '''
+    takes a (vehicle) lat and lon and a path (list of (lat, lon)) and returns 
+    the INDEX of the path point closest to the given location
+    '''
+    cs = 10
+    numpoints = len(path)
+    reduced_path = path[0:numpoints:cs]
+    k = cs * findClosestPoint(lat, lon, reduced_path)
+    if k == 0:
+        refined_path = path[0:20]
+        return findClosestPoint(lat, lon, refined_path)
+    elif k == (numpoints-1) - (numpoints-1)%cs:
+        refined_path = path[-20:]
+        return numpoints - 20 + findClosestPoint(lat, lon, refined_path)
+    else:
+        refined_path = path[k - cs: k + cs]
+        return k - cs + findClosestPoint(lat, lon, refined_path)
+          
+        
     
 def buildAnimationDicts(path, first_i, start_lat, start_lon, start_time, speed):
     '''
@@ -452,6 +480,50 @@ def getAnimationPoints(path, veh_lat, veh_lon, veh_timestamp, speed = 6):
     else:
         first_i = closest_i +1
     return buildAnimationDicts(path, first_i, veh_lat, veh_lon, veh_timestamp, speed)
+
+
+def getStopPointIndices(shape_id):
+    '''
+    takes a shape_id and returns a list of indices which correspond to the path
+    points that are closest to the stops for the path for that shape
+    '''
+    path = shapepathdict[shape_id]
+    stops = shapestopsdict[shape_id]
+    stop_point_indices = []
+    for stop_id in stops:
+        stopinfo = stopinfodict[stop_id]
+        stop_point_indices.append(findClosestPoint(stopinfo['lat'], stopinfo['lon'], path))
+    return stop_point_indices
+ 
+   
+def calcAlpha(plat1, plon1, plat2, plon2, vlat, vlon):
+    '''
+    takes the endpoints of a path segment from p1 to p2, and the position of a vehicle 
+    v, and calculates the proportion from p1 to p2 where the projection of v onto 
+    the line through p1 and p2 would be.  e.g. alpha = 0 corresponds to p1, 
+    alpha = .8 is 80% of the way from p1 to p2, alpha < 0 means v projects onto
+    a point behind p1, and alpha > 1 means v projects past p2.
+    '''
+    py = plat2 - plat1
+    px = .742*(plon2 - plon1)
+    ry = vlat - plat1
+    rx = .742*(vlon - plon1)
+    alpha = (rx*px + ry*py)/(px**2 + py**2)
+    return alpha
+
+    
+def projectVehOnSeg(plat1, plon1, plat2, plon2, vlat, vlon):
+    '''
+    takes the endpoints of a path segment from p1 to p2, and the position of a vehicle 
+    v, and calculates the point on the segment closest to v 
+    '''
+    alpha = calcAlpha(plat1, plon1, plat2, plon2, vlat, vlon)
+    if alpha < 0:
+        return [plat1, plon1]
+    elif alpha > 1:
+        return [plat2, plon2]
+    else:
+        return [plat1 + alpha*(plat2 - plat1), plon1 + alpha*(plon2 - plon1)]
         
 
 def getShapeForUnschedTrip(route_id, direction, destination):
