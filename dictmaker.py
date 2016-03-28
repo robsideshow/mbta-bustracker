@@ -148,7 +148,7 @@ def makeStopsDicts(tripshapedict, shaperoutedict,
             routestopsdict[route_id] = set(shapestopsdict[shape_id])
     for route_id in routestopsdict:
         routestopsdict[route_id] = list(routestopsdict[route_id])
-    return shapestopsdict, routestopsdict
+    return shapestopsdict, routestopsdict, tripstopsdict
     
 def makeStopRoutesDict(routestopsdict):
     # inverts the routestopsdict to create a dict of stop_id : [List of routes for that stop]
@@ -255,4 +255,18 @@ def makeShapePathSequenceDict(shaperoutedict, filename = 'MBTA_GTFS_texts/shapes
         tmp = [(int(str(x[0])[:-4]), x[1]) for x in tmp]
         shapepathseqdict[shape_id] = tmp
     return shapepathseqdict
-   
+
+
+def makeShapeTripsDict(tripshapedict):
+    # inverts the tripshapedict to create a dict of shape_id : [List of trip_ids for that shape_id]
+    shapetripsdict = dict()
+    for trip_id in tripshapedict:
+        shape_id = tripshapedict[trip_id]
+        if shape_id in shapetripsdict:
+            shapetripsdict[shape_id].add(trip_id)
+        else:
+            shapetripsdict[shape_id] = set([trip_id])
+    for shape_id in shapetripsdict:
+        shapetripsdict[shape_id] = sorted(list(shapetripsdict[shape_id]))
+    return shapetripsdict
+
