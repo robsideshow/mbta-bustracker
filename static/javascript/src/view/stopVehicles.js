@@ -78,8 +78,10 @@ define(["backbone", "underscore", "utils", "config"],
 
                    _.each(preds, function(pred) {
                        var route_id = pred.route_id;
- 
-                       if (pred.arr_time > threshold) return;
+
+                       if (pred.arr_time > threshold ||
+                           pred.arr_time < stamp) return;
+
                        // Ignore disabled routes:
                        if (!routes.get(route_id)) {
                            off[route_id] = true;
@@ -167,7 +169,8 @@ define(["backbone", "underscore", "utils", "config"],
                },
 
                hideRoute: function(e) {
-                   var route_id = $(e.target).data("route");
+                   var route_id = $(e.target).closest(".vehicle-pred")
+                           .data("route");
 
                    if (route_id) {
                        this.app.toggleRoute(route_id);
