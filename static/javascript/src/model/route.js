@@ -23,8 +23,14 @@ define(["jquery", "backbone", "underscore", "config", "leaflet", "path-utils",
                            stops = app && app.stops,
                            shapes = app && app.shapes;
 
-                       $.get("/api/routeinfo", {route: this.id})
-                           .done(function(info) {
+                       $.get("/api/routeinfo", {routes: this.id})
+                           .done(function(routes) {
+                               var info = routes.routes[self.id];
+                               if (!info)
+                                   return $.Deferred().reject(
+                                       "Invalid route id!"
+                                   );
+
                                info._loaded = true;
 
                                // Add parent stops:

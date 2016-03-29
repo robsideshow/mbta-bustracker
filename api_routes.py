@@ -69,27 +69,38 @@ def bus_routes():
 
 @api_routes.route("/routeinfo")
 def route_info():
-    route_id = request.args.get("route", "")
-
-    if not route_id:
+    if "routes" not in request.args:
         abort(404)
 
-    try:
-        shape_ids = btr.routeshapedict[route_id]
-    except KeyError:
-        abort(404)
+    routes = request.args.get("routes", "")
+    route_ids = routes.split(",")
+    response = {}
+    #stop_ids = []
 
-    shape2path = dict([(shid, btr.shapepathdict.get(shid)) for shid in shape_ids])
-    paths = btr.pathReducer([btr.shapepathdict.get(shape_id) for shape_id in shape_ids])
-    stop_ids = btr.routestopsdict.get(route_id)
-    stops = [btr.stopinfodict.get(stop_id) for stop_id in stop_ids]
-    routename = btr.routenamesdict.get(route_id)
-    parent_stops = btr.getParentsForStops(stop_ids)
-    return jsonify(parent_stops = parent_stops,
-                   routename = routename,
-                   paths = paths,
-                   stops = stops,
-                   shape2path = shape2path)
+    for route_id in route_ids:
+        try:
+            shape_ids = btr.routeshapedict[route_id]
+            shape2path = dict([(shid, btr.shapepathdict.get(shid)) for shid in
+                               shape_ids])
+            paths = btr.pathReducer([btr.shapepathdict.get(shape_id) for shape_id
+                                     in shape_ids])
+            stop_ids = btr.routestopsdict.get(route_id)
+            stops = [btr.stopinfodict.get(stop_id) for stop_id in stop_ids]
+            routename = btr.routenamesdict.get(route_id)
+            parent_stops = btr.getParentsForStops(stop_ids)
+            response[route_id] = {
+                "shape_ids": shape_ids,
+                "shape2path": shape2path,
+                "paths": paths,
+                "stop_ids": stop_ids,
+                "stops": stops,
+                "routename": routename,
+                "parent_stops": parent_stops
+            }
+        except KeyError:
+            response[route_id] = None
+
+    return jsonify(routes=response)
 
 @api_routes.route("/locationinfo")
 def location_info():
