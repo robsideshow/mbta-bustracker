@@ -285,8 +285,57 @@ define(["underscore", "utils"],
                    }
 
                    return null;
-               }
+               },
 
+               /**
+                * @param {Object} segMap - an object that is used to determine
+                * if a path segment has already been encountered.
+                * @param {Number[][]} path - an array of points representing a
+                * path
+                *
+                * @returns {Number[][]}
+                */
+               placePath: function(segMap, path) {
+                   // Break the path into line segments: 2-tuples of 2-tuples
+                   var segments = $u.partition(path, 2, 1),
+                       outPath = [],
+                       lastPoint = null;
+
+                   _.each(segments, function(pair, i) {
+                       // For each pair of points...
+
+                       // Create a unique string from the pair:
+                       var k = paths.pairString(pair[0], pair[1]),
+                           adjustedPair = pair;
+
+                       if (segments[k]) {
+                           // The pair has already been used! Find a new one.
+
+                           var vec,          // a vector normal to the segment
+                               j = 1;        // the loop counter
+                           do {
+                               // The normal vector vec * scale is added to the
+                               // last adjustedPair to give the next adjusted
+                               // pair.
+                               var scale = Math.pow(-1, j)*j;
+                               // calculate the adjusted pair:
+                               adjustedPair = _ + _;
+                               k = paths.pairString();
+                           } while(segments[k]);
+
+                           // We should now have an unused segment!
+                       }
+
+                       segments[k] = true;
+
+                       // Don't push duplicate points.
+                       if (!_.isEqual(lastPoint, adjustedPair[0]))
+                           outPath.push(adjustedPair[0]);
+                       outPath.push(adjustedPair[1]);
+                   });
+
+                   return outPath;
+               }
            };
 
            return paths;
