@@ -22,17 +22,6 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                // vehicle id -> BusMarker
                this.busMarkers = {};
 
-               this.listenTo(app, "routeSelected", this.onRouteSelected)
-                   .listenTo(app, "routeUnselected", this.onRouteUnselected)
-                   .listenTo(app, "vehicleSelected", this.onVehicleSelected)
-                   .listenTo(app, "vehicleUnselected", this.onVehicleUnselected)
-                   .listenTo(app, "stopSelected", this.onStopSelected)
-                   .listenTo(app, "focusRoute", this.onRouteFocused)
-                   .listenTo(app.vehicles, "add", this.onVehicleAdded)
-                   .listenTo(app.vehicles, "remove", this.onVehicleRemoved)
-                   .listenTo(app.stops, "add", this.onStopAdded)
-                   .listenTo(app.stops, "remove", this.onStopRemoved);
-
                this.init();
 
                this._nextTick = Infinity;
@@ -52,6 +41,18 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                    this.routesLayer = L.layerGroup().addTo(this.map);
                    this.busLayer = L.layerGroup().addTo(this.map);
                    this.animation.addObject(this);
+
+                   var app = this.app;
+                   this.listenTo(app, "routeSelected", this.onRouteSelected)
+                       .listenTo(app, "routeUnselected", this.onRouteUnselected)
+                       .listenTo(app, "vehicleSelected", this.onVehicleSelected)
+                       .listenTo(app, "vehicleUnselected", this.onVehicleUnselected)
+                       .listenTo(app, "stopSelected", this.onStopSelected)
+                       .listenTo(app, "focusRoute", this.onRouteFocused)
+                       .listenTo(app.vehicles, "add", this.onVehicleAdded)
+                       .listenTo(app.vehicles, "remove", this.onVehicleRemoved)
+                       .listenTo(app.stops, "add", this.onStopAdded)
+                       .listenTo(app.stops, "remove", this.onStopRemoved);
                },
 
                /**
