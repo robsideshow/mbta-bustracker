@@ -42,7 +42,7 @@
    Or select your route from this list:
    <br>
    {% for rt in rnums %}
-   <a class="route-link" href='{{url_for("routes", routenum = rt)}}'>{{routeTitles[rt]}}</a>
+   <a class="route-link" href='{{url_for("old.routes", routenum = rt)}}'>{{routeTitles[rt]}}</a>
    {% endfor %}
    
    <div class="clearfix"></div>
