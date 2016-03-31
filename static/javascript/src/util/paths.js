@@ -288,14 +288,24 @@ define(["underscore", "utils"],
                },
 
                /**
+                * Calculate a new path from the given path that will eliminate
+                * overlaps with existing paths. For each line segment in the
+                * path, and for each candidate translation of the line segment,
+                * a key is generated. That key is used to determine whether the
+                * path segment is occupied or not. The values in segMap are
+                * arrays of ids, where the first id is the "winner".
+                *
                 * @param {Object} segMap - an object that is used to determine
                 * if a path segment has already been encountered.
                 * @param {Number[][]} path - an array of points representing a
                 * path
+                * @param {} id - a unique identifier
+                * @param {Function} normal - a function of two points that
+                * returns a normal vector
                 *
                 * @returns {Number[][]}
                 */
-               placePath: function(segMap, path) {
+               placePath: function(segMap, path, id, normal) {
                    // Break the path into line segments: 2-tuples of 2-tuples
                    var segments = $u.partition(path, 2, 1),
                        outPath = [],
@@ -310,23 +320,39 @@ define(["underscore", "utils"],
 
                        if (segments[k]) {
                            // The pair has already been used! Find a new one.
+                           segments[k].push(id);
 
-                           var vec,          // a vector normal to the segment
+                           // a vector normal to the segment
+                           var a = pair[0],
+                               b = pair[1],
+                               vec = normal(a, b),
+                               xnorm = vec[0],
+                               ynorm = vec[1],
+                               xa = a[0],
+                               ya = a[1],
+                               xb = b[0],
+                               yb = b[1],
                                j = 1;        // the loop counter
+                           // (I used a do-while here to avoid computing the
+                           // normal vector when it isn't going to be used.)
                            do {
                                // The normal vector vec * scale is added to the
                                // last adjustedPair to give the next adjusted
                                // pair.
                                var scale = Math.pow(-1, j)*j;
                                // calculate the adjusted pair:
-                               adjustedPair = _ + _;
-                               k = paths.pairString();
+                               adjustedPair = [[xa+(xnorm*scale),
+                                                ya+(ynorm*scale)],
+                                               [xb+(xnorm*scale),
+                                                yb+(xnorm+scale)]];
+                               k = paths.pairString(adjustedPair[0],
+                                                    adjustedPair[1]);
                            } while(segments[k]);
 
                            // We should now have an unused segment!
                        }
 
-                       segments[k] = true;
+                       segments[k] = [id];
 
                        // Don't push duplicate points.
                        if (!_.isEqual(lastPoint, adjustedPair[0]))
@@ -335,6 +361,47 @@ define(["underscore", "utils"],
                    });
 
                    return outPath;
+               },
+
+               /**
+                * Removes the line segments in path from the segment map.
+                *
+                * @param {Object} segMap - See paths.placePath
+                * @param {Number[][]} path - an array of points
+                *
+                * @returns a map of ids to counts, where the count is the number
+                * of line segments belonging to an id that can be replaced now
+                * that path is removed
+                */
+               removePath: function(segMap, path) {
+                   var segments = $u.partition(path, 2, 1),
+                       replacePaths = {};
+
+                   _.each(segments, function(pair, i) {
+                       var k = paths.pairString(pair[0], pair[1]),
+                           ids = segments[k];
+
+                       if (ids.length === 1)
+                           delete segments[k];
+                       else {
+                           // Remove the first id; it's the one that "won" and
+                           // got the segment.
+                           ids.shift();
+                           // Record the ids of the paths that can be
+                           // recalculated now:
+                           _.each(ids, function(id) {
+                               if (replacePaths[id])
+                                   replacePaths[id]++;
+                               else
+                                   replacePaths[id] = 1;
+                           });
+                           // It would be nice just to move the segments that
+                           // have changed, but that will probably require some
+                           // extra bookkeeping.
+                       }
+                   });
+
+                   return replacePaths;
                }
            };
 
