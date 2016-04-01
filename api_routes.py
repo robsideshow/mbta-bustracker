@@ -116,7 +116,7 @@ def location_info():
     routeidlist = btr.getRoutesForStops([stop.get('stop_id') for stop in nearby_stops])
     parent_stops = btr.getParentsAmongStops([s['stop_id'] for s in nearby_stops])
     return jsonify(stops = nearby_stops,
-                   routes = routeidlist, 
+                   route_ids = routeidlist, 
                    parent_stops = parent_stops)
 
 
@@ -127,3 +127,18 @@ def alerts():
 
 
 
+@api_routes.route("/rectangle")
+def rectangle():
+    '''
+    get all stops inside a rectangle with given SW and NE corners
+    '''
+    if "swlat" not in request.args or "swlon" not in request.args:
+        abort(401)
+
+    swlat = float(request.args.get('swlat', 40))
+    swlon = float(request.args.get('swlon', -71))
+    nelat = float(request.args.get('nelat', 40))
+    nelon = float(request.args.get('nelon', -71))
+
+    stops = btr.getStopsInRectangle(swlat, swlon, nelat, nelon)
+    return jsonify(stops = stops)

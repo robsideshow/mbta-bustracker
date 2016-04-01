@@ -331,7 +331,20 @@ def getNearbyStops(lat, lon, numstops = 15, radius = 800):
         routenames = filter(lambda x : x!= '', [routenamesdict[route_id] for route_id in stoproutesdict.get(stop['stop_id'], '') ])
         stop['routes'] = ', '.join(routenames)  
     return stops
-        
+      
+      
+def getStopsInRectangle(swlat, swlon, nelat, nelon):
+    '''
+    takes lat/lon for the southwest and northeast corners of a rectangle and 
+    returns a list of stopinfo dictionaries for the stops in that rectangle
+    '''
+    stops = []
+    for stop_id in stopinfodict:
+        if (swlat < stopinfodict[stop_id]['lat'] < nelat) and  (swlon < stopinfodict[stop_id]['lon'] < nelon):
+            stops.append(stopinfodict[stop_id])
+    return stops
+
+
         
 def getBusesOnRoutes(routelist):
     '''
