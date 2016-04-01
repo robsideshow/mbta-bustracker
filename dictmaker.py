@@ -21,27 +21,7 @@ alldicts = ['shapepathdict', 'routenamesdict', 'tripshapedict',
 #stoproutesdict - stop_id : [List of routes for that stop]
 #stopinfodict - stop_id : {Dict of 'stop_id', 'stop_name', 'lat', 'lon', 'parent' (if a child), 'children' (if a parent)}}
 #shapeinfodict - shape_id : {Dict of 'route_id', 'destination', 'direction'}  
-    
-def makeShapePathDict(filename = 'MBTA_GTFS_texts/shapes.txt'):
-    #reads the 'shapes.txt' file and returns a dictionary of 
-    # shape_id : [list of latlon path points]
-    f = open(filename, 'r')
-    f.readline()
-    rawlines = f.readlines()
-    f.close()
-    splitlines = [l.split(',') for l in rawlines]
-    shape_ids = set([l[0].strip('"') for l in splitlines])
-    shapepathdict = dict([(shape_id, []) for shape_id in shape_ids])
-    for l in splitlines:
-        latlon = (float(l[1].strip('"')), float(l[2].strip('"')))
-        shape_pt_seq = int(l[3])
-        shapepathdict[l[0].strip('"')].append((shape_pt_seq,latlon))
-    for shape_id in shape_ids:
-        tmp = shapepathdict[shape_id]
-        tmp.sort()
-        shapepathdict[shape_id] = [x[1] for x in tmp]
-    return shapepathdict
-    
+        
     
 def makeRouteNamesDict(filename = 'MBTA_GTFS_texts/routes.txt'):
     #reads the 'routes.txt' file and returns a dictionary of 
@@ -54,13 +34,15 @@ def makeRouteNamesDict(filename = 'MBTA_GTFS_texts/routes.txt'):
     splitlines = [l.split(',') for l in rawlines]
     routenamesdict = dict()
     for l in splitlines:
-        if l[2].strip('"') == '':
-            routename = l[3].strip('"')
-        else:
-            routename = l[2].strip('"')
-        if routename in 'BCDE':
-            routename = l[0].strip('"')
-        routenamesdict[l[0].strip('"')] = routename       
+        route_id = l[0].strip('"')
+        if route_id[:2] not in ('CR', 'Bo', 'Lo'):
+            if l[2].strip('"') == '':
+                routename = l[3].strip('"')
+            else:
+                routename = l[2].strip('"')
+            if routename in 'BCDE':
+                routename = route_id
+            routenamesdict[route_id] = routename       
     return routenamesdict
     
     
@@ -76,7 +58,7 @@ def makeTripShapeDict(filename = 'MBTA_GTFS_texts/trips.txt'):
     return tripshapedict
     
     
-def makeShapeRouteDict(filename = 'MBTA_GTFS_texts/trips.txt'):
+def makeShapeRouteDict(routenamesdict, filename = 'MBTA_GTFS_texts/trips.txt'):
     #reads the 'trips.txt' file and returns a dictionary of 
     # shape_id : route_id 
     f = open(filename, 'r')
@@ -84,29 +66,49 @@ def makeShapeRouteDict(filename = 'MBTA_GTFS_texts/trips.txt'):
     rawlines = f.readlines()
     f.close()
     splitlines = [l.split(',') for l in rawlines]
-    shaperoutedict = dict([(l[-2].strip('"'), l[0].strip('"')) for l in splitlines])
+    shaperoutedict = dict()
+    for l in splitlines:
+        route_id = l[0].strip('"')
+        if route_id in routenamesdict:
+            shape_id = l[-2].strip('"')
+            shaperoutedict[shape_id] = route_id
     return shaperoutedict
 
     
 def makeRouteShapeDict(shaperoutedict, filename = 'MBTA_GTFS_texts/shapes.txt'):
-    #reads the 'shapes.txt' file and returns a dictionary of 
+    #inverts the shaperoutedict and returns a dictionary of 
     # route_id : [List of shape_ids]
+    routeshapedict = dict()
+    for shape_id in shaperoutedict:
+        route_id = shaperoutedict[shape_id] 
+        if route_id in routeshapedict:
+            routeshapedict[route_id].append(shape_id)
+        else:
+            routeshapedict[route_id] = [shape_id]
+    return routeshapedict    
+    
+    
+def makeShapePathDict(shaperoutedict, filename = 'MBTA_GTFS_texts/shapes.txt'):
+    #reads the 'shapes.txt' file and returns a dictionary of 
+    # shape_id : [list of latlon path points]
     f = open(filename, 'r')
     f.readline()
     rawlines = f.readlines()
     f.close()
     splitlines = [l.split(',') for l in rawlines]
-    shape_ids = list(set([l[0].strip('"') for l in splitlines]))
-    routeshapedict = dict()
-    for shape_id in shape_ids:
-        if shape_id in shaperoutedict:
-            route_id = shaperoutedict[shape_id] 
-            if route_id in routeshapedict:
-                routeshapedict[route_id].append(shape_id)
-            else:
-                routeshapedict[route_id] = [shape_id]
-    return routeshapedict    
-    
+    shapepathdict = dict([(shape_id, []) for shape_id in shaperoutedict])
+    for l in splitlines:
+        shape_id = l[0].strip('"')
+        if shape_id in shapepathdict:
+            latlon = (float(l[1].strip('"')), float(l[2].strip('"')))
+            shape_pt_seq = int(l[3])
+            shapepathdict[shape_id].append((shape_pt_seq,latlon))
+    for shape_id in shaperoutedict:
+        tmp = shapepathdict[shape_id]
+        tmp.sort()
+        shapepathdict[shape_id] = [x[1] for x in tmp]
+    return shapepathdict
+
 
 def makeStopsDicts(tripshapedict, shaperoutedict,
                    filename = 'MBTA_GTFS_texts/stop_times.txt'):
@@ -148,10 +150,10 @@ def makeStopsDicts(tripshapedict, shaperoutedict,
             routestopsdict[route_id] = set(shapestopsdict[shape_id])
     for route_id in routestopsdict:
         routestopsdict[route_id] = list(routestopsdict[route_id])
-    return shapestopsdict, routestopsdict, tripstopsdict
+    return shapestopsdict, routestopsdict
     
 def makeStopRoutesDict(routestopsdict):
-    # inverts the routestopsdict to create a dict of stop_id : [List of routes for that stop]
+    #inverts the routestopsdict to create a dict of stop_id : [List of routes for that stop]
     stoproutesdict = dict()
     for route_id in routestopsdict:
         for stop_id in routestopsdict[route_id]:
@@ -164,7 +166,7 @@ def makeStopRoutesDict(routestopsdict):
     return stoproutesdict
 
 
-def makeStopInfoDict(filename = 'MBTA_GTFS_texts/stops.txt'):
+def makeStopInfoDict(stoproutesdict, filename = 'MBTA_GTFS_texts/stops.txt'):
     #reads the 'stops.txt' file and returns a dictionary of 
     # stop_id : {Dict of 'stop_id', 'stop_name', 'lat', 'lon'}
     f = open(filename, 'r')
@@ -173,26 +175,40 @@ def makeStopInfoDict(filename = 'MBTA_GTFS_texts/stops.txt'):
     for line in f:
         l = line.split(',') 
         stop_id = l[0].strip('"')
-        stop_name = l[2].strip('"')
-        parent = l[-2].strip('"')
-        #there are a few stop names with COMMAS, which screws up parsing 
-        #this COMMA-separated file, duh.
-        if l[4].strip('"') == '':
-            lat = float(l[5].strip('"'))
-            lon = float(l[6].strip('"'))
-        else:            
-            lat = float(l[4].strip('"'))
-            lon = float(l[5].strip('"'))
-        stopinfodict[stop_id] = dict([('stop_id', stop_id), ('stop_name', stop_name), ('lat', lat), ('lon', lon)])
-        if stop_id[0] == 'p':
-            stopinfodict[stop_id]['children'] = []
-        if parent != '':
-            stopinfodict[parent]['children'].append(stop_id)
-            stopinfodict[stop_id]['parent'] = parent
+        if stop_id in stoproutesdict or stop_id[0] == 'p':
+            stop_name = l[2].strip('"')
+            parent = l[-2].strip('"')
+            #there are a few stop names with COMMAS, which screws up parsing 
+            #this COMMA-separated file, duh.
+            if l[4].strip('"') == '':
+                lat = float(l[5].strip('"'))
+                lon = float(l[6].strip('"'))
+            else:            
+                lat = float(l[4].strip('"'))
+                lon = float(l[5].strip('"'))
+            stopinfodict[stop_id] = dict([('stop_id', stop_id),
+                                         ('stop_name', stop_name), 
+                                         ('lat', lat),
+                                         ('lon', lon),
+                                         ('route_ids', stoproutesdict.get(stop_id))])
+            if stop_id[0] == 'p':
+                #the parent stops are the first stops in the file
+                stopinfodict[stop_id]['children'] = []
+            if parent:
+                #i.e. if you HAVE a parent
+                stopinfodict[parent]['children'].append(stop_id)
+                stopinfodict[stop_id]['parent'] = parent
+    for stop_id in stopinfodict:
+        if stopinfodict[stop_id].get('children'):
+            route_ids = []
+            for child_id in stopinfodict[stop_id]['children']:
+                route_ids += stoproutesdict.get(child_id, []) 
+            route_ids = sorted(list(set(route_ids)))
+            stopinfodict[stop_id]['route_ids'] = route_ids
     return stopinfodict
     
 
-def makeShapeInfoDict(filename = 'MBTA_GTFS_texts/trips.txt'):
+def makeShapeInfoDict(shaperoutedict, filename = 'MBTA_GTFS_texts/trips.txt'):
     #reads the 'trips.txt' file and returns a dictionary of 
     # shape_id : {Dict of 'route_id', 'destination', 'direction'}
     f = open(filename, 'r')
@@ -202,27 +218,28 @@ def makeShapeInfoDict(filename = 'MBTA_GTFS_texts/trips.txt'):
     shapeinfodict = dict()
     splitlines = [l.split(',') for l in rawlines]
     for l in splitlines:
-        route_id = l[0].strip('"')
         shape_id = l[-2].strip('"')
-        destination = l[3].strip('"')
-        direction = l[-4].strip('"')
-        shapeinfodict[shape_id] = {'route_id' : route_id, 
-                                    'destination' : destination,
-                                    'direction' : direction}
+        if shape_id in shaperoutedict:
+            route_id = l[0].strip('"')
+            destination = l[3].strip('"')
+            direction = l[-4].strip('"')
+            shapeinfodict[shape_id] = {'route_id' : route_id, 
+                                        'destination' : destination,
+                                        'direction' : direction}
     return shapeinfodict
 
 
 
 def makeAllDicts():
-    shapepathdict = makeShapePathDict()
     routenamesdict = makeRouteNamesDict()
     tripshapedict = makeTripShapeDict()
-    shaperoutedict = makeShapeRouteDict()
+    shaperoutedict = makeShapeRouteDict(routenamesdict)
     routeshapedict = makeRouteShapeDict(shaperoutedict)
+    shapepathdict = makeShapePathDict(shaperoutedict)
     shapestopsdict, routestopsdict = makeStopsDicts(tripshapedict, shaperoutedict)
     stoproutesdict = makeStopRoutesDict(routestopsdict)
-    stopinfodict = makeStopInfoDict()
-    shapeinfodict = makeShapeInfoDict()
+    stopinfodict = makeStopInfoDict(stoproutesdict)
+    shapeinfodict = makeShapeInfoDict(shaperoutedict)
     for dic in alldicts:
         f = open(dic + '.json', 'w')
         json.dump(eval(dic), f)

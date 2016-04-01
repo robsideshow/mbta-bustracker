@@ -310,9 +310,7 @@ def getParentsAmongStops(stopidlist):
     for stop_id in stopidlist:
         stopinfo = stopinfodict[stop_id]
         if stopinfo.get('children', ''):
-            route_ids = []
-            for stop_id in stopinfo['children']:
-                route_ids += stoproutesdict.get(stop_id, []) 
+            route_ids = stopinfo.get('route_ids')
             routenames = filter(lambda x : x!= '', [routenamesdict.get(route_id, '') for route_id in route_ids])
             routenames = sorted(list(set(routenames)))
             stopinfo['routes'] = ', '.join(routenames)  
@@ -331,15 +329,7 @@ def getParentsForStops(stopidlist):
         if stopinfo.get('parent', ''):
             parent_ids.append(stopinfo.get('parent'))
     parent_ids = list(set(parent_ids))
-    parents = []
-    for parent_id in parent_ids:
-        stopinfo = stopinfodict[parent_id]
-        route_ids = []
-        for stop_id in stopinfo['children']:
-            route_ids += stoproutesdict.get(stop_id, []) 
-        route_ids = sorted(list(set(route_ids)))
-        stopinfo['route_ids'] = route_ids
-        parents.append(stopinfo)        
+    parents = [stopinfodict[parent_id] for parent_id in parent_ids]
     return parents
 
         
