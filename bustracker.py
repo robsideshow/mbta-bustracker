@@ -171,8 +171,8 @@ def parseAlertEntity(aent):
     alerts['alert_id'] = aent.id
     alerts['start_time'] = aent.alert.active_period[0].start
     alerts['end_time'] = aent.alert.active_period[0].end
-    alerts['route_ids'] = sorted(list(set([x.route_id for x in aent.alert.informed_entity])))
-    alerts['stop_ids'] = sorted(list(set([x.stop_id for x in aent.alert.informed_entity])))
+    alerts['route_ids'] = sorted(list(set([x.route_id for x in aent.alert.informed_entity if x.route_id])))
+    alerts['stop_ids'] = sorted(list(set([x.stop_id for x in aent.alert.informed_entity if x.stop_id])))
     alerts['header'] = [x.text for x in aent.alert.header_text.translation]   
     alerts['description'] = [x.text for x in aent.alert.description_text.translation]   
     return alerts
