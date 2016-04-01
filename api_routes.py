@@ -120,6 +120,10 @@ def location_info():
                    parent_stops = parent_stops)
 
 
+@api_routes.route("/alerts")
+def alerts():
+    alerts = btr.getAllAlertsGTFS()
+    return jsonify(alerts = alerts)
 
 
 

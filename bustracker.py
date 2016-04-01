@@ -161,8 +161,23 @@ def parseTripEntity(tent):
     else:
         tdict['type'] = 'subway'
     return tdict    
-    
-    
+ 
+
+def parseAlertEntity(aent):     
+    '''
+    Takes a GTFS alert entity and returns a dictionary of info about the alert
+    '''
+    alerts = dict()
+    alerts['alert_id'] = aent.id
+    alerts['start_time'] = aent.alert.active_period[0].start
+    alerts['end_time'] = aent.alert.active_period[0].end
+    alerts['route_ids'] = sorted(list(set([x.route_id for x in aent.alert.informed_entity])))
+    alerts['stop_ids'] = sorted(list(set([x.stop_id for x in aent.alert.informed_entity])))
+    alerts['header'] = [x.text for x in aent.alert.header_text.translation]   
+    alerts['description'] = [x.text for x in aent.alert.description_text.translation]   
+    return alerts
+
+       
 def getAllVehiclesGTFS_Raw():
     '''
     downloads the GTFS protobuffer Vehicles feed from mbta.com. 
@@ -214,6 +229,33 @@ def getAllTripsGTFS_Raw():
         print e
         return []
 
+
+def getAllAlertsGTFS_Raw():
+    '''
+    downloads the GTFS protobuffer Alerts feed from mbta.com.  
+    Returns a list of unparsed GTFS alert entities
+    '''
+    feed = gtfs_realtime_pb2.FeedMessage()
+    try:
+        url = 'http://developer.mbta.com/lib/GTRTFS/Alerts/Alerts.pb'
+        response = requests.get(url, timeout = 10)
+        if response.ok:
+            feed.ParseFromString(response.content)       
+            return feed.entity
+    except socket.error as error:
+        if error.errno == errno.WSAECONNRESET:
+            return []
+    except socket.error as error:
+        if error.errno == errno.ECONNRESET:
+            return []
+    except (google.protobuf.message.DecodeError, requests.exceptions.ChunkedEncodingError,
+            UnicodeDecodeError):
+        return []
+    except requests.exceptions.RequestException as e:   
+        print e
+        return []
+
+
 def getAllVehiclesGTFS():
     '''
     downloads the most recent protobuffer Vehicles feed and returns a list of 
@@ -237,7 +279,18 @@ def getAllTripsGTFS():
         if t.trip_update.trip.route_id in routenamesdict:
             parsed_trips.append(parseTripEntity(t))
     return parsed_trips
-    
+ 
+ 
+def getAllAlertsGTFS():
+    '''
+    downloads the most recent protobuffer Vehicles feed and returns a list of 
+    dictionaries with info for each vehicle
+    '''
+    parsed_alerts = []
+    for a in getAllAlertsGTFS_Raw():
+        parsed_alerts.append(parseAlertEntity(a))
+    return parsed_alerts
+   
 
 def getAllStops():
     '''
