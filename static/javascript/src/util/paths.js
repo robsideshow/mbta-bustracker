@@ -28,7 +28,8 @@ define(["underscore", "utils"],
                 *
                 * @param {Number[][]} path An array of [lat, long] points
                 * representing a path.
-                * @param {Object} [init={}] If provided, 
+                * @param {Object} [init={}] If provided, the init object will be
+                * extended and returned, rather than a newly created object
                 *
                 * @returns {Object} An object with keys corresponding to each
                 * pair of points in the path

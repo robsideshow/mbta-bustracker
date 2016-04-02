@@ -13,6 +13,8 @@ define(["jquery", "underscore"], function($, _) {
             return this.directionsShort[Math.round(heading%360/45)];
         },
 
+        log: console ? console.log : _.noop,
+
         makeTransformFn: null,
 
         dropWhile: function(fn, coll, n) {
@@ -234,7 +236,9 @@ define(["jquery", "underscore"], function($, _) {
             l.splice(cursor, 0, val);
 
             return l;
-        }
+        },
+
+
     };
 
     return $u;

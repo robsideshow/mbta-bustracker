@@ -1,6 +1,6 @@
 define(["jquery", "backbone", "underscore", "config", "leaflet", "path-utils",
-        "stop-model", "utils"],
-       function($, B, _, config, L, $p, Stop, $u) {
+        "utils"],
+       function($, B, _, config, L, $p, $u) {
            var RouteModel = B.Model.extend({
                initialize: function(attrs, options) {
                    B.Model.prototype.initialize.call(this, attrs, options);
@@ -8,95 +8,6 @@ define(["jquery", "backbone", "underscore", "config", "leaflet", "path-utils",
 
                getApp: function() {
                    return this.collection.app;
-               },
-
-               loadInfo: function(cacheOnly) {
-                   var promise = $.Deferred();
-
-                   if (this.get("_loaded")) {
-                       promise.resolve(this);
-                   } else if (cacheOnly) {
-                       promise.reject("Route info not in cache.");
-                   } else {
-                       var self = this,
-                           app = this.getApp(),
-                           stops = app && app.stops,
-                           shapes = app && app.shapes;
-
-                       $.get("/api/routeinfo", {routes: this.id})
-                           .done(function(routes) {
-                               var info = routes.routes[self.id];
-                               if (!info)
-                                   return $.Deferred().reject(
-                                       "Invalid route id!"
-                                   );
-
-                               info._loaded = true;
-
-                               // Add parent stops:
-                               var all_children = [];
-                               stops.add(_.map(
-                                   info.parent_stops,
-                                   function(parent) {
-                                       var child_ids = parent.children;
-                                       delete parent.children;
-                                       _.extend(parent, {
-                                           is_parent: true
-                                       });
-                                       var stop = new Stop(parent),
-                                           children = {};
-
-                                       // Record the ids of stops that share a
-                                       // parent stop with the current route but
-                                       // are not themselves on the route.
-                                       _.each(child_ids, function(id) {
-                                           var stop = new Stop(
-                                               {stop_id: id,
-                                                route_ids: {},
-                                                parent: parent.stop_id,
-                                                lat: parent.lat,
-                                                lon: parent.lon,
-                                                stop_name: parent.stop_name});
-                                           all_children.push(stop);
-                                           children[id] = stop;
-                                       });
-
-                                       stop.children = children;
-
-                                       return stop;
-                                   }));
-                               delete info.parent_stops;
-
-                               stops.add(all_children);
-
-                               _.each(info.stops,
-                                      function(stop_info) {
-                                          var stop = stops.add(stop_info);
-                                          stop.addRoute(self.id);
-                                      });
-
-                               delete info.stops;
-
-                               // Add shapes:
-                               shapes.add(_.map(info.shape2path,
-                                                function(path, id) {
-                                                    return {
-                                                        id: id,
-                                                        path: path,
-                                                        route_id: self.id
-                                                    };
-                                                }));
-                               delete info.shape2path;
-
-                               self.set(info);
-                               promise.resolve(self);
-                           })
-                           .fail(function(resp) {
-                               promise.reject("Invalid route");
-                           });
-                   }
-
-                   return promise;
                },
 
                getColor: function() {

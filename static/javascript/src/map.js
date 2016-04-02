@@ -7,7 +7,7 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
             * @param {Animation} animation
             */
            function VehicleMap(elt, app, animation) {
-               if (!this instanceof VehicleMap)
+               if (!(this instanceof VehicleMap))
                    return new VehicleMap(elt, app);
 
                this.elt = $(elt);
@@ -162,20 +162,15 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
 
                },
 
-               onRouteSelected: function(route_id, route) {
-                   var self = this;
-
-                   route.loadInfo()
-                       .done(function(routeModel) {
-                           var route = routeModel.attributes,
-                               route_id = routeModel.id;
-                           _.each(route.paths, function(path) {
-                               var line = L.polyline(path, route.style)
-                                       .addTo(self.routesLayer)
-                                       .bringToBack();
-                               line._route_id = route_id;
-                           });
-                       });
+               onRouteSelected: function(route_id, routeModel) {
+                   var route = routeModel.attributes,
+                       self = this;
+                   _.each(route.paths, function(path) {
+                       var line = L.polyline(path, route.style)
+                               .addTo(self.routesLayer)
+                               .bringToBack();
+                       line._route_id = route_id;
+                   });
                },
 
                onRouteUnselected: function(route_id) {

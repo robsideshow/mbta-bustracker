@@ -146,15 +146,28 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                    vehicle.set("_selected", false);
                },
 
-               addRoute: function(id) {
-                   id = ""+id;
-                   var self = this;
-                   this.routes.getAndLoadRoute(""+id)
-                       .done(function(route) {
-                           self.addItem("route_ids", id);
-                           self.trigger("routeSelected", id, route);
+               addRoutes: function(ids) {
+                   var self = this,
+                       route_ids = [],
+                       sel = this.route_ids;
+
+                   _.each(ids, function(route_id) {
+                       if (_.indexOf(sel, route_id) === -1)
+                           route_ids.push(""+route_id);
+                   });
+                   this.routes.loadRoutes(route_ids)
+                       .done(function(routes) {
+                           _.each(routes, function(route) {
+                               self.route_ids.push(route.id);
+                               self.trigger("routeSelected", route.id, route);
+                           });
                        });
                },
+
+               addRoute: function(id) {
+                   this.addRoutes([id]);
+               },
+
 
                removeRoute: function(route_id) {
                    route_id = ""+route_id;

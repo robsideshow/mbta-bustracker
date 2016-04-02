@@ -15,6 +15,7 @@ define(["backbone", "leaflet", "underscore"],
                },
 
                addChild: function(stop) {
+                   if (!this.children) this.children = [];
                    this.children[stop.id] = stop;
                    this.trigger("childAdded", stop);
                    this.listenTo(stop, "removed", this.removeChild);
@@ -32,10 +33,7 @@ define(["backbone", "leaflet", "underscore"],
 
                getChildren: function() {
                    // Returns only non-null children
-                   if (this.children)
-                       return _.filter(this.children);
-
-                   return [];
+                   return _.filter(this.children);
                },
 
                getSiblings: function() {
@@ -63,6 +61,12 @@ define(["backbone", "leaflet", "underscore"],
                    this.set("route_ids", route_map);
                },
 
+               /**
+                * Removes a route from the Stop's route_id set.
+                *
+                * @returns {Boolean} true if the stop has no more associated
+                * routes
+                */
                removeRoute: function(route_id) {
                    var route_map = this.get("route_ids");
                    delete route_map[route_id];

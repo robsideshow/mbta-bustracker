@@ -29,14 +29,8 @@ define(["backbone", "stop-model"],
                },
 
                onRemove: function(stop) {
-                   var parent = stop.getParent();
-
-                   if (parent) {
-                       delete parent.children[stop.id];
-                       if (_.isEmpty(parent.children)) {
-                           delete parent.children;
-                           this.remove(parent);
-                       }
+                   if (stop.isParent()) {
+                       this.remove(stop.getChildIds());
                    }
                },
 
