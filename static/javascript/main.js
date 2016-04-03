@@ -2,6 +2,7 @@ require.config({
     paths: {
         "jquery": "http://code.jquery.com/jquery-1.12.0.min",
         "leaflet": "http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet",
+        "handlebars": "https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.amd",
         "backbone": "lib/backbone-min",
         "underscore": "lib/lodash.core",
 
