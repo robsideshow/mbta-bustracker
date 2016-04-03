@@ -1,18 +1,24 @@
-define(["backbone", "underscore", "utils", "config"],
-       function(B, _, $u, config) {
+define(["backbone", "jquery", "underscore", "utils", "config", "handlebars"],
+       function(B, $, _, $u, config, H) {
+           var template;
+
+           $.get("/static/template/stopVehicle.html")
+               .done(function(html) {
+                   console.log(html);
+                   // TODO: Fix race condition
+                   template = H.compile(html);
+               });
+
            var StopVehiclesView = B.View.extend({
                initialize: function(options) {
                    options = options || {};
                    B.View.prototype.initialize.call(this, options);
-                   this.popup = options.popup;
                    this.app = options.app;
 
                    this.lastStamp = 0;
 
                    // Map of mode -> "0"/"1"
                    this.modeDirections = {bus: "1", subway: "1"};
-
-                   this.popup.setContent(this.el);
                },
 
                className: "vehicle-etas",
@@ -35,121 +41,149 @@ define(["backbone", "underscore", "utils", "config"],
                    this.render(this.lastStamp);
                },
 
-               render: function(stamp) {
-                   if (!stamp) stamp = $u.stamp();
+               render: function() {
+                   var data = {stop: {name: "Harvard"},
+                               routes: [{id: "77",
+                                         active: true,
+                                         shortName: "77"},
+                                        {id: "96",
+                                         active: false,
+                                         shortName: "96"}],
+                               modes: [{name: "Bus",
+                                        dir: 1,
+                                        preds: [{route_id: "77",
+                                                 color: "pink",
+                                                 name: "77",
+                                                 destination: "John Harvard's World-Famous Square",
+                                                 briefRelTime: "23:01"}]}]};
 
-                   var stop = this.model,
-                       dirs = this.modeDirections,
-                       html = ["<div class='popup-header'><div class='stop-name'>",
-                               _.escape(stop.getName()), "</div>"],
-                       vehicles = this.app.vehicles,
-                       routes = this.app.routes,
-                       // Keep track of the disabled routes for which we have
-                       // predictions available:
-                       off = {},
-                       preds;
-
-                   this.lastStamp = stamp;
-
-                   if (stop.isParent()) {
-                       preds = $u.mapcat(stop.getChildren(),
-                                         function(stop) {
-                                             return stop.get("preds") || [];
-                                         });
-                   } else {
-                       preds = stop.get("preds");
-                   }
-
-                   var groupedPreds = {
-                       bus: [],
-                       subway: []
-                   },
-                       groupNames = {bus: "Bus Routes",
-                                     subway: "Subway Routes"},
-                       // Ignore predictions more than 30 minutes in the future:
-                       threshold = stamp + 1800000,
-                       // Limit number of predictions shown:
-                       max = Infinity,
-                       cmp = function(predA, predB) {
-                           var diff = predA.arr_time - predB.arr_time;
-
-                           return diff < 0 ? -1 : diff > 0 ? 1 : 0;
-                       };
-
-                   _.each(preds, function(pred) {
-                       var route_id = pred.route_id;
-
-                       if (pred.arr_time > threshold ||
-                           pred.arr_time < stamp) return;
-
-                       // Ignore disabled routes:
-                       if (!routes.get(route_id)) {
-                           off[route_id] = true;
-                           return;
-                       }
-                       var subway = config.subwayPattern.exec(route_id),
-                           key = subway ? "subway" : "bus";
-
-                       // Ignore vehicles traveing in the wrong direction:
-                       if (dirs[key] !== pred.direction) return;
-
-                       $u.insertSorted(groupedPreds[key], pred, cmp);
-                   });
-
-                   _.each(groupedPreds, function(group, gk) {
-                       if (!group.length) return;
-
-                       html.push("<div class='mode-head'>",
-                                 groupNames[gk],
-                                 "<a href='#' class='material-icons change-dir' ",
-                                 "data-mode='", gk, "'>",
-                                 (dirs[gk] === "0" ?
-                                  "arrow_downward" : "arrow_upward"),
-                                 "</a></div>");
-
-                       _.each(group, function(pred) {
-                           var route_id = pred.route_id,
-                               dt = pred.arr_time - stamp;
-
-                           var route = routes.get(route_id),
-                               color = route ? route.getColor() : "#aaa",
-                               name = routes.getRouteShortName(route_id);
-
-                           html.push(
-                               "<div class='vehicle-pred' data-route='",
-                               route_id, "'><a class='swatch' ",
-                               "style='background-color:",
-                               color, "'>&times;</a> ", name,
-                               " &rarr; <span class='route-name'>",
-                               _.escape(pred.destination),
-                               "</span> <div class='pred-time'>",
-                               $u.briefRelTime(dt), "</div>");
-                       });
-                   });
-
-                   if (!_.isEmpty(off)) {
-                       var route_ids = _.keys(off);
-                       html.push("<div class='route-toggles popup-content'>");
-                       // Show links to toggle routes on:
-                       _.each(route_ids, function(route_id) {
-                           html.push("<a href='#' data-route='",
-                                     route_id, "'>",
-                                     _.escape(routes.getRouteShortName(route_id)),
-                                     "</a>");
-                       });
-                       html.push("</div>");
-
-                       if (route_ids.length > 1) {
-                           html.push("<a href='#' data-routes='",
-                                     route_ids.join(","), "' class='all-on'>",
-                                     "All", "</a>");
-                       }
-                   }
-
-                   this.$el.html(html.join(""));
-
+                   this.$el.html(template(data));
                    return this;
                },
+
+               // render: function(stamp) {
+               //     if (!stamp) stamp = $u.stamp();
+
+               //     var stop = this.model,
+               //         dirs = this.modeDirections,
+               //         html = ["<div class='popup-header'><div class='stop-name'>",
+               //                 _.escape(stop.getName()), "</div>"],
+               //         vehicles = this.app.vehicles,
+               //         routes = this.app.routes,
+               //         // Keep track of the disabled routes for which we have
+               //         // predictions available:
+               //         off = {},
+               //         preds;
+
+               //     // {stop: {name: "name"},
+               //     //  modes: [{name: "Bus",
+               //     //           dir: 1,
+               //     //           preds: [{route_id: "77",
+               //     //                    color: "pink",
+               //     //                    "name": "77",
+               //     //                    destination: }]}}
+
+               //     this.lastStamp = stamp;
+
+               //     if (stop.isParent()) {
+               //         preds = $u.mapcat(stop.getChildren(),
+               //                           function(stop) {
+               //                               return stop.get("preds") || [];
+               //                           });
+               //     } else {
+               //         preds = stop.get("preds");
+               //     }
+
+               //     var groupedPreds = {
+               //         bus: [],
+               //         subway: []
+               //     },
+               //         groupNames = {bus: "Bus Routes",
+               //                       subway: "Subway Routes"},
+               //         // Ignore predictions more than 30 minutes in the future:
+               //         threshold = stamp + 1800000,
+               //         // Limit number of predictions shown:
+               //         max = Infinity,
+               //         cmp = function(predA, predB) {
+               //             var diff = predA.arr_time - predB.arr_time;
+
+               //             return diff < 0 ? -1 : diff > 0 ? 1 : 0;
+               //         };
+
+               //     _.each(preds, function(pred) {
+               //         var route_id = pred.route_id;
+
+               //         if (pred.arr_time > threshold ||
+               //             pred.arr_time < stamp) return;
+
+               //         // Ignore disabled routes:
+               //         if (!routes.get(route_id)) {
+               //             off[route_id] = true;
+               //             return;
+               //         }
+               //         var subway = config.subwayPattern.exec(route_id),
+               //             key = subway ? "subway" : "bus";
+
+               //         // Ignore vehicles traveing in the wrong direction:
+               //         if (dirs[key] !== pred.direction) return;
+
+               //         $u.insertSorted(groupedPreds[key], pred, cmp);
+               //     });
+
+               //     _.each(groupedPreds, function(group, gk) {
+               //         if (!group.length) return;
+
+               //         html.push("<div class='mode-head'>",
+               //                   groupNames[gk],
+               //                   "<a href='#' class='material-icons change-dir' ",
+               //                   "data-mode='", gk, "'>",
+               //                   (dirs[gk] === "0" ?
+               //                    "arrow_downward" : "arrow_upward"),
+               //                   "</a></div>");
+
+               //         _.each(group, function(pred) {
+               //             var route_id = pred.route_id,
+               //                 dt = pred.arr_time - stamp;
+
+               //             var route = routes.get(route_id),
+               //                 color = route ? route.getColor() : "#aaa",
+               //                 name = routes.getRouteShortName(route_id);
+
+               //             html.push(
+               //                 "<div class='vehicle-pred' data-route='",
+               //                 route_id, "'><a class='swatch' ",
+               //                 "style='background-color:",
+               //                 color, "'>&times;</a> ", name,
+               //                 " &rarr; <span class='route-name'>",
+               //                 _.escape(pred.destination),
+               //                 "</span> <div class='pred-time'>",
+               //                 $u.briefRelTime(dt), "</div>");
+               //         });
+               //     });
+
+               //     if (!_.isEmpty(off)) {
+               //         var route_ids = _.keys(off);
+               //         html.push("<div class='route-toggles popup-content'>");
+               //         // Show links to toggle routes on:
+               //         _.each(route_ids, function(route_id) {
+               //             html.push("<a href='#' data-route='",
+               //                       route_id, "'>",
+               //                       _.escape(routes.getRouteShortName(route_id)),
+               //                       "</a>");
+               //         });
+               //         html.push("</div>");
+
+               //         if (route_ids.length > 1) {
+               //             html.push("<a href='#' data-routes='",
+               //                       route_ids.join(","), "' class='all-on'>",
+               //                       "All", "</a>");
+               //         }
+               //     }
+
+               //     this.$el.html(html.join(""));
+
+               //     return this;
+               // },
 
                changeDirection: function(e) {
                    var mode = $(e.target).data("mode"),
