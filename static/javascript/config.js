@@ -9,10 +9,8 @@ define([], function() {
         // subway:
         subwayPattern: /^Red|Orange|Green-|Blue/,
         routeStyles: {
-            "Red": {color: "red",
-                    opacity: 0.2},
-            "Orange": {color: "orange",
-                    opacity: 0.3},
+            "Red": {color: "red"},
+            "Orange": {color: "orange"},
             "Green-B": {color: "green",
                     opacity: 0.2},
             "Green-C": {color: "green",
@@ -21,8 +19,7 @@ define([], function() {
                     opacity: 0.2},
             "Green-E": {color: "green",
                     opacity: 0.2},
-            "Blue": {color: "blue",
-                    opacity: 0.3}
+            "Blue": {color: "blue"}
         },
         routeNicknames: {
             "Red": "Red",

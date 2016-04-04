@@ -1,10 +1,14 @@
-define(["backbone", "leaflet", "underscore"],
-       function(B, L, _) {
+define(["backbone", "leaflet", "underscore", "utils"],
+       function(B, L, _, $u) {
            /**
             * 
             */
            var StopModel = B.Model.extend({
                idAttribute: "stop_id",
+
+               defaults: {
+                   route_ids: {}
+               },
 
                getLatLng: function() {
                    return L.latLng(this.get("lat"), this.get("lon"));
@@ -55,9 +59,15 @@ define(["backbone", "leaflet", "underscore"],
                // route_ids serves as a set of route_ids, where the routes with
                // those ids are active (selected) routes
                addRoute: function(route_id) {
-                   var route_map = this.get("route_ids") || {};
+                   var route_map = this.get("route_ids");
                    route_map[route_id] = true;
                    // Trigger change, if any:
+                   this.set("route_ids", route_map);
+               },
+
+               addRoutes: function(route_ids) {
+                   var route_map = this.get("route_ids") || {};
+                   _.extend(route_map, $u.asKeys(route_ids, true));
                    this.set("route_ids", route_map);
                },
 

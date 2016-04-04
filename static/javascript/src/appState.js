@@ -177,14 +177,7 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
 
                    this.vehicles.remove(
                        this.vehicles.where({route_id: route_id}));
-
-                   var remove_stops = [];
-                   this.stops.each(function(stop) {
-                       if (stop.removeRoute(route_id))
-                           remove_stops.push(stop);
-                   });
-                   this.stops.remove(remove_stops);
-
+                   this.stops.cleanupStops(this.route_ids);
                    this.routes.remove(route_id);
                },
 
