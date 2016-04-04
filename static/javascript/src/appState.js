@@ -160,6 +160,7 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                            _.each(routes, function(route) {
                                self.route_ids.push(route.id);
                                self.trigger("routeSelected", route.id, route);
+                               self.scheduleTick(0);
                            });
                        });
                },

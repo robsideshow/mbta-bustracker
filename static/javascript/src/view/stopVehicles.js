@@ -4,15 +4,12 @@ define(["backbone", "underscore", "utils", "config"],
                initialize: function(options) {
                    options = options || {};
                    B.View.prototype.initialize.call(this, options);
-                   this.popup = options.popup;
                    this.app = options.app;
 
                    this.lastStamp = 0;
 
                    // Map of mode -> "0"/"1"
                    this.modeDirections = {bus: "1", subway: "1"};
-
-                   this.popup.setContent(this.el);
                },
 
                className: "vehicle-etas",
