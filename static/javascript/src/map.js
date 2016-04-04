@@ -173,10 +173,11 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                        segMap = this._segMap;
 
                    _.each(route.paths, function(path) {
-                       var adjustedPath = $p.placePath(segMap, path,
-                                                       route_id, $u.latLngNormal);
+                       // var adjustedPath = $p.placePath(segMap, path,
+                       //                                 route_id, $u.latLngNormal);
+                       var adjustedPath = path;
 
-                       var line = L.polyline(path, route.style)
+                       var line = L.polyline(adjustedPath, route.style)
                                .addTo(self.routesLayer)
                                .bringToBack();
                        line._route_id = route_id;

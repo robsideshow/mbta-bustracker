@@ -319,9 +319,9 @@ define(["underscore", "utils"],
                        var k = paths.pairString(pair[0], pair[1]),
                            adjustedPair = pair;
 
-                       if (segments[k]) {
+                       if (segMap[k]) {
                            // The pair has already been used! Find a new one.
-                           segments[k].push(id);
+                           segMap[k].push(id);
 
                            // a vector normal to the segment
                            var a = pair[0],
@@ -345,15 +345,15 @@ define(["underscore", "utils"],
                                adjustedPair = [[xa+(xnorm*scale),
                                                 ya+(ynorm*scale)],
                                                [xb+(xnorm*scale),
-                                                yb+(xnorm+scale)]];
+                                                yb+(ynorm*scale)]];
                                k = paths.pairString(adjustedPair[0],
                                                     adjustedPair[1]);
-                           } while(segments[k]);
+                           } while(segMap[k]);
 
                            // We should now have an unused segment!
                        }
 
-                       segments[k] = [id];
+                       segMap[k] = [id];
 
                        // Don't push duplicate points.
                        if (!_.isEqual(lastPoint, adjustedPair[0]))

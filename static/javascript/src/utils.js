@@ -238,7 +238,17 @@ define(["jquery", "underscore"], function($, _) {
             return l;
         },
 
+        latLngNormal: function(ll1, ll2) {
+            // 1.345 = 111120m/82600m (distance per deg lat/distance per deg long)
+            var dLong = ll2[1] - ll1[1],
+                dLat = ll2[0] - ll1[0],
+                normSlope = dLong/(1.345*dLat),
+                normLat = -dLong*normSlope,
+                normLong = -dLat/normSlope;
+            console.log(normLat, normLong);
 
+            return [normLat, normLong];
+        }
     };
 
     return $u;
