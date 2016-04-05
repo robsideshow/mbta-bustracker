@@ -51,11 +51,19 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                        .listenTo(app, "vehicleSelected", this.onVehicleSelected)
                        .listenTo(app, "vehicleUnselected", this.onVehicleUnselected)
                        .listenTo(app, "stopSelected", this.onStopSelected)
+                       .listenTo(app, "stopUnselected", this.onStopUnselected)
                        .listenTo(app, "focusRoute", this.onRouteFocused)
                        .listenTo(app.vehicles, "add", this.onVehicleAdded)
                        .listenTo(app.vehicles, "remove", this.onVehicleRemoved)
                        .listenTo(app.stops, "add", this.onStopAdded)
                        .listenTo(app.stops, "remove", this.onStopRemoved);
+
+                   this.map.on("click", _.bind(this.onClick, this));
+               },
+
+               onClick: function(e) {
+                   this.app.clearVehicles();
+                   this.app.unselectStop();
                },
 
                /**
@@ -117,15 +125,8 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                 * Vehicle ETA predictions for the selected stop:
                 */
                onStopSelected: function(id, stop) {
-                   if (this.selectedStop) {
-                       // Allow coerced comparision?
-                       if (this.selectedStop == id)
-                           return;
-
-                       this.selectedStopView.remove();
-                       this.map.removeLayer(this.selectedStopPopup);
-                   }
-
+                   if (this.selectedStop)
+                       this.onStopUnselected(this.selectedStop);
 
                    this.selectedStop = id;
                    var popup = L.popup({autoPan: false,
@@ -145,6 +146,16 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                    popup.setContent(this.selectedStopView.el);
 
                    this._nextTick = 0;
+               },
+
+               onStopUnselected: function(id) {
+                   if (this.selectedStop == id) {
+                       this.selectedStopView.remove();
+                       this.map.removeLayer(this.selectedStopPopup);
+                       this.selectedStop =
+                           this.selectedStopPopup =
+                           this.selectedStopView = null;
+                   }
                },
 
                hideVehicleETAs: function(id) {
