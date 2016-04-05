@@ -38,7 +38,7 @@ $global-side-padding: 2em;
 
 #map {
   width: 100%;
-  height: 100%;
+  height: 70%;
 }
 
 header {
@@ -93,7 +93,6 @@ header {
   background-color: white;
   border-bottom: 1px solid $neutral-6;
   box-shadow: 0 1px 3px $neutral-8;
-  z-index: 999;
 }
 
 
