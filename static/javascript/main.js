@@ -26,6 +26,7 @@ require.config({
         "stop-marker": "src/stopMarker",
         "utils": "src/utils",
         "path-utils": "src/util/paths",
+        "templates": "src/util/templates",
 
         "app-state": "src/appState",
         "map": "src/map",
