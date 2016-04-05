@@ -12,6 +12,7 @@ body {
   background-color: $neutral-10;
   height: 100%;
   overflow: hidden;
+  min-width: 900px;
 }
 
 a {
@@ -30,21 +31,89 @@ ul {
   }
 }
 
+// Layout //
+
+$navbar-height: 60px;
+$global-side-padding: 2em;
+
 #map {
   width: 100%;
   height: 100%;
-  z-index: 0;
 }
 
+header {
+  display: flex;
+  align-items: center; 
+  justify-content: space-between;
 
-#graph {
   width: 100%;
-  height: 100%;
-  padding: 1em;
-  text-align: center;
-  background: white;
+  height: $navbar-height;
+  padding: 0 $global-side-padding;
+  background-color: $brand-2;
+  
+  .logo {
+    color: $accent-1;
+    font-family: 'Permanent Marker', cursive;
+    font-size: 2em;
+    text-shadow: 3px 3px 0px lighten($brand-2, 5%),
+                 4px 4px 0px $accent-5;
+  }
+  .routeCtrl {
+    i {font-size: 1em;}
+    color: $brand-3;
+    cursor: pointer;
+    transition: all 0.3s;
+    &:hover {
+      color: white;
+    }
+  }
+
+  nav {
+    display: flex;
+    justify-content: flex-end;
+
+    & > a {
+      display: inline-block;
+      padding: 0 $global-side-padding/2;
+      color: $brand-5;
+      transition: all .3s;
+      height: $navbar-height;
+      line-height: $navbar-height;
+
+      &:hover, &.active {
+        color: white;
+        background-color: $brand-3;
+      }
+    }
+  }
 }
-.sidenav {
-  height: 98%;
-  overflow: auto;
+
+.routeToggleControl{
+  padding: $global-side-padding/2 $global-side-padding;
+  background-color: white;
+  border-bottom: 1px solid $neutral-6;
+  box-shadow: 0 1px 3px $neutral-8;
+  z-index: 999;
+}
+
+
+/*--------------------
+  Table Simple Override
+---------------------*/
+
+table, th, td {
+   border: none;
+}
+
+table {
+  width:100%;
+  display: table;
+  background-color: transparent;
+}
+
+td, th{
+  display: table-cell;
+  text-align: left;
+  vertical-align: middle;
+  font-weight: normal;
 }

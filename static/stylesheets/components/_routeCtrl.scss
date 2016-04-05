@@ -1,29 +1,11 @@
-$input-radius: 15px;
+$toggle-radius: 15px;
 
-fieldset {
-  border: none;
-  padding: 0;
-  margin: 0;
-  padding: 1em;
-}
-input[type="search"] {
-  box-sizing: border-box;
-  border: 2px solid $neutral-7;
-  padding: 0.5em 0.75em;
-  border-radius: $input-radius;
-  width: 100%;
-  -webkit-appearance: none; 
 
-  &:focus {
-    box-shadow: none;
-    outline: none;
-    border-color: $brand-4;
-  }
-}
+// TODO: Rewrite the checkbox into div
 
 /* Remove default checkbox */
-[type="checkbox"]:not(:checked),
-[type="checkbox"]:checked {
+[type="checkbox"].toggle:not(:checked),
+[type="checkbox"].toggle:checked {
   position: absolute;
   left: -9999px;
   visibility: hidden;
@@ -40,7 +22,7 @@ input[type="search"] {
     display: inline-block;
     padding: 0.25em 0.5em;
     margin: 2px;
-    border-radius: $input-radius;
+    border-radius: $toggle-radius;
 
     -webkit-user-select: none; /* webkit (safari, chrome) browsers */
     -moz-user-select: none; /* mozilla browsers */
@@ -60,3 +42,29 @@ input[type="search"] {
     }
   }
 }
+
+// Use these ones
+.route-group {
+  &:first-of-type{margin-bottom: 1em;}
+  & > div {
+    color: $accent-1;
+    cursor: pointer;
+    display: inline-block;
+    padding: 0.25em 0.5em;
+    margin: 2px;
+    border-radius: $toggle-radius;
+    &:hover{
+      color: white;
+      background: $accent-3;
+    }
+    &.active {
+      color: white;
+      background: $accent-1;
+    }
+  }
+  &:after{
+    clear: both;
+  }
+}
+
+
