@@ -57,3 +57,4 @@ Temporary Items
 /ignore
 /static/javascript/.tern-port
 /static/build
+/logs/*
