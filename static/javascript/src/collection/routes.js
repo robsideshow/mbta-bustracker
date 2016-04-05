@@ -63,11 +63,10 @@ define(["jquery", "underscore", "backbone", "route-model", "stop-model", "config
                                                     config.defaultRouteStyle,
                                                     config.routeStyles[route_id]);
                                if (self.savedColors[route_id])
-                                   style.color = self.savedColors[route_id];
+                                   style.color = this.savedColors[route_id];
                                else if (!style.color) {
                                    var n = config.colors.length;
                                    style.color = config.colors[(self._colorCount++)%n];
-                                   self.savedColors[route_id] = style.color;
                                }
 
                                info.style = style;
@@ -80,9 +79,10 @@ define(["jquery", "underscore", "backbone", "route-model", "stop-model", "config
                                        var child_ids = parent.children;
                                        delete parent.children;
                                        _.extend(parent, {
-                                           is_parent: true
+                                           is_parent: true,
+                                           route_ids: $u.asKeys(parent.route_ids)
                                        });
-                                       var stop = new Stop(parent),
+                                       var parentStop = new Stop(parent),
                                            children = {};
 
                                        // Record the ids of stops that share a
@@ -101,13 +101,9 @@ define(["jquery", "underscore", "backbone", "route-model", "stop-model", "config
                                            children[id] = stop;
                                        });
 
-                                       stop.children = children;
+                                       parentStop.children = children;
 
-                                       stop.route_ids = $u.asKeys(
-                                           stop.route_ids,
-                                           true);
-
-                                       return stop;
+                                       return parentStop;
                                    }));
                                delete info.parent_stops;
 

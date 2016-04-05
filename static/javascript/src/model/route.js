@@ -20,6 +20,11 @@ define(["jquery", "backbone", "underscore", "config", "leaflet", "path-utils",
                    return this.get("routename") || "";
                },
 
+               getShortName: function() {
+                   return config.routeNicknames[this.id] ||
+                       this.getName();
+               },
+
                isSubwayRoute: function() {
                    return !!config.subwayPattern.exec(this.id);
                },

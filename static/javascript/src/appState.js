@@ -7,10 +7,10 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                    return new AppState(options);
 
                this.options = $.extend({}, defaultOptions, options);
-               // The route_ids, stop_ids, and vehicle_ids store the ids of the
+               // The route_ids, stop_id, and vehicle_ids store the ids of the
                // current subscriptions.
                this.route_ids = [];
-               this.stop_ids = [];
+               this.stop_id = null;
                this.vehicle_ids = [];
 
                this.stops = new Stops([], {app: this});
@@ -24,6 +24,11 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                this._updateFailures = 0;
                // The timestamp of the last server fetch.
                this.last_tick = 0;
+
+               this.listenTo(this.stops, "remove", function(stop) {
+                   if (stop.id == this.stop_id)
+                       this.stop_id = null;
+               });
 
                return this;
            }
@@ -90,8 +95,13 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                    var params = {};
                    if (this.route_ids.length)
                        params.routes = this.route_ids.join(",");
-                   if (this.stop_ids.length)
-                       params.stops = this.stop_ids.join(",");
+                   if (this.stop_id) {
+                       var stop = this.stops.get(this.stop_id);
+                       if (stop.isParent())
+                           params.stops = stop.getChildIds().join(",");
+                       else
+                           param.stops = this.stop_id;
+                   }
                    if (this.vehicle_ids.length)
                        params.vehicles = this.vehicle_ids.join(",");
 
@@ -146,6 +156,20 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                    vehicle.set("_selected", false);
                },
 
+               clearVehicles: function() {
+                   var ids = this.vehicle_ids,
+                       self = this;
+                   this.vehicle_ids = [];
+
+                   _.each(ids, function(id) {
+                       var vehicle = self.vehicles.get(id);
+                       if (vehicle) {
+                           self.trigger("vehicleUnselected", id, vehicle);
+                           vehicle.set("_selected", false);
+                       }
+                   });
+               },
+
                addRoutes: function(ids) {
                    var self = this,
                        route_ids = [],
@@ -169,7 +193,6 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                    this.addRoutes([id]);
                },
 
-
                removeRoute: function(route_id) {
                    route_id = ""+route_id;
                    this.removeItem(this.route_ids, route_id);
@@ -191,26 +214,28 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                },
 
                selectStop: function(stop_id) {
-                   var self = this;
-                   _.each(this.stop_ids, function(id) {
-                       var stop = self.stops.get(id);
+                   // Only one stop can be selected at a time
+                   if (stop_id == this.stop_id) return;
 
-                       if (stop) {
-                           self.trigger("stopUnselected", id, stop);
-                           stop.set("_selected", false);
-                       }
-                   });
+                   var stop = this.stops.get(this.stop_id);
 
-                   var stop = this.stops.get(stop_id);
-
-                   if (stop.isParent()) {
-                       this.stop_ids = stop.getChildIds();
-                   } else if (stop) {
-                       this.stop_ids = [stop_id];
+                   if (stop) {
+                       this.trigger("stopUnselected", stop.id, stop);
+                       stop.set("_selected", false);
                    }
+
+                   this.stop_id = stop_id;
+                   stop = this.stops.get(stop_id);
+
+                   if (!stop) return;
+
                    stop.set("_selected", true);
                    this.trigger("stopSelected", stop_id, stop);
                    this.scheduleTick(0);
+               },
+
+               unselectStop: function() {
+                   this.selectStop(null);
                },
 
                getSelectedRoutes: function() {
