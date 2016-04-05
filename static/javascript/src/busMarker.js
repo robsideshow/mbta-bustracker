@@ -40,20 +40,11 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
 
                makeIcon: function(bus, rot) {
                    var route = this.bus.getRoute(),
-                       routeName = route.getName(),
+                       routeName = route.getShortName(),
                        color = route.getColor();
 
-                   if (routeName.indexOf("Green-") > -1) {
-                       routeName = routeName.slice(routeName.indexOf("-")+1);
-                   } else if (routeName == "Blue Line" || 
-                              routeName == "Orange Line" || 
-                              routeName == "Red Line") {
+                   if (routeName.match(/Red|Blue|Orange/))
                        routeName = "T";
-                   } else if (routeName == "Mattapan Trolley") {
-                       routeName = "MT";
-                   } else if (routeName == "Silver Line Waterfront") {
-                       routeName = "SLW";
-                   }
 
                    var html = "<div class='bus-marker' style='transform: rotate(" + rot +
                            "rad); border-color: " + color + "; color: " + color + "'>" +

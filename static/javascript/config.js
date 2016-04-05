@@ -25,6 +25,11 @@ define([], function() {
             "Red": "Red",
             "Blue": "Blue",
             "Orange": "Orange",
+            "Green-B": "B",
+            "Green-C": "C",
+            "Green-D": "D",
+            "Green-E": "E",
+            "Mattapan": "MT",
             // Silver Line Waterfront
             "746": "SLW"
         },
