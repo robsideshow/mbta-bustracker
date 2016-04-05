@@ -9,55 +9,58 @@
 
 </head>
 <body>
-  <header class="row">
-    <nav class="topnav">
-      <ul class="col m12">
-        <li class="logo">MBTA Woohoo!</li>
-        <li><a href="https://github.com/robsideshow/mbta-bustracker" target="_blank">Fork Me!</a></li>
-        <li><a href="#" id="graph-view">Graph View</a></li>
-        <li class="active"><a href="#" id="map-view">Map View</a></li>
-      </ul>
+  <header>
+    <div class="logo">MBTA Woohoo!</div>
+    <div class="routeCtrl">
+      <i class="material-icons">vertical_align_top</i>
+      Hide Route Control
+    </div>
+    <nav>
+      <a class="active" href="#" id="map-view">Map View</a>
+      <a href="#" id="graph-view">Graph View</a>
+      <a href="https://github.com/robsideshow/mbta-bustracker" target="_blank">Fork Me!</a>
     </nav>
   </header>
-  <div class="row container">
-    <div class="col m3">
-      <div class="sidenav">     
-        <form>
-          <fieldset class="select-route">
-            Toggle routes:<br>
-              <div id="route-selector"></div>
-          </fieldset>
-          <div class="clearfix"></div>
-        </form>
+
+  <div class="routeToggleControl">
+    <i class="material-icons">directions_subway</i> Metro Routes:
+    <div class="route-group" id="metro-selector">
+      <div>Blue Line</div>
+      <div class="active">Red Line</div>
+      <div>Green-B</div>
+      <div>Green-C</div>
+      <div>Green-D</div>
+      <div>Green-E</div>
+      <div>Orange</div>
+    </div>
+    <i class="material-icons">directions_bus</i> Bus Routes:
+    <div class="route-group" id="route-selector"></div>
+  </div>
+
+  <div class="visualization">
+    <div id="map">
+      <div id="info-overlays">
+        <div id="info">
+            <!-- Vehicle predictions -->
+            <div class="vehicle-description"></div>
+            <div class="vehicle-predictions"></div>
+        </div>
+        <div id="legend">
+            <table class="highlight">
+                <thead>
+                    <th>Route</th>
+                    <th><i class="material-icons">arrow_upward</i></th>
+                    <th><i class="material-icons">arrow_downward</i></th>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
       </div>
     </div>
-    <div class="col m9">
-      <div class="visualization">
-        <div id="map"></div>
-        <div id="graph">
-          <img src="/static/images/graph_view.png" />
-          <h3>The show graph view might actual up at a some point of Boston history.</h3>
-          <p>Depending on how we feel like it, of course.</p>
-        </div>
-
-        <div id="info-overlays">
-            <div id="info">
-                <!-- Vehicle predictions -->
-                <div class="vehicle-description"></div>
-                <div class="vehicle-predictions"></div>
-            </div>
-            <div id="legend">
-                <table class="highlight">
-                    <thead>
-                        <th>Route</th>
-                        <th><i class="material-icons">arrow_upward</i></th>
-                        <th><i class="material-icons">arrow_downward</i></th>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-      </div>
+    <div id="graph">
+      <img src="/static/images/graph_view.png" />
+      <h3>The show graph view might actual up at a some point of Boston history.</h3>
+      <p>Depending on how we feel like it, of course.</p>
     </div>
   </div>
 </body>
