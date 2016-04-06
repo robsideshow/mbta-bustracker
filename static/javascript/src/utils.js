@@ -238,16 +238,66 @@ define(["jquery", "underscore"], function($, _) {
             return l;
         },
 
+        /**
+         * The process for calculating the normal vector:
+         *
+         * 1. Convert deltaLat and deltaLong to dY and dX, respectively.
+         *
+         * 2. Calculate the slope of the normal vector (-1/m, where m is the
+         * slope of the line segment). n = -1/m
+         *
+         * 3. Calculate the dx and dy of the normal vector, given the desired
+         * magnitude
+         *
+         * 4. Convert the resulting dx and dy to dLat and dLong
+         *
+         * x^2 + y^2 = mag^2
+         * y = nx
+         * x^2 + (nx)^2 = mag^2
+         * x^2 + n^2x^2 = mag^2
+         * (n^2+1)x^2 = mag^2
+         * x^2 = (mag^2)/(n^2+1)
+         * y^2 = (mag^2)/n
+         */
         latLngNormal: function(ll1, ll2) {
             // 1.345 = 111120m/82600m (distance per deg lat/distance per deg long)
-            var dLong = ll2[1] - ll1[1],
-                dLat = ll2[0] - ll1[0],
-                normSlope = dLong/(1.345*dLat),
-                normLat = -dLong*normSlope,
-                normLong = -dLat/normSlope;
-            console.log(normLat, normLong);
+            // The length of the vector in meters:
+            var mag = 10,
+                sqMag = Math.pow(mag, 2);
+            var dx = 82600*(ll2[1] - ll1[1]),
+                dy = 111120*(ll2[0] - ll1[0]),
+                dx2 = Math.pow(dx, 2),
+                dy2 = Math.pow(dy, 2),
+                // The sign doesn't matter:
+                normSlope = dx/dy,
+                nSq = Math.pow(normSlope, 2),
+                normdx = Math.sqrt(sqMag/(nSq+1)),
+                normdy = Math.sqrt(normdx*nSq),
+                normLat = normdy/111120,
+                normLong = -dy/normdx/82600;
 
             return [normLat, normLong];
+        },
+
+        /**
+         * Create a vector perpendicular to the line segment bounded demarked by
+         * ll1 and ll2.
+         *
+         */
+        llNormal: function(ll1, ll2) {
+            var xUnit = 10,
+                yUnit = 0;
+            var dx = 82600*(ll2[1] - ll1[1]),
+                dy = 111120*(ll2[0] - ll1[0]),
+                rads = Math.atan2(dy, dx)+(Math.PI/2),
+                sinRads = Math.sin(rads),
+                cosRads = Math.cos(rads),
+                dxNorm = xUnit * cosRads - yUnit * sinRads,
+                dyNorm = xUnit * sinRads + yUnit * cosRads,
+                dlatNorm = dxNorm/82600,
+                dlongNorm = dyNorm/111120;
+
+            return [dlatNorm, dlongNorm];
         }
     };
 
