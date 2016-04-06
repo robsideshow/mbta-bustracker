@@ -180,13 +180,11 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
 
                onRouteSelected: function(route_id, routeModel) {
                    var route = routeModel.attributes,
-                       self = this,
-                       segMap = this._segMap;
+                       self = this;
 
                    _.each(route.paths, function(path) {
-                       // var adjustedPath = $p.placePath(segMap, path,
-                       //                                 route_id, $u.latLngNormal);
-                       var adjustedPath = path;
+                       var adjustedPath = $p.placePath(this._segMap, path,
+                                                       route_id, $u.llNormal);
 
                        var line = L.polyline(adjustedPath, route.style)
                                .addTo(self.routesLayer)
