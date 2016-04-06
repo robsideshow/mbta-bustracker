@@ -100,7 +100,7 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                        if (stop.isParent())
                            params.stops = stop.getChildIds().join(",");
                        else
-                           param.stops = this.stop_id;
+                           params.stops = this.stop_id;
                    }
                    if (this.vehicle_ids.length)
                        params.vehicles = this.vehicle_ids.join(",");
