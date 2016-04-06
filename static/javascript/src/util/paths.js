@@ -348,6 +348,7 @@ define(["underscore", "utils"],
                                                 yb+(ynorm*scale)]];
                                k = paths.pairString(adjustedPair[0],
                                                     adjustedPair[1]);
+                               ++j;
                            } while(segMap[k]);
 
                            // We should now have an unused segment!
