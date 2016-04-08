@@ -1,0 +1,42 @@
+<div class="popup-header">
+    <div class="stop-name">
+        {{ name }}
+    </div>
+    <div class="route-list">
+        {{#each routes }}
+            <a href="#" class="toggle-route {{#if active}}active{{/if}}"
+               data-route_id="{{id}}">
+                {{ shortName }}
+            </a>
+        {{/each}}
+    </div>
+</div>
+
+<div class="popup-content">
+    {{#each modes }}
+        <div class="mode-head">
+            {{ name }}
+            <a href="#" class="material-icons change-dir" data-mode="{{name}}">
+                swap_horiz
+            </a>
+        </div>
+        <table>
+            {{#each preds}}
+                <tr class="vehicle-pred" data-route="{{route_id}}">
+                    <td>
+                        <a class="swatch" style="background-color: {{color}}">&times;</a>
+                        {{name}} &rarr; <span class="route-name">
+                            {{destination}}
+                        </span>
+                    </td>
+                    <td class="pred-time">{{briefRelTime}}</td>
+                </tr>
+            {{/each}}
+            {{^preds}}
+                <tr class="empty">
+                    <td colspan="2">No predictions</td>
+                </tr>
+            {{/preds}}
+        </table>
+    {{/each}}
+</div>

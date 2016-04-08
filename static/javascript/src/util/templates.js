@@ -23,7 +23,7 @@ define(["jquery", "handlebars", "underscore"],
                        if (fn) {
                            promise.resolve(fn);
                        } else {
-                           $.get("/static/template/" + name + ".html")
+                           $.get("/static/template/" + name + ".mustache")
                                .done(function(html) {
                                    fn = H.compile(html, options);
                                    loaded[name] = fn;
@@ -40,7 +40,7 @@ define(["jquery", "handlebars", "underscore"],
                    render: function(name, data, execOptions) {
                        var options = templates.templateOptions[name];
                        return templates.getTemplate(name, options)
-                           .done(function(fn) {
+                           .then(function(fn) {
                                if (fn) {
                                    try {
                                        return fn(data, execOptions);
