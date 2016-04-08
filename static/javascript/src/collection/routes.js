@@ -80,7 +80,8 @@ define(["jquery", "underscore", "backbone", "route-model", "stop-model", "config
                                        delete parent.children;
                                        _.extend(parent, {
                                            is_parent: true,
-                                           route_ids: $u.asKeys(parent.route_ids)
+                                           route_ids: $u.asKeys(parent.route_ids,
+                                                                true)
                                        });
                                        var parentStop = new Stop(parent),
                                            children = {};
@@ -111,8 +112,9 @@ define(["jquery", "underscore", "backbone", "route-model", "stop-model", "config
 
                                _.each(info.stops,
                                       function(stop_info) {
-                                          var stop = stops.add(stop_info);
-                                          stop.addRoute(route_id);
+                                          stop_info.route_ids =
+                                              $u.asKeys(stop_info.route_ids, true);
+                                          stops.add(stop_info);
                                       });
 
                                delete info.stops;
@@ -144,6 +146,16 @@ define(["jquery", "underscore", "backbone", "route-model", "stop-model", "config
                    return config.routeNicknames[route_id] ||
                        (this._routeNames && this._routeNames[route_id]) ||
                        route_id;
+               },
+
+               getRouteColor: function(route_id) {
+                   return this.savedColors[route_id] ||
+                       (config.routeStyles[route_id] || {}).color ||
+                       "gray";
+               },
+
+               isSubwayRoute: function(route_id) {
+                   return config.subwayPattern.exec(route_id);
                },
 
                getAndLoadRoute: function(route_id) {
