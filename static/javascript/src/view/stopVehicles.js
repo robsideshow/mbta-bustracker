@@ -1,5 +1,5 @@
-define(["backbone", "underscore", "utils", "config"],
-       function(B, _, $u, config) {
+define(["backbone", "underscore", "utils", "config", "templates"],
+       function(B, _, $u, config, $t) {
            var StopVehiclesView = B.View.extend({
                initialize: function(options) {
                    options = options || {};
@@ -10,14 +10,24 @@ define(["backbone", "underscore", "utils", "config"],
 
                    // Map of mode -> "0"/"1"
                    this.modeDirections = {bus: "1", subway: "1"};
+
+                   // The route_ids associated with the stop should never
+                   // change (we get a complete list from /routeinfo), so there
+                   // should be no need to subscribe to route_id changes.
+                   // this.listenTo(this.model, "change:route_ids",
+                   // this._updateRoutes);
+                   this.listenTo(this.app, "routeSelected",
+                                 this._updateRoutes)
+                       .listenTo(this.app, "routeUnselected",
+                                 this._updateRoutes);
+                   this._updateRoutes();
                },
 
                className: "vehicle-etas",
 
                events: {
-                   "click .route-toggles a": "showRoute",
+                   "click .toggle-route": "toggleRoute",
                    "click a.all-on": "allOn",
-                   "click a.swatch": "hideRoute",
                    "click a.change-dir": "changeDirection"
                },
 
@@ -25,6 +35,37 @@ define(["backbone", "underscore", "utils", "config"],
                // doesn't have to be recalculated once per sec.
                _updatePreds: function() {
 
+               },
+
+               /**
+                * Store information about active and inactive routes every time
+                * the route selection changes.
+                */
+               _updateRoutes: function() {
+                   var routes =  this.app.routes,
+                       self = this,
+                       showSubways = false,
+                       showBuses = false;
+
+                   this._routes = _.map(this.model.get("route_ids"),
+                                        function(__, route_id) {
+                                            var route = routes.get(route_id);
+                                            if (route) {
+                                                if (routes.isSubwayRoute(route_id))
+                                                    showSubways = true;
+                                                else
+                                                    showBuses = true;
+                                            }
+
+                                            return {
+                                                id: route_id,
+                                                active: !!route,
+                                                shortName: routes.getRouteShortName(route_id),
+                                                color: routes.getRouteColor(route_id)
+                                            };
+                                        });
+                   this._showSubways = showSubways;
+                   this._showBuses = showBuses;
                },
 
                // Redraw the view using the last stamp
@@ -37,17 +78,19 @@ define(["backbone", "underscore", "utils", "config"],
 
                    var stop = this.model,
                        dirs = this.modeDirections,
-                       html = ["<div class='popup-header'><div class='stop-name'>",
-                               _.escape(stop.getName()), "</div>"],
                        vehicles = this.app.vehicles,
                        routes = this.app.routes,
-                       // Keep track of the disabled routes for which we have
-                       // predictions available:
-                       off = {},
+                       hasPreds = {},
                        preds;
 
+                   var data = {
+                       routes: this._routes,
+                       name: stop.getName(),
+                       modes: []
+                   };
                    this.lastStamp = stamp;
 
+                   // Collect all the predictions
                    if (stop.isParent()) {
                        preds = $u.mapcat(stop.getChildren(),
                                          function(stop) {
@@ -61,8 +104,6 @@ define(["backbone", "underscore", "utils", "config"],
                        bus: [],
                        subway: []
                    },
-                       groupNames = {bus: "Bus Routes",
-                                     subway: "Subway Routes"},
                        // Ignore predictions more than 30 minutes in the future:
                        threshold = stamp + 1800000,
                        // Limit number of predictions shown:
@@ -79,71 +120,43 @@ define(["backbone", "underscore", "utils", "config"],
                        if (pred.arr_time > threshold ||
                            pred.arr_time < stamp) return;
 
+                       hasPreds[route_id] = true;
+
                        // Ignore disabled routes:
-                       if (!routes.get(route_id)) {
-                           off[route_id] = true;
+                       if (!routes.get(route_id))
                            return;
-                       }
+
                        var subway = config.subwayPattern.exec(route_id),
                            key = subway ? "subway" : "bus";
 
-                       // Ignore vehicles traveing in the wrong direction:
+                       // Ignore vehicles traveling in the wrong direction:
                        if (dirs[key] !== pred.direction) return;
+                       pred.color = routes.getRouteColor(pred.route_id);
+                       pred.briefRelTime = $u.briefRelTime(pred.arr_time - stamp);
+                       pred.name = routes.getRouteShortName(pred.route_id);
 
                        $u.insertSorted(groupedPreds[key], pred, cmp);
+                       $u.briefRelTime();
                    });
 
-                   _.each(groupedPreds, function(group, gk) {
-                       if (!group.length) return;
-
-                       html.push("<div class='mode-head'>",
-                                 groupNames[gk],
-                                 "<a href='#' class='material-icons change-dir' ",
-                                 "data-mode='", gk, "'>",
-                                 (dirs[gk] === "0" ?
-                                  "arrow_downward" : "arrow_upward"),
-                                 "</a></div>");
-
-                       _.each(group, function(pred) {
-                           var route_id = pred.route_id,
-                               dt = pred.arr_time - stamp;
-
-                           var route = routes.get(route_id),
-                               color = route ? route.getColor() : "#aaa",
-                               name = routes.getRouteShortName(route_id);
-
-                           html.push(
-                               "<div class='vehicle-pred' data-route='",
-                               route_id, "'><a class='swatch' ",
-                               "style='background-color:",
-                               color, "'>&times;</a> ", name,
-                               " &rarr; <span class='route-name'>",
-                               _.escape(pred.destination),
-                               "</span> <div class='pred-time'>",
-                               $u.briefRelTime(dt), "</div>");
-                       });
+                   _.each(this._routes, function(route) {
+                       route.hasPredictions = hasPreds[route.id];
                    });
 
-                   if (!_.isEmpty(off)) {
-                       var route_ids = _.keys(off);
-                       html.push("<div class='route-toggles popup-content'>");
-                       // Show links to toggle routes on:
-                       _.each(route_ids, function(route_id) {
-                           html.push("<a href='#' data-route='",
-                                     route_id, "'>",
-                                     _.escape(routes.getRouteShortName(route_id)),
-                                     "</a>");
+                   if (this._showSubways)
+                       data.modes.push({
+                           name: "Subway Routes",
+                           preds: groupedPreds.subway});
+                   if (this._showBuses)
+                       data.modes.push({
+                           name: "Bus Routes",
+                           preds: groupedPreds.bus});
+
+                   var $el = this.$el;
+                   $t.render("stopVehicle", data)
+                       .then(function(html) {
+                           $el.html(html);
                        });
-                       html.push("</div>");
-
-                       if (route_ids.length > 1) {
-                           html.push("<a href='#' data-routes='",
-                                     route_ids.join(","), "' class='all-on'>",
-                                     "All", "</a>");
-                       }
-                   }
-
-                   this.$el.html(html.join(""));
 
                    return this;
                },
@@ -162,6 +175,17 @@ define(["backbone", "underscore", "utils", "config"],
                    this.app.addRoute(route_id);
                    // Since the route information won't be instantly
                    // available, don't bother re-rendering right away.
+                   e.preventDefault();
+               },
+
+               toggleRoute: function(e) {
+                   var route_id = $(e.target).attr("data-route_id");
+
+                   if (route_id) {
+                       this.app.toggleRoute(route_id);
+                       this.rerender();
+                   }
+
                    e.preventDefault();
                },
 
