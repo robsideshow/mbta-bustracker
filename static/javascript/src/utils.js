@@ -294,8 +294,8 @@ define(["jquery", "underscore"], function($, _) {
                 cosRads = Math.cos(rads),
                 dxNorm = xUnit * cosRads - yUnit * sinRads,
                 dyNorm = xUnit * sinRads + yUnit * cosRads,
-                dlatNorm = dxNorm/82600,
-                dlongNorm = dyNorm/111120;
+                dlatNorm = dyNorm/82600,
+                dlongNorm = dxNorm/111120;
 
             return [dlatNorm, dlongNorm];
         }
