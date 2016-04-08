@@ -205,9 +205,9 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                },
 
                toggleRoute: function(route_id, on) {
-                   if ((on === undefined &&
-                        _.indexOf(this.route_ids, route_id) != -1)
-                      || !on)
+                   if (on === undefined ?
+                       (_.indexOf(this.route_ids, route_id) != -1) :
+                       !on)
                        this.removeRoute(route_id);
                    else
                        this.addRoute(route_id);
