@@ -371,7 +371,7 @@ define(["underscore", "utils"],
                 * @param {Object} segMap - See paths.placePath
                 * @param {Number[][]} path - an array of points
                 *
-                * @returns a map of ids to counts, where the count is the number
+                * @returns {Object} a map of ids to counts, where the count is the number
                 * of line segments belonging to an id that can be replaced now
                 * that path is removed
                 */
