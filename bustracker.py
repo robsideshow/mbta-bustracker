@@ -640,19 +640,23 @@ def pathReducer(pathlist):
     '''
     segset = set()
     reduced_pathlist = []
+    pathlist.sort(key = len, reverse = True) #start with the longest path
+    pathnum = 0
     for pa in pathlist:
         path = stopPointEliminator(pa)
         curr_reduced_path_segs = []
         numpts = len(path)
         for i in range(numpts -1):
             curr_seg = tuple(sorted([tuple(path[i]), tuple(path[i+1])]))
-            if curr_seg[0] != curr_seg[1]:
-                if curr_seg not in segset:
-                    segset.add(curr_seg)
-                    curr_reduced_path_segs.append([path[i], path[i+1]])
-            
-        newpaths = seglist2Pathlist(curr_reduced_path_segs)
-        reduced_pathlist.extend(newpaths)     
+            if curr_seg not in segset:
+                segset.add(curr_seg)
+                curr_reduced_path_segs.append([path[i], path[i+1]])
+        if pathnum == 0:
+            newpaths = [path]
+        else:
+            newpaths = seglist2Pathlist(curr_reduced_path_segs)
+        reduced_pathlist.extend(newpaths)   
+        pathnum += 1
     return reduced_pathlist
     
     
