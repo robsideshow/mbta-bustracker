@@ -7,6 +7,7 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
             * @param {Animation} animation
             */
            function VehicleMap(elt, app, animation) {
+               window.$p = $p;
                if (!(this instanceof VehicleMap))
                    return new VehicleMap(elt, app);
 
@@ -184,7 +185,7 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
 
                    _.each(route.paths, function(path) {
                        var adjustedPath = $p.placePath(self._segMap, path,
-                                                       route_id, $u.llNormal);
+                                                       route_id, $p.llNormal);
 
                        var line = L.polyline(adjustedPath, route.style)
                                .addTo(self.routesLayer)
@@ -295,6 +296,18 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                            delete self._stopPreds[pred.stop_id];
                        });
                    }
+               },
+
+               loadVisibleStops: function() {
+                   var bounds = this.map.getBounds();
+                   $.get("/api/rectangle",
+                         {swlat: bounds.getSouth(),
+                          swlon: bounds.getWest(),
+                          nelat: bounds.getNorth(),
+                          nelon: bounds.getEast()})
+                       .then(function(resp) {
+                           console.log(resp);
+                       });
                },
 
                onVehiclePredsUpdate: function(vehicle, preds) {

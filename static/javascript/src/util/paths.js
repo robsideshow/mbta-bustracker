@@ -310,6 +310,7 @@ define(["underscore", "utils"],
                    // Break the path into line segments: 2-tuples of 2-tuples
                    var segments = $u.partition(path, 2, 1),
                        outPath = [],
+                       lastPair = null,
                        lastPoint = null;
 
                    _.each(segments, function(pair, i) {
@@ -341,6 +342,7 @@ define(["underscore", "utils"],
                                // last adjustedPair to give the next adjusted
                                // pair.
                                var scale = Math.pow(-1, j)*j;
+                               //var scale = -j;
                                // calculate the adjusted pair:
                                adjustedPair = [[xa+(xnorm*scale),
                                                 ya+(ynorm*scale)],
@@ -356,10 +358,27 @@ define(["underscore", "utils"],
 
                        segMap[k] = [id];
 
+                       if (lastPair) {
+                           // var point = paths.intersection(
+                           //     lastPair[0][1], lastPair[0][0],
+                           //     lastPair[1][1], lastPair[1][0],
+                           //     adjustedPair[0][1], adjustedPair[0][0],
+                           //     adjustedPair[1][1], adjustedPair[1][0]);
+                           // if (point) {
+                           //     outPath.pop();
+                           //     outPath.push([point[1], point[0]], adjustedPair[1]);
+                           // } else {
+                           //     outPath.push(adjustedPair[0],
+                           //                  adjustedPair[1]);
+                           // }
+                       }
+
                        // Don't push duplicate points.
                        if (!_.isEqual(lastPoint, adjustedPair[0]))
                            outPath.push(adjustedPair[0]);
                        outPath.push(adjustedPair[1]);
+
+                       lastPair = adjustedPair;
                    });
 
                    return outPath;
@@ -404,6 +423,74 @@ define(["underscore", "utils"],
                    });
 
                    return replacePaths;
+               },
+
+               // Like llNormal, but without conversion to lat/long
+               normal: function(mag, point1, point2) {
+                   var dx = point2[1] - point1[1],
+                       dy = point2[0] - point1[0],
+                       rads = Math.atan2(dy, dx)+(Math.PI/2);
+
+                   return [mag * Math.cos(rads),
+                           mag * Math.sin(rads)];
+               },
+
+               /**
+                * Create a vector perpendicular to the line segment bounded demarked by
+                * ll1 and ll2.
+                *
+                */
+               llNormal: function(ll1, ll2) {
+                   var xUnit = 2,
+                       yUnit = 0;
+                   var dx = 82600*(ll2[1] - ll1[1]),
+                       dy = 111120*(ll2[0] - ll1[0]),
+                       rads = Math.atan2(dy, dx)+(Math.PI/2),
+                       sinRads = Math.sin(rads),
+                       cosRads = Math.cos(rads),
+                       dxNorm = xUnit * cosRads - yUnit * sinRads,
+                       dyNorm = xUnit * sinRads + yUnit * cosRads,
+                       dlatNorm = dyNorm/82600,
+                       dlongNorm = dxNorm/111120;
+
+                   return [dlatNorm, dlongNorm];
+               },
+
+               /**
+                * Finds an intersection point for two line segments, if one
+                * exists that lies "in bounds". If the line segments lie on
+                * parallel lines, there is no intersection. The intersection is
+                * considered "in bounds" if the vector from the start point of
+                * seg1 to the intersection is a positive scalar multiple of the
+                * vector from the start to end point of seg1 AND the vector from
+                * the end point of seg2 to the intersection is a positive scalar
+                * multiple of the vector from the end point of seg2 to the start
+                * point.
+                *
+                * @returns {Number[]}
+                */
+               intersection(start1_x, start1_y, end1_x, end1_y,
+                            start2_x, start2_y, end2_x, end2_y) {
+                   var dy1 = end1_y - start1_y,
+                       dx1 = end1_x - start1_x,
+                       dx2 = end2_x - start2_x,
+                       m = dy1/dx1,
+                       n = (end2_y - start2_y)/dx2,
+                       denom = m - n;
+
+                   if (denom === 0) return null;
+
+                   var intercept1 = start1_y - m*start1_x,
+                       intercept2 = start2_y - n*start2_x,
+                       x = (intercept2 - intercept1)/denom,
+                       y = m*x + intercept1,
+                       pos1 = (x-start1_x)/dx1,
+                       pos2 = (end2_x-x)/dx2;
+
+                   if (pos1 >= 0 && pos2 >= 0)
+                       return [x, y];
+
+                   return null;
                }
            };
 
