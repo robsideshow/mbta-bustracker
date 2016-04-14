@@ -139,19 +139,28 @@
         }
     }
 
-    .route-toggles {
+    .route-list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
         a {
-            border: 1px solid #aaa;
-            border-radius: 3px;
+            border-radius: 5px;
+            flex: 1;
             margin-right: 0.1em;
             padding: 0.1em;
             padding-left: 0.2em;
             padding-right: 0.2em;
+            text-align: center;
 
             &:hover {
                 background-color: navy;
                 color: white;
             }
+        }
+
+        a.active {
+            background-color: navy;
+            color: #aaa;
         }
     }
 }
