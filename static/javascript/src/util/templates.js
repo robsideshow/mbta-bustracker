@@ -11,7 +11,6 @@ define(["jquery", "handlebars", "underscore"],
                            fn = loaded[name];
 
                        if (!fn) {
-                           promise.resolve(fn);
                            var elt = document.getElementById(name + "-template");
 
                            if (elt) {
@@ -80,6 +79,11 @@ define(["jquery", "handlebars", "underscore"],
                        }
 
                        return value;
+                   },
+
+                   templateHtml: function($el, name, data, execOptions) {
+                       return this.html(
+                           $el, this.render(name, data, execOptions));
                    }
                };
 

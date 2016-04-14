@@ -7,7 +7,7 @@ define([], function() {
         },
         // If the route_id matches this pattern, the route is considered a
         // subway:
-        subwayPattern: /^Red|Orange|Green-|Blue/,
+        subwayPattern: /^Red|Orange|Green-|Blue|Mattapan/,
         routeStyles: {
             "Red": {color: "red"},
             "Orange": {color: "orange"},

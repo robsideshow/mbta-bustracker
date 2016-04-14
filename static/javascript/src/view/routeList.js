@@ -1,11 +1,12 @@
-define(["backbone", "underscore"],
-       function(B) {
+define(["backbone", "underscore", "templates"],
+       function(B, _, $t) {
            var RouteListView = B.View.extend({
                initialize: function(options) {
                    if (!options.app)
                        throw new Error("Missing required keyword: app");
                    B.View.prototype.initialize.call(this, options);
                    this.app = options.app;
+                   this.filter = options.filter;
 
                    this.listenTo(this.app, "routeSelected",
                                  this.onRouteSelected)
@@ -34,20 +35,17 @@ define(["backbone", "underscore"],
 
                render: function() {
                    var $el = this.$el,
-                       html = [];
+                       routes = this.app.routes,
+                       filter = this.filter;
 
-                   this.app.routes.getFullList().done(function(names) {
+                   routes.getFullList().done(function(names) {
+                       var routes = [];
                        _.each(names, function(name, route_id) {
-                           var dom_id = "check_" + route_id;
-                           html.push(
-                               "<input type='checkbox' id='",
-                               dom_id, "' class='toggle left' ",
-                               "value='", route_id, "'/>",
-                               "<label for='", dom_id, "'>",
-                               _.escape(name), "</label>");
+                           if (filter(route_id, name))
+                               routes.push({id: route_id, name: name});
                        });
 
-                       $el.html(html.join(""));
+                       $t.templateHtml($el, "routeList", {routes: routes});
                    });
 
                    return this;

@@ -1,6 +1,6 @@
 define(["jquery", "leaflet", "animation", "map", "legend", "infobox", "config",
-        "app-state", "app", "utils", "route-list-view"],
-       function($, L, Animation, Map, Legend, InfoBox, config, AppState, _, $u, RouteList) {
+        "app-state", "app", "utils", "route-list-view", "underscore"],
+function($, L, Animation, Map, Legend, InfoBox, config, AppState, _app, $u, RouteList, _) {
            return {
                init: function() {
                    var app = new AppState(),
@@ -24,7 +24,14 @@ define(["jquery", "leaflet", "animation", "map", "legend", "infobox", "config",
 
                    new RouteList({
                        app: app,
-                       el: "#route-selector"
+                       el: "#route-selector",
+                       filter: _.negate(app.routes.isSubwayRoute)
+                   }).render();
+
+                   new RouteList({
+                       app: app,
+                       el: "#metro-selector",
+                       filter: app.routes.isSubwayRoute
                    }).render();
 
                    new Legend({
