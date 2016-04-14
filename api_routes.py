@@ -132,13 +132,13 @@ def rectangle():
     '''
     get all stops inside a rectangle with given SW and NE corners
     '''
-    if "swlat" not in request.args or "swlon" not in request.args:
+    try:
+        swlat = float(request.args["swlat"])
+        swlon = float(request.args["swlon"])
+        nelat = float(request.args["nelat"])
+        nelon = float(request.args["nelon"])
+    except KeyError, ValueError:
         abort(401)
-
-    swlat = float(request.args.get('swlat', 40))
-    swlon = float(request.args.get('swlon', -71))
-    nelat = float(request.args.get('nelat', 40))
-    nelon = float(request.args.get('nelon', -71))
 
     stops = btr.getStopsInRectangle(swlat, swlon, nelat, nelon)
     return jsonify(stops = stops)
