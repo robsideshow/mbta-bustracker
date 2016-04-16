@@ -109,13 +109,7 @@ define(["jquery", "underscore", "backbone", "route-model", "stop-model", "config
                                delete info.parent_stops;
 
                                stops.add(all_children);
-
-                               _.each(info.stops,
-                                      function(stop_info) {
-                                          stop_info.route_ids =
-                                              $u.asKeys(stop_info.route_ids, true);
-                                          stops.add(stop_info);
-                                      });
+                               stops.addAllFromDict(info.stops);
 
                                delete info.stops;
 

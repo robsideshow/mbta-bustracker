@@ -60,11 +60,19 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                        .listenTo(app.stops, "remove", this.onStopRemoved);
 
                    this.map.on("click", _.bind(this.onClick, this));
+                   this.map.on("zoomend", _.bind(this.updateStops, this));
+                   this.map.on("moveend", _.bind(this.updateStops, this));
                },
 
                onClick: function(e) {
                    this.app.clearVehicles();
                    this.app.unselectStop();
+               },
+
+               updateStops: function(e) {
+                   this.app.stops.setMapArea(this.map.getZoom() >= 17 ?
+                                             this.map.getBounds() :
+                                             null);
                },
 
                /**
