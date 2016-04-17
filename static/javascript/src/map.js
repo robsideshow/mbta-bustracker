@@ -128,6 +128,9 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                    if (stopMarker)
                        this.routesLayer.removeLayer(stopMarker);
                    delete this.stopMarkers[stop.id];
+
+                   if (this.selectedStop == stop.id)
+                       this.cleanupETAPopup();
                },
 
                /**
@@ -158,13 +161,16 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                },
 
                onStopUnselected: function(id) {
-                   if (this.selectedStop == id) {
-                       this.selectedStopView.remove();
-                       this.map.removeLayer(this.selectedStopPopup);
-                       this.selectedStop =
-                           this.selectedStopPopup =
-                           this.selectedStopView = null;
-                   }
+                   if (this.selectedStop == id)
+                       this.cleanupETAPopup();
+               },
+
+               cleanupETAPopup: function() {
+                   this.selectedStopView.remove();
+                   this.map.removeLayer(this.selectedStopPopup);
+                   this.selectedStop =
+                       this.selectedStopPopup =
+                       this.selectedStopView = null;
                },
 
                hideVehicleETAs: function(id) {
