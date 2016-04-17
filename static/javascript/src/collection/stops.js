@@ -12,7 +12,6 @@ define(["backbone", "jquery", "stop-model", "utils", "underscore"],
                        .listenTo(this, "remove", this.onRemove);
                },
 
-               // Figure out a way to remove this?
                onAdd: function(stop) {
                    var parent_id = stop.get("parent");
 
@@ -35,6 +34,11 @@ define(["backbone", "jquery", "stop-model", "utils", "underscore"],
                onRemove: function(stop) {
                    if (stop.isParent()) {
                        this.remove(stop.getChildIds());
+                   }
+
+                   var parent = stop.getParent();
+                   if (parent) {
+                       parent.removeChild(stop);
                    }
                },
 

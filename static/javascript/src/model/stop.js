@@ -21,14 +21,10 @@ define(["backbone", "leaflet", "underscore", "utils"],
                addChild: function(stop) {
                    if (!this.children) this.children = [];
                    this.children[stop.id] = stop;
-                   this.trigger("childAdded", stop);
-                   this.listenTo(stop, "removed", this.removeChild);
                },
 
                removeChild: function(stop) {
                    delete this.children[stop.id];
-                   this.stopListening(stop);
-                   this.trigger("childRemoved", stop);
                },
 
                getChildIds: function() {
