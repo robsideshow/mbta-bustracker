@@ -147,10 +147,12 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                    if (this._showSubways)
                        data.modes.push({
                            name: "Subway Routes",
+                           key: "subway",
                            preds: groupedPreds.subway});
                    if (this._showBuses)
                        data.modes.push({
                            name: "Bus Routes",
+                           key: "bus",
                            preds: groupedPreds.bus});
 
                    var $el = this.$el;
