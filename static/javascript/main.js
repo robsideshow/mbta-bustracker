@@ -17,7 +17,7 @@ require.config({
 
         "legend": "src/view/legend",
         "infobox": "src/view/infobox",
-        "stop-vehicles-view": "src/view/stopVehicles",
+        "vehicle-etas-view": "src/view/vehicleETAs",
         "route-list-view": "src/view/routeList",
 
         "config": "config",

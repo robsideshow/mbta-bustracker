@@ -70,6 +70,7 @@ define(["backbone", "underscore", "utils", "config", "templates"],
 
                // Redraw the view using the last stamp
                rerender: function() {
+                   this._updateRoutes();
                    this.render(this.lastStamp);
                },
 
@@ -153,7 +154,7 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                            preds: groupedPreds.bus});
 
                    var $el = this.$el;
-                   $t.render("stopVehicle", data)
+                   $t.render("vehicleETAs", data)
                        .then(function(html) {
                            $el.html(html);
                        });

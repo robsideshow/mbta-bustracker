@@ -1,6 +1,6 @@
 define(["jquery", "leaflet", "backbone", "stop-marker",
-        "bus-marker", "stop-vehicles-view", "utils", "underscore", "path-utils"],
-       function($, L, B, StopMarker, BusMarker, StopVehiclesView, $u, _, $p) {
+        "bus-marker", "vehicle-etas-view", "utils", "underscore", "path-utils"],
+       function($, L, B, StopMarker, BusMarker, VehicleETAsView, $u, _, $p) {
            /**
             * @param {HTMLElement|string} elt Element or selector string
             * @param {AppState} app
@@ -147,7 +147,7 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                        .setLatLng(stop.getLatLng())
                        .addTo(this.map);
 
-                   this.selectedStopView = new StopVehiclesView({
+                   this.selectedStopView = new VehicleETAsView({
                        app: this.app,
                        model: stop
                    }).render();
