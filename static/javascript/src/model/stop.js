@@ -21,6 +21,9 @@ define(["backbone", "leaflet", "underscore", "utils"],
                addChild: function(stop) {
                    if (!this.children) this.children = [];
                    this.children[stop.id] = stop;
+
+                   _.extend(this.get("route_ids"),
+                            stop.get("route_ids"));
                },
 
                removeChild: function(stop) {

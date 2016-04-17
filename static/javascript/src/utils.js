@@ -102,6 +102,24 @@ define(["jquery", "underscore"], function($, _) {
             return s;
         },
 
+        /**
+         * Find the shared prefix of two strings, or the empty string if there
+         * is none.
+         *
+         * @param {string} s1
+         * @param {string} s2
+         *
+         * @returns {string}
+         */
+        commonPrefix: function(s1, s2) {
+            var l = Math.min(s1.length, s2.length);
+            for (var i = 0; i < l; ++i) {
+                if (s1[i] !== s2[i]) break;
+            }
+
+            return s1.substr(0, i);
+        },
+
         getLocation: function() {
             var promise = $.Deferred();
 
