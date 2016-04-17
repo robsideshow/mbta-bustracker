@@ -124,9 +124,13 @@ define(["jquery", "underscore"], function($, _) {
             var promise = $.Deferred();
 
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    promise.resolve(position.coords);
-                });
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        promise.resolve(position.coords);
+                    },
+                    function() {
+                        promise.reject("Nope");
+                    });
             } else {
                 promise.reject("Geolocation not available");
             }

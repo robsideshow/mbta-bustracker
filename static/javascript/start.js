@@ -38,6 +38,10 @@ function($, L, Animation, Map, Legend, InfoBox, config, AppState, _app, $u, Rout
                        el: "#legend",
                        app: app
                    });
+
+                   $("#locate-me").click(function() {
+                       app.locateMe();
+                   });
                }
            };
        });

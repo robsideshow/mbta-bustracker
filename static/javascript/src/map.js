@@ -54,6 +54,7 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                        .listenTo(app, "stopSelected", this.onStopSelected)
                        .listenTo(app, "stopUnselected", this.onStopUnselected)
                        .listenTo(app, "focusRoute", this.onRouteFocused)
+                       .listenTo(app, "locationSet", this.onLocationSet)
                        .listenTo(app.vehicles, "add", this.onVehicleAdded)
                        .listenTo(app.vehicles, "remove", this.onVehicleRemoved)
                        .listenTo(app.stops, "add", this.onStopAdded)
@@ -73,6 +74,11 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                    this.app.stops.setMapArea(this.map.getZoom() >= 17 ?
                                              this.map.getBounds() :
                                              null);
+               },
+
+               onLocationSet: function(coords, noZoom) {
+                   this.map.setView(coords,
+                                    noZoom ? this.map.getZoom() : 17);
                },
 
                /**
