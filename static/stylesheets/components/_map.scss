@@ -147,25 +147,25 @@
     .route-list {
         display: flex;
         flex-wrap: wrap;
-        justify-content: space-around;
+        justify-content: left;
         a {
             border-radius: 5px;
-            flex: 1;
-            margin-right: 0.1em;
+            color: $accent-1;
+            margin-right: 3px;
             padding: 0.1em;
             padding-left: 0.2em;
             padding-right: 0.2em;
             text-align: center;
 
             &:hover {
-                background-color: navy;
+                background: $accent-3;
                 color: white;
             }
         }
 
         a.active {
-            background-color: navy;
-            color: #aaa;
+            background: $accent-1;
+            color: white;
         }
     }
 }
