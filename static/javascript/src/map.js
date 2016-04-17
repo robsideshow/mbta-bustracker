@@ -183,16 +183,6 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                    this.selectedStopPopup = null;
                },
 
-               /**
-                * Redraw the contents of the vehicle ETA popup for the selected
-                * stop.
-                *
-                * @param {Number} stamp
-                */
-               updateStopVehiclePopup: function(stamp) {
-
-               },
-
                onRouteSelected: function(route_id, routeModel) {
                    var route = routeModel.attributes,
                        self = this;
@@ -312,18 +302,6 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                    }
                },
 
-               loadVisibleStops: function() {
-                   var bounds = this.map.getBounds();
-                   $.get("/api/rectangle",
-                         {swlat: bounds.getSouth(),
-                          swlon: bounds.getWest(),
-                          nelat: bounds.getNorth(),
-                          nelon: bounds.getEast()})
-                       .then(function(resp) {
-                           console.log(resp);
-                       });
-               },
-
                onVehiclePredsUpdate: function(vehicle, preds) {
                    var stops = this.app.stops,
                        popups = this.stopPopups,
@@ -385,10 +363,6 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                            delete stopPreds[stop_id];
                        }
                    });
-               },
-
-               updateVehiclePredictions: function(stamp) {
-
                },
 
                // Animations:
