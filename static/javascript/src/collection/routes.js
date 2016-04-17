@@ -63,10 +63,12 @@ define(["jquery", "underscore", "backbone", "route-model", "stop-model", "config
                                                     config.defaultRouteStyle,
                                                     config.routeStyles[route_id]);
                                if (self.savedColors[route_id])
-                                   style.color = this.savedColors[route_id];
+                                   style.color = self.savedColors[route_id];
                                else if (!style.color) {
                                    var n = config.colors.length;
-                                   style.color = config.colors[(self._colorCount++)%n];
+                                   self.savedColors[route_id] =
+                                       style.color =
+                                       config.colors[(self._colorCount++)%n];
                                }
 
                                info.style = style;
