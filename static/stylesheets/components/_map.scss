@@ -98,6 +98,7 @@
 }
 
 .vehicle-pred {
+    font-size: smaller;
     .pred-time {
         float: right;
     }
@@ -147,7 +148,7 @@
     .route-list {
         display: flex;
         flex-wrap: wrap;
-        justify-content: left;
+        justify-content: flex-start;
         a {
             border-radius: 5px;
             color: $accent-1;

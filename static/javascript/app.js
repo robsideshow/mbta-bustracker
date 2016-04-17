@@ -4,12 +4,12 @@ define(["jquery"], function($){
     $(document).ready(function(){
         $("#graph").hide();
 
-        var hideCtrl = false;
+        var hideCtrl = true;
         $(".routeCtrl").on("click",function(){
 
             if (!hideCtrl) {
                 hideCtrl = true;
-                $(this).html('<i class="material-icons">vertical_align_bottom</i> Pullout Route Control');
+                $(this).html('<i class="material-icons">vertical_align_bottom</i> Show Route Control');
                 $(".routeToggleControl").slideUp();
             }else{
                 hideCtrl = false;
