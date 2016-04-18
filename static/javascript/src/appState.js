@@ -250,16 +250,6 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                                 function(id) { return vehicles.get(id); });
                },
 
-               locateMe: function() {
-                   var self = this;
-                   $u.getLocation()
-                       .done(function(coords) {
-                           self.trigger("locationSet",
-                                        {lat: coords.latitude,
-                                         lng: coords.longitude});
-                       });
-               },
-
                tick: function(params, noReschedule) {
                    var self = this;
                    params = params || this.getTickParams();

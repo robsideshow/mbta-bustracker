@@ -40,7 +40,13 @@ function($, L, Animation, Map, Legend, InfoBox, config, AppState, _app, $u, Rout
                    });
 
                    $("#locate-me").click(function() {
-                       app.locateMe();
+                       if (map.isLocating()) {
+                           map.stopLocationWatch();
+                           $(this).html("Locate Me!");
+                       } else {
+                           map.startLocationWatch();
+                           $(this).html("Stop Tracking Me!");
+                       }
                    });
                }
            };

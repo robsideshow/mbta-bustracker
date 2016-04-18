@@ -26,6 +26,7 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                this.init();
 
                this._nextTick = Infinity;
+               this._isLocating = false;
 
                // Used to keep track of the path segments that have been placed:
                this._segMap = {};
@@ -61,8 +62,9 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                        .listenTo(app.stops, "remove", this.onStopRemoved);
 
                    this.map.on("click", _.bind(this.onClick, this));
-                   this.map.on("zoomend", _.bind(this.updateStops, this));
-                   this.map.on("moveend", _.bind(this.updateStops, this));
+                   this.map.on("moveend zoomend", _.bind(this.updateStops, this));
+                   this.map.on("locationfound", _.bind(this.locationFound, this));
+                   this.map.on("locationerror", _.bind(this.locationError, this));
                },
 
                onClick: function(e) {
@@ -76,16 +78,38 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                                              null);
                },
 
-               onLocationSet: function(coords, noZoom) {
-                   this.map.setView(coords,
-                                    noZoom ? this.map.getZoom() : 17);
+               isLocating: function() {
+                   return this._isLocating;
+               },
+
+               startLocationWatch: function() {
+                   this._isLocating = true;
+                   this._userInitiated = true;
+                   this.map.locate({watch: true});
+               },
+
+               stopLocationWatch: function() {
+                   this._isLocating = false;
+                   this.map.stopLocate();
+               },
+
+               locationFound: function(e) {
+                   if (this._userInitiated) {
+                       this.map.setView(e.latlng, 17);
+                       this.app.trigger("locationSet", e.latlng);
+                   }
+                   this._userInitiated = false;
 
                    if (this.locationMarker) {
-                       this.locationMarker.setLatLng(coords);
+                       this.locationMarker.setLatLng(e.latlng);
                    } else {
                        this.locationMarker =
-                           L.marker(coords).addTo(this.map);
+                           L.marker(e.latlng).addTo(this.map);
                    }
+               },
+
+               locationError: function(e) {
+                   this._isLocating = false;
                },
 
                /**
