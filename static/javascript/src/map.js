@@ -79,6 +79,13 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                onLocationSet: function(coords, noZoom) {
                    this.map.setView(coords,
                                     noZoom ? this.map.getZoom() : 17);
+
+                   if (this.locationMarker) {
+                       this.locationMarker.setLatLng(coords);
+                   } else {
+                       this.locationMarker =
+                           L.marker(coords).addTo(this.map);
+                   }
                },
 
                /**
