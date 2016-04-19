@@ -61,22 +61,43 @@ define(["backbone", "jquery", "stop-model", "utils", "underscore"],
                    this.add(stop_info);
                },
 
-               setMapArea: function(bounds) {
-                   var addFromDict = _.bind(this.addFromDict, this),
+               setMapArea: function(bounds, showRoutes) {
+                   var self = this,
                        oldBounds = this.bounds;
                    this.bounds = bounds;
                    if (bounds) {
+                       var route_ids = {};
                        $.getJSON("/api/rectangle",
                                  {swlat: bounds.getSouth(),
                                   swlon: bounds.getWest(),
                                   nelat: bounds.getNorth(),
                                   nelon: bounds.getEast()})
                            .done(function(result) {
-                               _.each(result.stops, addFromDict);
+                               _.each(result.stops, function(stop_info) {
+                                   self.addFromDict(stop_info);
+                                   _.extend(route_ids, stop_info.route_ids);
+                               });
+
+                               if (showRoutes) {
+                                   self.app.addRoutes(_.keys(route_ids));
+                               }
                            });
                    } else {
                        this.cleanupStops();
                    }
+               },
+
+               inBounds: function(bounds) {
+                   return this.filter(function(stop) {
+                       return bounds.contains(stop.getLatLng());
+                   });
+               },
+
+               inMapArea: function() {
+                   if (this.bounds)
+                       return this.inBounds(this.bounds);
+                   else
+                       return [];
                },
 
                /**

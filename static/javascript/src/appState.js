@@ -30,6 +30,8 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                        this.stop_id = null;
                });
 
+               this.listenTo(this, "locationSet", this.onLocationSet);
+
                return this;
            }
 
@@ -119,15 +121,6 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                            setTimeout(_.bind(this.tick, this), wait));
                },
 
-               addItem: function(listprop, id) {
-                   var ids = this[listprop];
-                   if (ids.indexOf(id) == -1) {
-                       ids.push(id);
-
-                       this.scheduleTick(0);
-                   }
-               },
-
                removeItem: function(coll, id) {
                    var idx = coll.indexOf(id);
                    if (idx >= 0)
@@ -139,7 +132,10 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                 * the specified id.
                 */
                addVehicle: function(id) {
-                   this.addItem("vehicle_ids", id);
+                   if (this.vehicle_ids.indexOf(id) == -1) {
+                       this.vehicle_ids.push(id);
+                       this.scheduleTick(0);
+                   }
 
                    var vehicle = this.vehicles.get(id);
                    if (!vehicle) return;

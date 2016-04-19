@@ -73,9 +73,11 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                },
 
                updateStops: function(e) {
-                   this.app.stops.setMapArea(this.map.getZoom() >= 17 ?
+                   this.app.stops.setMapArea(this.map.getZoom() >= 16 ?
                                              this.map.getBounds() :
-                                             null);
+                                             null,
+                                             this._locationViewSet);
+                   this._locationViewSet = false;
                },
 
                isLocating: function() {
@@ -95,8 +97,8 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
 
                locationFound: function(e) {
                    if (this._userInitiated) {
+                       this._locationViewSet = true;
                        this.map.setView(e.latlng, 17);
-                       this.app.trigger("locationSet", e.latlng);
                    }
                    this._userInitiated = false;
 
