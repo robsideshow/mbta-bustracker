@@ -19,6 +19,7 @@ require.config({
         "infobox": "src/view/infobox",
         "vehicle-etas-view": "src/view/vehicleETAs",
         "route-list-view": "src/view/routeList",
+        "alert-view": "src/view/alert",
 
         "config": "config",
         "animation": "src/animation",

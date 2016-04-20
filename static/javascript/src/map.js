@@ -1,6 +1,6 @@
 define(["jquery", "leaflet", "backbone", "stop-marker",
-        "bus-marker", "vehicle-etas-view", "utils", "underscore", "path-utils"],
-       function($, L, B, StopMarker, BusMarker, VehicleETAsView, $u, _, $p) {
+        "bus-marker", "vehicle-etas-view", "alert-view", "utils", "underscore", "path-utils"],
+       function($, L, B, StopMarker, BusMarker, VehicleETAsView, AlertView, $u, _, $p) {
            /**
             * @param {HTMLElement|string} elt Element or selector string
             * @param {AppState} app
@@ -22,6 +22,8 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                this._stopPreds = {};
                // vehicle id -> BusMarker
                this.busMarkers = {};
+               // alert id -> Popup
+               this.alertPopups = {};
 
                this.init();
 
@@ -56,10 +58,16 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                        .listenTo(app, "stopUnselected", this.onStopUnselected)
                        .listenTo(app, "focusRoute", this.onRouteFocused)
                        .listenTo(app, "locationSet", this.onLocationSet)
+                   // Vehicles:
                        .listenTo(app.vehicles, "add", this.onVehicleAdded)
                        .listenTo(app.vehicles, "remove", this.onVehicleRemoved)
+                   // Stops:
                        .listenTo(app.stops, "add", this.onStopAdded)
-                       .listenTo(app.stops, "remove", this.onStopRemoved);
+                       .listenTo(app.stops, "remove", this.onStopRemoved)
+                   // Alerts:
+                       .listenTo(app.alerts, "add", this.onAlertAdded)
+                       .listenTo(app.alerts, "change", this.onAlertChanged)
+                       .listenTo(app.alerts, "remove", this.onAlertRemoved);
 
                    this.map.on("click", _.bind(this.onClick, this));
                    this.map.on("moveend zoomend", _.bind(this.updateStops, this));
@@ -341,6 +349,49 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                    }
                },
 
+               showAlert: function(stop_id, alert) {
+                   if (this.selectedStop == stop_id) {
+                       // Update the popup!
+                       this.selectedStopView.addAlert(alert);
+                   } else {
+                       var stop = this.app.stops.get(stop_id),
+                           popup = L.popup({autoPan: false,
+                                            keepInView: false,
+                                            closeButton: false,
+                                            closeOnClick: false,
+                                            className: "alert"})
+                               .setLatLng(stop.getLatLng())
+                               .addTo(this.map);
+
+                       popup.view = new AlertView({
+                           model: alert
+                       }).render();
+                       popup.setContent(popup.view.el);
+                   }
+               },
+
+               onAlertAdded: function(alert, alerts) {
+                   var self = this;
+                   _.each(alert.get("stop_ids"),
+                          function(stop_id) {
+                              if (self.stopPopups[stop_id])
+                                  self.showAlert(stop_id, alert);
+                          });
+               },
+
+               onAlertChanged: function(alert) {
+                   if (!this.alertPopups[alert.id])
+                       return;
+               },
+
+               onAlertRemoved: function(alert) {
+                   if (!this.alertPopups[alert.id])
+                       return;
+
+                   // TODO: Provide a visual indication that the issue is resolved
+               },
+
+               // Code supporting animations:
                onVehiclePredsUpdate: function(vehicle, preds) {
                    var stops = this.app.stops,
                        popups = this.stopPopups,

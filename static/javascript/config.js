@@ -35,7 +35,12 @@ define([], function() {
         },
         colors: ["salmon", "#6CB31B", "teal", "gold", "orchid", "darkgoldenrod", "deepskyblue", "deeppink", "sienna", "burlywood"],
 
+        alertsURL: "/api/alerts",
+
         mbtaNinjaAlertsURL: "http://www.mbta.ninja/api/reports",
+
+        // Check MBTA.ninja for updates every 10 seconds
+        ninjaPollInterval: 10000,
 
         ninjaStopIds: {
             "Charles/MGH": "place-chmnl",

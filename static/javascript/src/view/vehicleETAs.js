@@ -31,6 +31,21 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                    "click a.change-dir": "changeDirection"
                },
 
+               addAlert: function(alert) {
+                   this.listenTo(alert, "change", this.onAlertChanged)
+                       .listenTo(alert, "remove", this.onAlertRemoved);
+
+                   // TODO: Show badge?
+               },
+
+               onAlertChanged: function(alert) {
+                   // TODO: Update alert badge
+               },
+
+               onAlertRemoved: function(alert) {
+                   this.stopListening(alert);
+               },
+
                // TODO: Cache information about vehicle predictions, so that it
                // doesn't have to be recalculated once per sec.
                _updatePreds: function() {
