@@ -164,7 +164,7 @@ define([], function() {
             "Heath Street": "place-hsmnl",
             "North Station": "place-north",
             "Back of the Hill": "place-bckhl",
-            "Northeastern University": "place-nuniv"
+            "Northeastern University": "place-nuniv",
 			"Brookline Hills": "place-brkhl",
 			"Brookline Village": "place-bvmnl",
 			"Chestnut Hill": "place-chhil",
