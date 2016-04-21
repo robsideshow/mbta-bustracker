@@ -184,7 +184,7 @@ define([], function() {
 			"Saint Paul Street": "place-stplb",
 			"Waban": "place-waban",
 			"Woodland": "place-woodl",
-			"World Trade Center": "place-wtcst"}
+			"World Trade Center": "place-wtcst"
         }
     };
 });
