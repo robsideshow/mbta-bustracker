@@ -102,6 +102,19 @@ define(["jquery", "underscore"], function($, _) {
             return s;
         },
 
+        randInt: function(max, min) {
+            if (min === undefined)
+                min = 0;
+
+            return Math.floor(Math.random()*(max-min))+min;
+        },
+
+        chooseRandom: function(coll) {
+            var idx = this.randInt(coll.length);
+
+            return coll[idx];
+        },
+
         /**
          * Find the shared prefix of two strings, or the empty string if there
          * is none.
@@ -179,6 +192,30 @@ define(["jquery", "underscore"], function($, _) {
             return _.reduce(list, function(l, item) {
                 return l.concat(fn(item));
             }, []);
+        },
+
+        /**
+         * Like map, but discards null or undefined values.
+         */
+        keep: function(list, fn, ctx) {
+            var l = list.length, out = [];
+
+            for (var i = 0; i < l; i++) {
+                var v = fn(l[i]);
+                if (!(v === undefined || v === null))
+                    out.push(v);
+            }
+
+            return out;
+        },
+
+        times: function(n, fn) {
+            var out = [];
+
+            while (n-- > 0)
+                out.push(fn());
+
+            return out;
         },
 
         /**

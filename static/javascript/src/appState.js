@@ -1,6 +1,8 @@
 define(["jquery", "underscore", "utils", "backbone", "routes-collection",
-        "vehicles-collection", "stops-collection", "shapes-collection"],
-       function($, _, $u, B, Routes, Vehicles, Stops, Shapes) {
+        "vehicles-collection", "stops-collection", "shapes-collection",
+        "alerts-collection"],
+       function($, _, $u, B, Routes, Vehicles, Stops, Shapes,
+               Alerts) {
            var defaultOptions = {tickInterval: 10000};
            function AppState(options) {
                if (!(this instanceof AppState))
@@ -19,6 +21,7 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                this.vehicles = new Vehicles([], {app: this});
                this.routes = new Routes([], {app: this});
                this.shapes = new Shapes([], {app: this});
+               this.alerts = new Alerts([], {app: this});
                this._lastActiveShapes = {};
                // Track consecutive error responses from the server:
                this._updateFailures = 0;

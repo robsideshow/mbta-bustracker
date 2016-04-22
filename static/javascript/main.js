@@ -14,6 +14,8 @@ require.config({
         "shapes-collection": "src/collection/shapes",
         "vehicles-collection": "src/collection/vehicles",
         "vehicle-model": "src/model/vehicle",
+        "alerts-collection": "src/collection/alerts",
+        "alert-model": "src/model/alert",
 
         "legend": "src/view/legend",
         "infobox": "src/view/infobox",
@@ -43,5 +45,5 @@ require.config({
 });
 
 require(["start"], function(start) {
-    start.init();
+    var app = start.init();
 });
