@@ -6,8 +6,10 @@ define(["backbone", "leaflet", "underscore", "utils"],
            var StopModel = B.Model.extend({
                idAttribute: "stop_id",
 
-               defaults: {
-                   route_ids: {}
+               defaults: function() {
+                   return {
+                       route_ids: {}
+                   };
                },
 
                getLatLng: function() {
