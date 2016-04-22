@@ -24,6 +24,7 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                this.busMarkers = {};
                // alert id -> Popup
                this.alertPopups = {};
+               this.stopAlerts = {};
 
                this.init();
 
@@ -66,7 +67,6 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                        .listenTo(app.stops, "remove", this.onStopRemoved)
                    // Alerts:
                        .listenTo(app.alerts, "add", this.onAlertAdded)
-                       .listenTo(app.alerts, "change", this.onAlertChanged)
                        .listenTo(app.alerts, "remove", this.onAlertRemoved);
 
                    this.map.on("click", _.bind(this.onClick, this));
@@ -374,21 +374,21 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                    var self = this;
                    _.each(alert.get("stop_ids"),
                           function(stop_id) {
-                              if (self.stopPopups[stop_id])
+                              if (self.stopMarkers[stop_id])
                                   self.showAlert(stop_id, alert);
                           });
                },
 
-               onAlertChanged: function(alert) {
-                   if (!this.alertPopups[alert.id])
-                       return;
-               },
-
                onAlertRemoved: function(alert) {
-                   if (!this.alertPopups[alert.id])
-                       return;
+                   var popup = this.alertPopups[alert.id];
+                   if (!popup) return;
 
-                   // TODO: Provide a visual indication that the issue is resolved
+                   // TODO: Provide a visual indication that the issue is
+                   // resolved before removing the alert.
+
+                   this.map.removeLayer(popup);
+                   popup.view.remove();
+                   delete this.alertPopups[alert.id];
                },
 
                // Code supporting animations:

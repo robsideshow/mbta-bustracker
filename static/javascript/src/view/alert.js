@@ -7,6 +7,10 @@ define(["backbone", "templates"],
                    this.listenTo(this.model, "change", this.render);
                },
 
+               cleanup: function() {
+                    
+               },
+
                render: function() {
                    var $el = this.$el;
                    $t.render("alert", this.model.attributes)
