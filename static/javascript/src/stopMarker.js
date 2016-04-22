@@ -1,12 +1,10 @@
 define(["leaflet", "underscore"],
        function(L, _) {
            return L.FeatureGroup.extend({
-               initialize: function(stop, app) {
+               initialize: function(stop, app, scale) {
                    L.FeatureGroup.prototype.initialize.apply(this, []);
                    this.stop = stop;
-                   this.marker = L.marker(stop.getLatLng(),
-                                          {icon: this.makeIcon()})
-                       .addTo(this);
+                   this.setScale(scale);
                    this.on("click", function() {
                        app.selectStop(stop.id);
                    });
@@ -37,13 +35,38 @@ define(["leaflet", "underscore"],
                },
 
                makeIcon: function() {
-                var html = '<div class="stop-marker"></div>';
+                   var scale = this.scale;
 
-                return L.divIcon({
-                    className: "stop-wrapper",
-                    iconSize: L.point(24, 36),
-                    html: html
-                });
+                   if (scale >= 17) {
+                       return L.divIcon({
+                           className: "stop-wrapper",
+                           iconSize: L.point(24, 36),
+                           html: '<div class="normal stop-marker"></div>'
+                       });
+                   } else if (scale >= 15) {
+                       return L.divIcon({
+                           className: "stop-wrapper",
+                           iconSize: L.point(12, 18),
+                           html: '<div class="mini stop-marker"></div>'
+                       });
+                   } else {
+                       return L.divIcon({
+                           className: "stop-wrapper",
+                           iconSize: L.point(5, 5),
+                           html: "<div class='micro-stop-marker'></div>"
+                       });
+                   }
+               },
+
+               setScale: function(scale) {
+                   this.scale = scale;
+                   if (this.marker) {
+                       this.marker.setIcon(this.makeIcon());
+                   } else {
+                       this.marker = L.marker(this.stop.getLatLng(),
+                                              {icon: this.makeIcon()})
+                           .addTo(this);
+                   }
                }
            });
        });

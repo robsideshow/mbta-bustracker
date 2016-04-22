@@ -70,7 +70,8 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                        .listenTo(app.alerts, "remove", this.onAlertRemoved);
 
                    this.map.on("click", _.bind(this.onClick, this));
-                   this.map.on("moveend zoomend", _.bind(this.updateStops, this));
+                   this.map.on("moveend", _.bind(this.updateStops, this));
+                   this.map.on("zoomend", _.bind(this.updateZoom, this));
                    this.map.on("locationfound", _.bind(this.locationFound, this));
                    this.map.on("locationerror", _.bind(this.locationError, this));
                },
@@ -86,6 +87,15 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                                              null,
                                              this._locationViewSet);
                    this._locationViewSet = false;
+               },
+
+               updateZoom: function(e) {
+                   this.updateStops(e);
+                   var zoom = this.map.getZoom();
+                   _.each(this.stopMarkers,
+                          function(marker) {
+                              marker.setScale(zoom);
+                          });
                },
 
                isLocating: function() {
@@ -165,7 +175,8 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
 
                    if (!parent_id ) {
                        this.stopMarkers[stop.id] =
-                           new StopMarker(stop, this.app).addTo(this.routesLayer);
+                           new StopMarker(stop, this.app, this.map.getZoom())
+                           .addTo(this.routesLayer);
                    }
                },
 
