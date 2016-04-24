@@ -112,6 +112,7 @@
 
 .vehicle-pred {
     font-size: smaller;
+    line-height: 1.5em;
     .pred-time {
         float: right;
     }
@@ -132,6 +133,7 @@
         color: white;
         font-size: 0.75em;
         font-weight: 500;
+        margin-bottom: 0.5em;
         padding: 0.2em;
         letter-spacing: 2px;
         text-transform: uppercase;
@@ -159,9 +161,8 @@
     }
 
     .route-list {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-start;
+        line-height: 1.5em;
+        text-align: justify;
         a {
             border-radius: 5px;
             color: $accent-1;
