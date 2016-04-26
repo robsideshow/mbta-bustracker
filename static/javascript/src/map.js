@@ -1,6 +1,8 @@
 define(["jquery", "leaflet", "backbone", "stop-marker",
-        "bus-marker", "vehicle-etas-view", "alert-view", "utils", "underscore", "path-utils"],
-       function($, L, B, StopMarker, BusMarker, VehicleETAsView, AlertView, $u, _, $p) {
+        "bus-marker", "vehicle-etas-view", "alert-view", "utils", "underscore",
+        "path-utils", "config"],
+       function($, L, B, StopMarker, BusMarker, VehicleETAsView, AlertView, $u,
+                _, $p, config) {
            /**
             * @param {HTMLElement|string} elt Element or selector string
             * @param {AppState} app
@@ -25,6 +27,9 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                // alert id -> Popup
                this.alertPopups = {};
                this.stopAlerts = {};
+               this.boundsLimit = L.latLngBounds(
+                   config.bounds[0],
+                   config.bounds[1]);
 
                this.init();
 
@@ -98,23 +103,34 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                           });
                },
 
-               isLocating: function() {
-                   return this._isLocating;
-               },
-
                startLocationWatch: function() {
                    this._isLocating = true;
                    this._userInitiated = true;
                    this.map.locate({watch: true});
+                   this.app.trigger("geolocating", true);
                },
 
                stopLocationWatch: function() {
                    this._isLocating = false;
                    this.map.stopLocate();
+                   this.app.trigger("geolocating", false);
+               },
+
+               toggleLocationWatch: function() {
+                   if (this._isLocating)
+                       this.stopLocationWatch();
+                   else
+                       this.startLocationWatch();
                },
 
                locationFound: function(e) {
                    if (this._userInitiated) {
+                       if (!this.boundsLimit.contains(e.latlng)) {
+                           alert("You are outside the map area!");
+                           this.stopLocationWatch();
+                           return;
+                       }
+
                        this._locationViewSet = true;
                        this.map.setView(e.latlng, 17);
                    }
@@ -129,7 +145,7 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                },
 
                locationError: function(e) {
-                   this._isLocating = false;
+                   this.stopLocationWatch();
                },
 
                /**

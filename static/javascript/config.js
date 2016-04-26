@@ -5,6 +5,10 @@ define([], function() {
             opacity: 0.5,
             weight: 4
         },
+        bounds: [
+            [42.10647, -71.291173],
+            [42.58745957678619, -70.8439246281733]
+        ],
         // If the route_id matches this pattern, the route is considered a
         // subway:
         subwayPattern: /^Red|Orange|Green-|Blue|Mattapan/,
