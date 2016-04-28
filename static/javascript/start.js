@@ -40,13 +40,13 @@ function($, L, Animation, Map, Legend, InfoBox, config, AppState, _app, $u, Rout
                    });
 
                    $("#locate-me").click(function() {
-                       if (map.isLocating()) {
-                           map.stopLocationWatch();
-                           $(this).html("Locate Me!");
-                       } else {
-                           map.startLocationWatch();
-                           $(this).html("Stop Tracking Me!");
-                       }
+                       console.log("clicked");
+                       map.toggleLocationWatch();
+                   });
+
+                   app.listenTo("geolocating", function(on) {
+                       $("#locate-me").html(on ? "Stop Geolocation" :
+                                           "Locate Me!");
                    });
                }
            };
