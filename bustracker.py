@@ -80,6 +80,11 @@ with open('data/stopinfodict.json', 'r') as f:
 with open('data/shapeinfodict.json', 'r') as f:
 	shapeinfodict = json.load(f)
 #dict of shape_id : {Dict of 'destination', 'direction', 'route_id'}
+ 
+with open('data/shapestopseqdict.json', 'r') as f:
+	shapestopseqdict = json.load(f)
+#dict of shape_id : {Dict of stop_seq : stop_point_index} 
+ 
   
             
     
@@ -151,7 +156,7 @@ def parseTripEntity(tent):
     tdict['trip_id'] = tent.trip_update.trip.trip_id
     tdict['vehicle_id'] = tent.trip_update.vehicle.id
     stu = tent.trip_update.stop_time_update
-    tdict['preds'] = [{'stop_seq' : x.stop_sequence,
+    tdict['preds'] = [{'stop_seq' : str(x.stop_sequence),
                        'arr_time' : x.arrival.time,
                        'stop_id' : x.stop_id} for x in stu] 
     if tdict['route_id'][0] == 'C':
@@ -562,6 +567,8 @@ def calcAlpha(plat1, plon1, plat2, plon2, vlat, vlon):
     '''
     py = plat2 - plat1
     px = .742*(plon2 - plon1)
+    if px == 0 and py == 0:
+        return 0
     ry = vlat - plat1
     rx = .742*(vlon - plon1)
     alpha = (rx*px + ry*py)/(px**2 + py**2)
@@ -580,7 +587,112 @@ def projectVehOnSeg(plat1, plon1, plat2, plon2, vlat, vlon):
         return [plat2, plon2]
     else:
         return [plat1 + alpha*(plat2 - plat1), plon1 + alpha*(plon2 - plon1)]
-        
+
+def calcPathLength(path):
+    numsegs = len(path) - 1
+    totlen = 0
+    for i in range(numsegs):
+        lat1, lon1 = path[i]
+        lat2, lon2 = path[i+1]
+        totlen += distll(lat1, lon1, lat2, lon2)
+    return totlen
+
+
+def calcTimepointsSection(path, start_time, finish_time):
+    '''
+    return a list of timepoints NOT INCLUDING path[0]!!!
+    (in order to avoid duplication of points when sections are concatenated)
+    '''
+    total_dist = calcPathLength(path) + .01
+    speed = total_dist / (finish_time + .01 - start_time)
+    timepoints = []
+    numsegs = len(path) - 1
+    curr_lat, curr_lon = path[0]
+    curr_time = start_time
+    for i in range(numsegs):
+        next_lat, next_lon = path[i + 1]
+        dx = distll(curr_lat, curr_lon, next_lat, next_lon)
+        dt = dx/speed
+        if dx > 1:
+            timepoints.append({'time':round(curr_time + dt, 2), 
+                               'lat':next_lat, 'lon':next_lon})
+        curr_lat, curr_lon = next_lat, next_lon
+        curr_time += dt
+    return timepoints
+
+    
+    
+      
+
+def getTimepoints(vlat, vlon, veh_stamp, shape_id, preds):
+    '''
+    1) figure out where to project the veh onto the path - need both ll and index of next pathpoint
+    2) figure out the path point index for each pred
+    3) figure out distance to first pred --> get speed --> get timepoints
+    4) figure out distance to subsequent preds --> get speed --> get timepoints
+    '''
+    path = shapepathdict[shape_id]
+    time_now = int(time.time())
+    #stop_pt_inds = getStopPointIndices(shape_id)
+    stop_seq_ind_dict = shapestopseqdict[shape_id]
+    future_preds = [p for p in preds if p['arr_time'] > time_now]
+    if len(future_preds) == 0:
+        return [{'time':round(veh_stamp, 2),'lat':vlat, 'lon':vlon},
+                 {'time':preds[-1]['arr_time'],'lat':path[-1][0], 'lon':path[-1][1]}]
+    first_pred = future_preds[0]
+    if first_pred.get('stop_seq') == 1:
+        first_point = path[0]
+        second_i = stop_seq_ind_dict[1]
+    else:
+        nearest_point_i = findClosestPointFast(vlat, vlon, path)
+        if nearest_point_i >= len(path) - 2:
+            return [{'time':round(veh_stamp, 2),'lat':vlat, 'lon':vlon},
+                    {'time':first_pred['arr_time'],'lat':path[-1][0], 'lon':path[-1][1]}]
+        i = nearest_point_i
+        if path[i - 1] != path[i]:
+            prev_seg = [path[i - 1], path[i]]
+        else:
+            prev_seg = [path[i - 2], path[i]]
+        if path[i + 1] != path[i]:
+            next_seg = [path[i], path[i + 1]]
+            next_end_i = i + 1
+        else:
+            next_seg = [path[i], path[i + 2]]
+            next_end_i = i + 2
+        prev_alpha = calcAlpha(prev_seg[0][0], prev_seg[0][1], prev_seg[1][0], prev_seg[1][1], vlat, vlon)
+        if 0 < prev_alpha < 1:
+            first_point = projectVehOnSeg(prev_seg[0][0], prev_seg[0][1], prev_seg[1][0], prev_seg[1][1], vlat, vlon)
+            second_i = i
+        else:
+            first_point = projectVehOnSeg(next_seg[0][0], next_seg[0][1], next_seg[1][0], next_seg[1][1], vlat, vlon)
+            second_i = next_end_i
+    
+    
+    timepoints = [{'time':round(veh_stamp, 2), 
+                   'lat':first_point[0], 'lon':first_point[1]}]
+    path_i = second_i 
+    first_path_section = [first_point] + path[path_i:stop_seq_ind_dict[first_pred['stop_seq']]]             
+    timepoints += calcTimepointsSection(first_path_section, veh_stamp, first_pred['arr_time'])
+    curr_time = first_pred['arr_time']
+    curr_stop_seq = first_pred['stop_seq']
+    pred_i = 1 #keep track of the pred to use for the END of the NEXT section 
+    while (curr_time < time_now + 180) and (pred_i <= len(future_preds) - 1):
+        curr_pred = future_preds[pred_i] #the pred for the END of the section
+        prev_stop_seq = curr_stop_seq
+        curr_stop_seq = curr_pred['stop_seq']
+        curr_path_i = stop_seq_ind_dict[curr_stop_seq] #path point index for END of the section
+        prev_path_i = stop_seq_ind_dict[prev_stop_seq] #path point index for START of the section
+        curr_path_section = path[prev_path_i : curr_path_i]
+        prev_time = curr_time
+        curr_time = curr_pred['arr_time']
+        if len(curr_path_section) > 1:
+            timepoints += calcTimepointsSection(curr_path_section, prev_time, curr_time)
+        pred_i += 1
+    return timepoints
+
+    
+
+
 
 def getShapeForUnschedTrip(route_id, direction, destination):
     '''

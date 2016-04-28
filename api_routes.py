@@ -33,11 +33,20 @@ def updates():
                 shape_id = btr.getShapeForUnschedTrip(veh.get('route_id', ''),
                                                       veh.get('direction', ''), 
                                                       veh.get('destination', ''))
-            if shape_id != '':
+            if shape_id:
                 active_shapes.append(shape_id)
-                path  = btr.shapepathdict.get(shape_id, [])
-                veh['timepoints'] = btr.getAnimationPoints(path, veh.get('lat'),
-                                        veh.get('lon'), veh.get('timestamp'), 6)
+                #path  = btr.shapepathdict.get(shape_id, [])
+                veh_preds = currentdata.current_data.getPredsForOneVehicle(veh.get('id'))
+                if len(veh_preds) == 0:
+                    veh['timepoints'] = [{'lat' : veh.get('lat'),
+                                        'lon' : veh.get('lon'), 
+                                        'time' :veh.get('timestamp')}]
+                else:
+                    veh['timepoints'] = btr.getTimepoints(veh.get('lat'),veh.get('lon'), 
+                                                        veh.get('timestamp'), shape_id,
+                                                        veh_preds)
+                #veh['timepoints'] = btr.getAnimationPoints(path, veh.get('lat'),
+                #                        veh.get('lon'), veh.get('timestamp'), 6)
             else:
                 veh['timepoints'] = [{'lat' : veh.get('lat'),
                                         'lon' : veh.get('lon'), 

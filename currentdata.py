@@ -90,6 +90,15 @@ class CurrentData(object):
                     pred['stop_name'] = (btr.stopinfodict.get(pred.get('stop_id'))).get('stop_name')
                 veh_preds[tripvehicledict[trip.get('trip_id')]] = preds
         return veh_preds
+
+
+    def getPredsForOneVehicle(self, vehicle_id):
+        preds = []
+        for trip in self.trips:
+            if trip.get('vehicle_id') == vehicle_id:
+                preds = trip.get('preds', [])
+                break
+        return preds
             
 
 
