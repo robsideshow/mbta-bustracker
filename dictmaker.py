@@ -9,7 +9,7 @@ import json
 alldicts = ['shapepathdict', 'routenamesdict', 'tripshapedict', 
             'shaperoutedict', 'routeshapedict', 'shapestopsdict',
                 'routestopsdict', 'stoproutesdict', 'stopinfodict',
-                'shapeinfodict'] 
+                'shapeinfodict', 'shapestopseqdict'] 
 #Summary of dictionaries:
 #shapepathdict - shape_id : [list of latlon path points]
 #routenamesdict - route_id : route_name
@@ -19,9 +19,39 @@ alldicts = ['shapepathdict', 'routenamesdict', 'tripshapedict',
 #shapestopsdict - shape_id : [List of stops in order] 
 #routestopsdict - route_id : [List of stops for that route]
 #stoproutesdict - stop_id : [List of routes for that stop]
-#stopinfodict - stop_id : {Dict of 'stop_id', 'stop_name', 'lat', 'lon', 'parent' (if a child), 'children' (if a parent)}}
 #shapeinfodict - shape_id : {Dict of 'route_id', 'destination', 'direction'}  
-        
+#stopinfodict - stop_id : {Dict of 'stop_id', 'stop_name', 'lat', 'lon', 'parent' (if a child), 'children' (if a parent)}}
+#shapestopseqdict - shape_id : {Dict of stop_seq : stop_point_index} 
+
+def distll(lat1, lon1, lat2, lon2):
+    return ((111120*(lat1 - lat2))**2 + (82600*(lon1 - lon2))**2)**.5   
+
+def angularSquaredDist(lat1, lon1, lat2, lon2):
+    '''
+    calculates a number proportional to the squared distance, computationally 
+    much more efficient than calculating the distance
+    '''
+    dlon = lon1 - lon2
+    dlat = lat1 - lat2
+    return dlat**2 + (.742*dlon)**2
+
+def findClosestPoint(lat, lon, path):
+    '''
+    takes a (vehicle) lat and lon and a path (list of (lat, lon)) and returns 
+    the INDEX of the path point closest to the given location
+    '''
+    closest_i = 0
+    min_asdist = 99999
+    numpoints = len(path)
+    for i in range(numpoints):
+        pathlat, pathlon = path[i]
+        asdist = angularSquaredDist(lat, lon, pathlat, pathlon)
+        if asdist < min_asdist:
+            closest_i = i
+            min_asdist = asdist
+    return closest_i
+
+    
     
 def makeRouteNamesDict(filename = 'MBTA_GTFS_texts/routes.txt'):
     #reads the 'routes.txt' file and returns a dictionary of 
@@ -118,8 +148,9 @@ def makeStopsDicts(tripshapedict, shaperoutedict,
     f = open(filename, 'r')
     f.readline()
     tripstopsdict = dict()
+    tripstopseqstopiddict = dict()
     for line in f:
-        if line[1] in '23':
+        if line[1] in '23': #only use trip_ids starting with 2 or 3: no CR, boats, shuttles
             l = line.split(',') 
             trip_id = l[0].strip('"')
             stop_id = l[3].strip('"')
@@ -133,14 +164,18 @@ def makeStopsDicts(tripshapedict, shaperoutedict,
         tmp = tripstopsdict[trip_id]
         tmp.sort(key = lambda x : x[0])
         tripstopsdict[trip_id] = [x[1] for x in tmp]
+        tripstopseqstopiddict[trip_id] = tmp
         
-    shapestopsdict = dict()    
+    shapestopsdict = dict()  
+    shapestopseqstopiddict = dict()
     for trip_id in tripstopsdict:
         shape_id = tripshapedict[trip_id]
         if shape_id not in shapestopsdict:
-            shapestopsdict[shape_id] = tripstopsdict[trip_id]  
+            shapestopsdict[shape_id] = tripstopsdict[trip_id] 
+            shapestopseqstopiddict[shape_id] = tripstopseqstopiddict[trip_id]
         elif len(tripstopsdict[trip_id]) > len(shapestopsdict[shape_id]):
             shapestopsdict[shape_id] = tripstopsdict[trip_id]
+            shapestopseqstopiddict[shape_id] = tripstopseqstopiddict[trip_id]
     routestopsdict = dict()
     for shape_id in shapestopsdict:
         route_id = shaperoutedict[shape_id]
@@ -150,7 +185,7 @@ def makeStopsDicts(tripshapedict, shaperoutedict,
             routestopsdict[route_id] = set(shapestopsdict[shape_id])
     for route_id in routestopsdict:
         routestopsdict[route_id] = list(routestopsdict[route_id])
-    return shapestopsdict, routestopsdict
+    return shapestopsdict, routestopsdict, shapestopseqstopiddict
     
 def makeStopRoutesDict(routestopsdict):
     #inverts the routestopsdict to create a dict of stop_id : [List of routes for that stop]
@@ -166,9 +201,31 @@ def makeStopRoutesDict(routestopsdict):
     return stoproutesdict
 
 
-def makeStopInfoDict(stoproutesdict, filename = 'MBTA_GTFS_texts/stops.txt'):
+def makeShapeInfoDict(shaperoutedict, filename = 'MBTA_GTFS_texts/trips.txt'):
+    #reads the 'trips.txt' file and returns a dictionary of 
+    # shape_id : {Dict of 'route_id', 'destination', 'direction'}
+    f = open(filename, 'r')
+    f.readline()
+    rawlines = f.readlines()
+    f.close()
+    shapeinfodict = dict()
+    splitlines = [l.split(',') for l in rawlines]
+    for l in splitlines:
+        shape_id = l[-2].strip('"')
+        if shape_id in shaperoutedict:
+            route_id = l[0].strip('"')
+            destination = l[3].strip('"')
+            direction = l[-4].strip('"')
+            shapeinfodict[shape_id] = {'route_id' : route_id, 
+                                        'destination' : destination,
+                                        'direction' : direction}
+    return shapeinfodict
+
+
+def makeStopInfoDict(stoproutesdict, shapeinfodict, shapestopsdict, 
+                     filename = 'MBTA_GTFS_texts/stops.txt'):
     #reads the 'stops.txt' file and returns a dictionary of 
-    # stop_id : {Dict of 'stop_id', 'stop_name', 'lat', 'lon'}
+    #stop_id : {Dict of 'stop_id', 'stop_name', 'lat', 'lon', 'parent' (if a child), 'children' (if a parent)}}
     f = open(filename, 'r')
     f.readline()
     stopinfodict = dict()
@@ -208,25 +265,27 @@ def makeStopInfoDict(stoproutesdict, filename = 'MBTA_GTFS_texts/stops.txt'):
     return stopinfodict
     
 
-def makeShapeInfoDict(shaperoutedict, filename = 'MBTA_GTFS_texts/trips.txt'):
-    #reads the 'trips.txt' file and returns a dictionary of 
-    # shape_id : {Dict of 'route_id', 'destination', 'direction'}
-    f = open(filename, 'r')
-    f.readline()
-    rawlines = f.readlines()
-    f.close()
-    shapeinfodict = dict()
-    splitlines = [l.split(',') for l in rawlines]
-    for l in splitlines:
-        shape_id = l[-2].strip('"')
-        if shape_id in shaperoutedict:
-            route_id = l[0].strip('"')
-            destination = l[3].strip('"')
-            direction = l[-4].strip('"')
-            shapeinfodict[shape_id] = {'route_id' : route_id, 
-                                        'destination' : destination,
-                                        'direction' : direction}
-    return shapeinfodict
+def makeShapeStopSeqDict(shapepathdict, shapestopseqstopiddict, stopinfodict):
+    '''
+    returns a dictionary of
+    shape_id :  {Dict of stop_sequence : stop_point_index}
+    stop_sequence is a sort of index for each stop in a shape.  For bus shapes,
+    the stop sequence always goes ['1', '2', ...].  But for trains, the stop 
+    sequence is (annoyingly) ['1', '10', '20', '30', '80', '90', ...] or something  
+    silly like that.    
+    '''
+    shapestopseqdict = dict()
+    for shape_id in shapepathdict:
+        path = shapepathdict[shape_id]
+        stopseq_stopid_list = shapestopseqstopiddict[shape_id]
+        stopseqdict = dict()
+        for stopseq_stopid in stopseq_stopid_list:
+            stopseq, stop_id = stopseq_stopid
+            stopinfo = stopinfodict[stop_id]
+            stopseqdict[stopseq] = findClosestPoint(stopinfo['lat'], stopinfo['lon'], path)
+        shapestopseqdict[shape_id] = stopseqdict
+    return shapestopseqdict
+
 
 
 
@@ -236,10 +295,11 @@ def makeAllDicts():
     shaperoutedict = makeShapeRouteDict(routenamesdict)
     routeshapedict = makeRouteShapeDict(shaperoutedict)
     shapepathdict = makeShapePathDict(shaperoutedict)
-    shapestopsdict, routestopsdict = makeStopsDicts(tripshapedict, shaperoutedict)
+    shapestopsdict, routestopsdict, shapestopseqstopiddict = makeStopsDicts(tripshapedict, shaperoutedict)
     stoproutesdict = makeStopRoutesDict(routestopsdict)
-    stopinfodict = makeStopInfoDict(stoproutesdict)
     shapeinfodict = makeShapeInfoDict(shaperoutedict)
+    stopinfodict = makeStopInfoDict(stoproutesdict, shapeinfodict, shapestopsdict)
+    shapestopseqdict = makeShapeStopSeqDict(shapepathdict, shapestopseqstopiddict, stopinfodict)
     for dic in alldicts:
         f = open(dic + '.json', 'w')
         json.dump(eval(dic), f)
