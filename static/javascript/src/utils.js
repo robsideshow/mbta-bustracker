@@ -201,7 +201,7 @@ define(["jquery", "underscore"], function($, _) {
             var l = list.length, out = [];
 
             for (var i = 0; i < l; i++) {
-                var v = fn(l[i]);
+                var v = fn(list[i]);
                 if (!(v === undefined || v === null))
                     out.push(v);
             }
@@ -237,6 +237,15 @@ define(["jquery", "underscore"], function($, _) {
                 m[k] = valfn(i);
                 return m;
             }, {});
+        },
+
+        hasAny: function(m, ks) {
+            for (var i = 0, l = ks.length; i < l; ++i) {
+                if (m.hasOwnProperty(ks[i]))
+                    return true;
+            }
+
+            return false;
         },
 
         /**
