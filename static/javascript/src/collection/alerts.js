@@ -1,6 +1,7 @@
-define(["backbone", "jquery", "underscore", "utils", "config"],
-       function(B, $, _, $u, config) {
+define(["backbone", "jquery", "underscore", "alert-model", "utils", "config"],
+       function(B, $, _, AlertModel, $u, config) {
            var AlertsCollection = B.Collection.extend({
+               model: AlertModel,
                initialize: function() {
                    B.Collection.prototype.initialize.apply(this, arguments);
 
@@ -14,10 +15,13 @@ define(["backbone", "jquery", "underscore", "utils", "config"],
                    this.add($u.keep(
                        alerts,
                        function(alert_info) {
-
                            _.extend(alert_info, {
                                id: alert_info.alert_id,
-                               name: alert_info.header.join("")
+                               name: alert_info.header.join(""),
+                               route_ids: $u.asKeys(alert_info.route_ids, true),
+                               stop_ids: $u.asKeys(alert_info.stop_id, true),
+                               created_at: new Date(
+                                   alert_info.start_time*1000)
                            });
                        }));
                },
@@ -39,6 +43,14 @@ define(["backbone", "jquery", "underscore", "utils", "config"],
 
                        return end && end < stamp;
                    }));
+               },
+
+               getRouteIdFromNinjaName: function(name) {
+                   if (name.match(/^(Red|Orange|Blue|SL.)/))
+                       return name.split(" ")[0];
+                   var m = name.match(/^Green Line ([BCDE])/);
+                   if (m) return "Green-" + m[1];
+                   return null;
                },
 
                updateWithNinjaAlerts: function(alerts) {
@@ -68,14 +80,15 @@ define(["backbone", "jquery", "underscore", "utils", "config"],
 
                            return _.extend(alert_info, {
                                id: alert_info._id,
-                               route_ids: null,
+                               created_at: new Date(alert_info.createdAt),
+                               route_ids: $u.asKeys([route_id], true),
                                type: "ninja",
-                               stop_ids: [stop_id]
+                               stop_ids: $u.asKeys([stop_id], true)
                            });
-
-                           if (!_.isEmpty(remIds))
-                               self.remove(_.keys(remIds));
                        }));
+
+                   if (!_.isEmpty(remIds))
+                       self.remove(_.keys(remIds));
                },
 
                pullNinjaUpdates: function() {
@@ -116,7 +129,7 @@ define(["backbone", "jquery", "underscore", "utils", "config"],
                },
 
                startTest: function() {
-                   
+
                },
 
                start: function() {
