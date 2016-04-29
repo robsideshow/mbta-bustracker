@@ -11,6 +11,8 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                    // Map of mode -> "0"/"1"
                    this.modeDirections = {bus: "1", subway: "1"};
 
+                   this.alerts = [];
+
                    // The route_ids associated with the stop should never
                    // change (we get a complete list from /routeinfo), so there
                    // should be no need to subscribe to route_id changes.
@@ -32,14 +34,25 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                },
 
                addAlert: function(alert) {
-                   this.listenTo(alert, "change", this.onAlertChanged)
-                       .listenTo(alert, "remove", this.onAlertRemoved);
+                   this.listenTo(alert, "remove", this.onAlertRemoved)
+                       .listenTo(alert, "change", this.onAlertChanged);
 
-                   // TODO: Show badge?
+                   this.alerts.push(alert.attributes);
+               },
+
+               clearAlert: function(alert) {
+                   this.alerts = _.filter(this.alerts,
+                                          function(a) {
+                                              return a.id !== alert.id;
+                                          });
                },
 
                onAlertChanged: function(alert) {
-                   // TODO: Update alert badge
+                   this.alerts = _.map(this.alerts,
+                                       function(a) {
+                                           return a.id == alert.id ?
+                                               alert.attributes : a;
+                                       });
                },
 
                onAlertRemoved: function(alert) {
@@ -169,6 +182,10 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                            name: "Bus Routes",
                            key: "bus",
                            preds: groupedPreds.bus});
+
+                   if (this.alerts.length) {
+                       data.alerts = this.alerts;
+                   }
 
                    var $el = this.$el;
                    $t.render("vehicleETAs", data)

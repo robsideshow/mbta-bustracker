@@ -1,6 +1,17 @@
 <div class="popup-header">
     <div class="stop-name">
         {{ name }}
+
+        {{#if alerts}}
+            <div class="stop-alerts">
+                <div class="alert">!</div>
+                <ul class="alert-list">
+                    {{#each alerts}}
+                        <li>{{ name }}</li>
+                    {{/each}}
+                </ul>
+            </div>
+        {{/if}}
     </div>
     <div class="route-list">
         {{#each routes }}
