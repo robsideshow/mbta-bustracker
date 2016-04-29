@@ -39,6 +39,9 @@ define([], function() {
         },
         colors: ["salmon", "#6CB31B", "teal", "gold", "orchid", "darkgoldenrod", "deepskyblue", "deeppink", "sienna", "burlywood"],
 
+        // How long should popup alert messages remain visible?
+        alertShowDuration: 5000,
+
         alertsURL: "/api/alerts",
 
         // mbtaNinjaAlertsURL: "http://www.mbta.ninja/api/reports",
@@ -175,21 +178,21 @@ define([], function() {
             "North Station": "place-north",
             "Back of the Hill": "place-bckhl",
             "Northeastern University": "place-nuniv",
-			"Brookline Hills": "place-brkhl",
-			"Brookline Village": "place-bvmnl",
-			"Chestnut Hill": "place-chhil",
-			"Court House": "place-crtst",
-			"Eliot": "place-eliot",
-			"Fenway": "place-fenwy",
-			"Longwood": "place-longw",
-			"Newton Centre": "place-newto",
-			"Newton Highlands": "place-newtn",
-			"Reservoir": "place-rsmnl",
-			"Riverside": "place-river",
-			"Saint Paul Street": "place-stplb",
-			"Waban": "place-waban",
-			"Woodland": "place-woodl",
-			"World Trade Center": "place-wtcst"
+            "Brookline Hills": "place-brkhl",
+            "Brookline Village": "place-bvmnl",
+            "Chestnut Hill": "place-chhil",
+            "Court House": "place-crtst",
+            "Eliot": "place-eliot",
+            "Fenway": "place-fenwy",
+            "Longwood": "place-longw",
+            "Newton Centre": "place-newto",
+            "Newton Highlands": "place-newtn",
+            "Reservoir": "place-rsmnl",
+            "Riverside": "place-river",
+            "Saint Paul Street": "place-stplb",
+            "Waban": "place-waban",
+            "Woodland": "place-woodl",
+			      "World Trade Center": "place-wtcst"
         }
     };
 });

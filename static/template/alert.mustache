@@ -1,11 +1,17 @@
-<div class="badge">
+{{#if name}}
+    <div class="alert-message">
+        {{ name }}
+        <br/>
+        <div class="alert-stamp">
+
+        </div>
+    </div>
+{{/if}}
+
+<div class="badge-label">
     {{#if weight}}
         {{ weight }}
     {{else}}
         !
-    {{/if}}
-
-    {{#if name}}
-        <div class="alert-message">{{ name }}</div>
     {{/if}}
 </div>

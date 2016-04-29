@@ -189,10 +189,23 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                onStopAdded: function(stop) {
                    var parent_id = stop.get("parent");
 
-                   if (!parent_id ) {
+                   if (!parent_id) {
                        this.stopMarkers[stop.id] =
                            new StopMarker(stop, this.app, this.map.getZoom())
                            .addTo(this.routesLayer);
+
+                       // Check if there are alerts for this stop that have
+                       // already been loaded.
+                       var ids = [stop.id].concat(stop.getChildIds()),
+                           stop_alerts = this.app.alerts.filter(function(alert) {
+                               return alert.hasStopIds(ids);
+                           });
+
+                       var self = this;
+                       _.each(stop_alerts,
+                              function(alert) {
+                                  self.showAlert(stop.id, alert);
+                              });
                    }
                },
 
@@ -205,6 +218,13 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
 
                    if (this.selectedStop == stop.id)
                        this.cleanupETAPopup();
+
+                   var alertPopup = this.alertPopups[stop.id];
+                   if (alertPopup) {
+                       this.map.removeLayer(alertPopup);
+                       alertPopup.view.remove();
+                       delete this.alertPopups[stop.id];
+                   }
                },
 
                /**
@@ -380,7 +400,7 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                    if (this.selectedStop == stop_id) {
                        // Update the popup!
                        this.selectedStopView.addAlert(alert);
-                   } else {
+                   } else if (this.stopMarkers[stop_id]) {
                        var stop = this.app.stops.get(stop_id),
                            popup = L.popup({autoPan: false,
                                             keepInView: false,
@@ -394,28 +414,43 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                            model: alert
                        }).render();
                        popup.setContent(popup.view.el);
+                       this.alertPopups[stop_id] = popup;
                    }
                },
 
-               onAlertAdded: function(alert, alerts) {
+               hideAlert: function(alert) {
+                   var stop_ids = alert.getStopIds(),
+                       self = this;
+
+                   _.each(stop_ids, function(stop_id) {
+                       if (self.selectedStop == stop_id) {
+                           self.selectedStopView.clearAlert(alert);
+                           return;
+                       }
+
+                       var popup = self.alertPopups[stop_id];
+                       if (!popup) return;
+
+                       // TODO: Provide a visual indication that the issue is
+                       // resolved before removing the alert.
+
+                       self.map.removeLayer(popup);
+                       popup.view.remove();
+                       delete self.alertPopups[stop_id];
+                   });
+               },
+
+               onAlertAdded: function(alert) {
                    var self = this;
+
                    _.each(alert.get("stop_ids"),
-                          function(stop_id) {
-                              if (self.stopMarkers[stop_id])
-                                  self.showAlert(stop_id, alert);
+                          function(__, stop_id) {
+                              self.showAlert(stop_id, alert);
                           });
                },
 
                onAlertRemoved: function(alert) {
-                   var popup = this.alertPopups[alert.id];
-                   if (!popup) return;
-
-                   // TODO: Provide a visual indication that the issue is
-                   // resolved before removing the alert.
-
-                   this.map.removeLayer(popup);
-                   popup.view.remove();
-                   delete this.alertPopups[alert.id];
+                   this.hideAlert(alert);
                },
 
                // Code supporting animations:
