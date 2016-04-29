@@ -41,7 +41,8 @@ define([], function() {
 
         alertsURL: "/api/alerts",
 
-        mbtaNinjaAlertsURL: "http://www.mbta.ninja/api/reports",
+        // mbtaNinjaAlertsURL: "http://www.mbta.ninja/api/reports",
+        mbtaNinjaAlertsURL: "http://mbta-ninja-staging.herokuapp.com/api/reports",
 
         // Check MBTA.ninja for updates every 10 seconds
         ninjaPollInterval: 10000,
@@ -52,7 +53,7 @@ define([], function() {
             "Ashmont": "place-asmnl",
             "Andrew": "place-andrw",
             "Davis": "place-davis",
-            "Central": "place-cntsq",
+            "Central Square": "place-cntsq",
             "JFK/Umass": "place-jfk",
             "Quincy Center": "place-qnctr",
             "Downtown Crossing": "place-dwnxg",
@@ -60,15 +61,15 @@ define([], function() {
             "South Station": "place-sstat",
             "Wollaston": "place-wlsta",
             "Braintree": "place-brntn",
-            "Porter": "place-portr",
+            "Porter Square": "place-portr",
             "Park Street": "place-pktrm",
             "Alewife": "place-alfcl",
             "North Quincy": "place-nqncy",
             "Quincy Adams": "place-qamnl",
             "Fields Corner": "place-fldcr",
             "Savin Hill": "place-shmnl",
-            "Harvard": "place-harsq",
-            "Kendall/MIT": "place-knncl",
+            "Harvard Square": "place-harsq",
+            "Kendall": "place-knncl",
             "Government Center": "place-gover",
             "Orient Heights": "place-orhte",
             "Wonderland": "place-wondl",
