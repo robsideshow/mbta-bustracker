@@ -20,22 +20,24 @@ define(["backbone", "jquery", "stop-model", "utils", "underscore"],
                    var parent = this.get(parent_id);
 
                    if (!parent) {
+                       var inferredName = stop.get("stop_name").split("-")[0];
                        parent = new StopModel({stop_id: parent_id,
                                                lat: stop.get("lat"),
                                                lon: stop.get("lon"),
                                                is_parent: true,
-                                               stop_name: stop.get("stop_name")});
+                                               stop_name: inferredName});
                        parent.children = {};
                        // Indicates that information about the parent stop was
                        // inferred from its child(ren);
                        parent.inferred = true;
                        this.add(parent);
-                   } else if (parent.inferred) {
-                       var newName = $u.commonPrefix(parent.get("stop_name"),
-                                                     stop.get("stop_name"));
-
-                       parent.set("stop_name", newName.trim());
                    }
+                   // else if (parent.inferred) {
+                   //     var newName = $u.commonPrefix(parent.get("stop_name"),
+                   //                                   stop.get("stop_name"));
+
+                   //     parent.set("stop_name", newName.trim());
+                   // }
 
                    parent.addChild(stop);
                },
