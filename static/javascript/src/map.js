@@ -196,12 +196,8 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
 
                        // Check if there are alerts for this stop that have
                        // already been loaded.
-                       var ids = [stop.id].concat(stop.getChildIds()),
-                           stop_alerts = this.app.alerts.filter(function(alert) {
-                               return alert.hasStopIds(ids);
-                           });
-
-                       var self = this;
+                       var stop_alerts = this.app.alerts.forStop(stop),
+                           self = this;
                        _.each(stop_alerts,
                               function(alert) {
                                   self.showAlert(stop.id, alert);
@@ -234,6 +230,14 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                    if (this.selectedStop)
                        this.onStopUnselected(this.selectedStop);
 
+                   // If there is an alert popup for this stop, hide it:
+                   var alertPopup = this.alertPopups[id];
+                   if (alertPopup) {
+                       this.map.removeLayer(alertPopup);
+                       alertPopup.view.remove();
+                       delete this.alertPopups[id];
+                   }
+
                    this.selectedStop = id;
                    var popup = L.popup({autoPan: false,
                                         keepInView: false,
@@ -246,7 +250,8 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
 
                    this.selectedStopView = new VehicleETAsView({
                        app: this.app,
-                       model: stop
+                       model: stop,
+                       alerts: this.app.alerts.forStop(stop)
                    }).render();
                    this.selectedStopPopup = popup;
                    popup.setContent(this.selectedStopView.el);
@@ -257,6 +262,8 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                onStopUnselected: function(id) {
                    if (this.selectedStop == id)
                        this.cleanupETAPopup();
+
+
                },
 
                cleanupETAPopup: function() {

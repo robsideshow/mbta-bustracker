@@ -111,6 +111,18 @@ define(["backbone", "jquery", "underscore", "alert-model", "utils", "config"],
                    }, config.ninjaPollInterval);
                },
 
+               forStop: function(stop) {
+                   var ids = [stop.id].concat(stop.getChildIds());
+                   return this.filter(function(alert) {
+                       return alert.hasStopIds(ids);
+                   });
+               },
+
+               stop: function() {
+                   clearTimeout(this._ninjaTimeout);
+                   delete this._ninjaTimeout;
+               },
+
                start: function() {
                    this.pullNinjaUpdates();
                }

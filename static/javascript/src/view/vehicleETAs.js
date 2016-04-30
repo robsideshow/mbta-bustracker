@@ -11,7 +11,7 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                    // Map of mode -> "0"/"1"
                    this.modeDirections = {bus: "1", subway: "1"};
 
-                   this.alerts = [];
+                   this.alerts = options.alerts || [];
 
                    // The route_ids associated with the stop should never
                    // change (we get a complete list from /routeinfo), so there
