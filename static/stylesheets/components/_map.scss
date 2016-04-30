@@ -32,42 +32,38 @@
     }
 }
 
-.stop-marker.bus:after {
-  font-family: 'Material Icons';
-  content: "\e530";
-  color: black;
-  font-size: 2em;
-  text-shadow: 2px 2px 0px white,
-                -2px -2px 0px white;
-}
-
-.stop-marker.metro:after {
-  display: block;
-  font-family: 'Roboto';
-  font-weight: 700;
-  content: "T";
-  color: black;
-  background: white;
-  font-size: 2em;
-  width: 2rem;
-  height: 2rem;
-  border: 0.1em solid black;
-  border-radius: 50%;
-  text-align: center;
-}
-
-.normal.stop-marker:after {
+.stop-marker{
+  &.bus:after{
+    font-family: 'Material Icons';
+    content: "\e530";
+    color: black;
+    text-shadow: 2px 2px 0px white,
+                  -2px -2px 0px white;
+  }
+  &.metro:after {
+    display: block;
+    font-family: 'Roboto';
+    font-weight: 700;
+    content: "T";
+    color: black;
+    background: white;
+    width: 2rem;
+    height: 2rem;
+    border: 0.1em solid black;
+    border-radius: 50%;
+    text-align: center;
+  }
+  &.normal {
     font-size: 2em;
-}
-
-.mini.stop-marker:after {
+  }
+  &.mini {
     font-size: 1em;
-}
-
-.micro-stop-marker {
-    background-color: #03a9f4;
+  }
+  &.micro {
+    background-color: black;
     height: 5px;
     width: 5px;
+  }
 }
 
 #info-overlays {
