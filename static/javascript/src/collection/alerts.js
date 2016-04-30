@@ -111,27 +111,6 @@ define(["backbone", "jquery", "underscore", "alert-model", "utils", "config"],
                    }, config.ninjaPollInterval);
                },
 
-               generateNinjaAlert: function() {
-                   return {
-                       _id: $u.randInt(1000, 0),
-                       name: "Delayed train",
-                       location: $u.chooseRandom(["Alewife",
-                                                  "Davis Square",
-                                                  "Porter Square",
-                                                  "Harvard Square",
-                                                  "South Station",
-                                                  "Broadway",
-                                                  "Ashmont"]),
-                       votes: $u.randInt(10),
-                       clears: 0,
-                       weight: $u.randInt(15,5)
-                   };
-               },
-
-               startTest: function() {
-
-               },
-
                start: function() {
                    this.pullNinjaUpdates();
                }

@@ -286,6 +286,7 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
 
                start: function() {
                    this.tick();
+                   this.alerts.start();
                    return this;
                }
            });
