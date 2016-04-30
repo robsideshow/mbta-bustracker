@@ -1,7 +1,7 @@
 .swatch {
     display: inline-block;
     height: 15px;
-    width: 15px;            
+    width: 15px;
     margin-right: 3px;
 }
 
@@ -32,11 +32,28 @@
     }
 }
 
-.stop-marker:after {
+.stop-marker.bus:after {
   font-family: 'Material Icons';
   content: "\e530";
-  color: #03a9f4;
-  text-shadow: 0px 0px 2px rgba(255, 255, 255, .5);
+  color: black;
+  font-size: 2em;
+  text-shadow: 2px 2px 0px white,
+                -2px -2px 0px white;
+}
+
+.stop-marker.metro:after {
+  display: block;
+  font-family: 'Roboto';
+  font-weight: 700;
+  content: "T";
+  color: black;
+  background: white;
+  font-size: 2em;
+  width: 2rem;
+  height: 2rem;
+  border: 0.1em solid black;
+  border-radius: 50%;
+  text-align: center;
 }
 
 .normal.stop-marker:after {
