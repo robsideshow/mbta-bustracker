@@ -47,17 +47,19 @@
     content: "T";
     color: black;
     background: white;
-    width: 2rem;
-    height: 2rem;
     border: 0.1em solid black;
     border-radius: 50%;
     text-align: center;
   }
   &.normal {
     font-size: 2em;
+    height: 40px;
+    width: 40px;
   }
   &.mini {
     font-size: 1em;
+    height: 20px;
+    width: 20px;
   }
   &.micro {
     background-color: black;
