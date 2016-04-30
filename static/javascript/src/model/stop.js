@@ -1,8 +1,5 @@
-define(["backbone", "leaflet", "underscore", "utils"],
-       function(B, L, _, $u) {
-           /**
-            *
-            */
+define(["backbone", "leaflet", "underscore", "utils", "config"],
+       function(B, L, _, $u, config) {
            var StopModel = B.Model.extend({
                idAttribute: "stop_id",
 
@@ -55,6 +52,27 @@ define(["backbone", "leaflet", "underscore", "utils"],
 
                isParent: function() {
                    return !!this.get("is_parent");
+               },
+
+               type: function() {
+                   var routes = this.get("route_ids"),
+                       type = "";
+
+                   for (var route_id in routes) {
+                       if (config.subwayPattern.exec(route_id)) {
+                           if (type == "bus")
+                               return "mixed";
+                           if (!type)
+                               type = "subway";
+                       } else {
+                           if (type == "subway")
+                               return "mixed";
+                           if (!type)
+                               type = "bus";
+                       }
+                   }
+
+                   return type;
                }
            });
 

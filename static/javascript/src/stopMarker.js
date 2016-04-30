@@ -35,27 +35,33 @@ define(["leaflet", "underscore"],
                },
 
                makeIcon: function() {
-                   var scale = this.scale;
+                   var scale = this.scale,
+                       w, h, typeClass, sizeClass;
 
                    if (scale >= 17) {
-                       return L.divIcon({
-                           className: "stop-wrapper",
-                           iconSize: L.point(24, 36),
-                           html: '<div class="normal stop-marker"></div>'
-                       });
+                       w = 24;
+                       h = 36;
+                       sizeClass = "normal";
                    } else if (scale >= 15) {
-                       return L.divIcon({
-                           className: "stop-wrapper",
-                           iconSize: L.point(12, 18),
-                           html: '<div class="mini stop-marker"></div>'
-                       });
+                       w = 12;
+                       h = 18;
+                       sizeClass = "mini";
                    } else {
-                       return L.divIcon({
-                           className: "stop-wrapper",
-                           iconSize: L.point(5, 5),
-                           html: "<div class='micro-stop-marker'></div>"
-                       });
+                       w = h = 5;
+                       sizeClass = "micro";
                    }
+
+                   if (this.stop.type() == "bus")
+                       typeClass = "bus";
+                   else
+                       typeClass = "metro";
+
+                   return L.divIcon({
+                       className: "stop-wrapper",
+                       iconSize: L.point(w, h),
+                       html: ("<div class='" + sizeClass + " stop-marker " +
+                              typeClass + "'></div>")
+                   });
                },
 
                setScale: function(scale) {
