@@ -40,11 +40,10 @@ function($, L, Animation, Map, Legend, InfoBox, config, AppState, _app, $u, Rout
                    });
 
                    $("#locate-me").click(function() {
-                       console.log("clicked");
                        map.toggleLocationWatch();
                    });
 
-                   app.listenTo("geolocating", function(on) {
+                   app.on("geolocating", function(on) {
                        $("#locate-me").html(on ? "Stop Geolocation" :
                                            "Locate Me!");
                    });
