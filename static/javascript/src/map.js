@@ -406,7 +406,8 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                                             keepInView: false,
                                             closeButton: false,
                                             closeOnClick: false,
-                                            className: "alert"})
+                                            className: "alert",
+                                            offset: L.point(0, -2)})
                                .setLatLng(stop.getLatLng())
                                .addTo(this.map);
 
