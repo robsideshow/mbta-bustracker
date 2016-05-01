@@ -72,11 +72,13 @@
     pointer-events: none;
     position: relative;
     top: 20px;
+    width: 0;
 
     .stop-label-text {
         font-size: 1.1em;
         font-weight: bold;
         margin-left: -100px;
+        padding-left: 10px;
         text-align: center;
         width: 200px;
     }
