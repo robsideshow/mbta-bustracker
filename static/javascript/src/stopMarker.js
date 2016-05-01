@@ -62,6 +62,8 @@ define(["leaflet", "underscore"],
                },
 
                setScale: function(scale) {
+                   if (this.scale === scale) return;
+
                    var loc = this.stop.getLatLng();
                    this.scale = scale;
                    if (this.marker) {
@@ -76,10 +78,13 @@ define(["leaflet", "underscore"],
                            className: "stop-label",
                            iconSize: L.point(0, 0),
                            html: "<div class='stop-label-text'>" +
-                               _.escape(this.stop.get("stop_name")) +
+                               _.escape(this.stop.getName()) +
                                "</div>"
                        });
-                       this.labelMarker =
+                       if (this.labelMarker)
+                           this.labelMarker.setIcon(icon);
+                       else
+                           this.labelMarker =
                            L.marker(loc, {icon: icon}).addTo(this);
                    } else if (this.labelMarker) {
                        this.removeLayer(this.labelMarker);
