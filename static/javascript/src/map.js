@@ -473,8 +473,14 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                        var id = pred.stop_id,
                            stop = stops.get(id);
 
-                       if (!stop) return;
-                       if (pred.arr_time <= stamp) return;
+                       if (!stop || pred.arr_time <= stamp)
+                           return;
+
+                       if (self.selectedStop) {
+                           var selectedStop = stops.get(self.selectedStop);
+                           if (selectedStop && selectedStop.hasId(id))
+                               return;
+                       }
 
                        stopPreds[id] = pred;
 

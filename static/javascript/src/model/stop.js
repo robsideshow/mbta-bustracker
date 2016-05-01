@@ -33,6 +33,16 @@ define(["backbone", "leaflet", "underscore", "utils", "config"],
                    return _.keys(this.children);
                },
 
+               /**
+                * @param {number} id
+                *
+                * @returns {Boolean} true if this stop's, or one of this stop's
+                * children's id is id
+                */
+               hasId: function(id) {
+                   return this.id == id || !!this.children[id];
+               },
+
                getChildren: function() {
                    // Returns only non-null children
                    return _.filter(this.children);
