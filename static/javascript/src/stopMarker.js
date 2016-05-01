@@ -31,9 +31,6 @@ define(["leaflet", "underscore"],
                    e.popup.setContent(html);
                },
 
-               onPopupClose: function(e) {
-               },
-
                makeIcon: function() {
                    var scale = this.scale,
                        w, h, typeClass, sizeClass;
