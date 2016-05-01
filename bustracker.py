@@ -680,14 +680,17 @@ def getTimepoints(vlat, vlon, veh_stamp, shape_id, preds):
         curr_pred = future_preds[pred_i] #the pred for the END of the section
         prev_stop_seq = curr_stop_seq
         curr_stop_seq = curr_pred['stop_seq']
-        curr_path_i = stop_seq_ind_dict[curr_stop_seq] #path point index for END of the section
-        prev_path_i = stop_seq_ind_dict[prev_stop_seq] #path point index for START of the section
-        curr_path_section = path[prev_path_i : curr_path_i]
-        prev_time = curr_time
-        curr_time = curr_pred['arr_time']
-        if len(curr_path_section) > 1:
-            timepoints += calcTimepointsSection(curr_path_section, prev_time, curr_time)
-        pred_i += 1
+        if curr_stop_seq in stop_seq_ind_dict:
+            curr_path_i = stop_seq_ind_dict[curr_stop_seq] #path point index for END of the section
+            prev_path_i = stop_seq_ind_dict[prev_stop_seq] #path point index for START of the section
+            curr_path_section = path[prev_path_i : curr_path_i]
+            prev_time = curr_time
+            curr_time = curr_pred['arr_time']
+            if len(curr_path_section) > 1:
+                timepoints += calcTimepointsSection(curr_path_section, prev_time, curr_time)
+            pred_i += 1
+        else:
+            break
     return timepoints
 
     

@@ -22,9 +22,13 @@ class CurrentData(object):
         self.vehicle_preds = []
         self.timestamp = 0
         self.supplement = dict() #this will contain data for unscheduled trips
+        self.supplement_by_veh = dict()
         
     def updateData(self):
         self.counter += 1
+        if self.counter % unsch_update_period_factor == 1:
+            self.supplement = dict()
+            self.supplement_by_veh = dict()
         self.vehicles = btr.getAllVehiclesGTFS()
         self.trips = btr.getAllTripsGTFS()
         self.timestamp = long(time.time())
@@ -60,6 +64,11 @@ class CurrentData(object):
                                                            'destination' : trip.get('trip_headsign', '?'),
                                                            'preds' : trip.get('stop', []),
                                                             'veh_info' : trip.get('vehicle', {})}
+                            veh_info = trip.get('vehicle', {})
+                            if veh_info:
+                                vehicle_id = veh_info.get('vehicle_id', '')
+                                self.supplement_by_veh[vehicle_id] = self.supplement[trip_id]
+                                        
                 
     def getPredsForStops(self, stopidlist):
         stop_preds = dict([(stop_id, []) for stop_id in stopidlist])
@@ -89,11 +98,29 @@ class CurrentData(object):
                 for pred in preds:
                     pred['stop_name'] = (btr.stopinfodict.get(pred.get('stop_id'))).get('stop_name')
                 veh_preds[tripvehicledict[trip.get('trip_id')]] = preds
+        for vehicle_id in vehicleidlist:
+            if vehicle_id in self.supplement_by_veh:
+                preds = []
+                sup_preds = self.supplement_by_veh[vehicle_id].get('preds', [])
+                for pred in sup_preds:
+                    preds.append({'arr_time': long(pred.get('pre_dt', '0')), 
+                                 'stop_id': pred.get('stop_id', ''),
+                                 'stop_seq': pred.get('stop_sequence', '1'),
+                                 'stop_name': pred.get('stop_name', '')})
+                    veh_preds[vehicle_id] = preds
         return veh_preds
 
 
     def getPredsForOneVehicle(self, vehicle_id):
         preds = []
+        if vehicle_id in self.supplement_by_veh:
+            sup_preds = self.supplement_by_veh[vehicle_id].get('preds', [])
+            for pred in sup_preds:
+                preds.append({'arr_time': long(pred.get('pre_dt', '0')), 
+                             'stop_id': pred.get('stop_id', ''),
+                             'stop_seq': pred.get('stop_sequence', '1'),
+                             'stop_name': pred.get('stop_name', '')})
+            return preds
         for trip in self.trips:
             if trip.get('vehicle_id') == vehicle_id:
                 preds = trip.get('preds', [])
