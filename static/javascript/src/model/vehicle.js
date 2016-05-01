@@ -1,12 +1,17 @@
-define(["backbone", "utils"],
-       function(B, $u) {
+define(["backbone", "utils", "leaflet"],
+       function(B, $u, L) {
            var VehicleModel = B.Model.extend({
                defaults: {
                    _selected: false
                },
+
                getRoute: function() {
                    var route_id = this.get("route_id");
                    return this.collection.app.routes.get(route_id);
+               },
+
+               getLatLng: function() {
+                   return L.latLng(this.get("lat"), this.get("lon"));
                },
 
                summary: function() {

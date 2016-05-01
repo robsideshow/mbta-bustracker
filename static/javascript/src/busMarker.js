@@ -17,19 +17,6 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
                    this.options = options || {};
                    this._lastTimestamp = 0;
 
-                   var self = this;
-                   this.on("click", function(e) {
-                       if (e.originalEvent.shiftKey) {
-                           var pathMarkers = 
-                                   $.map(this.bus.timepoints,
-                                         function(timepoint) {
-                                             return L.circle(
-                                                 [timepoint.lat, timepoint.lon], 1)
-                                                 .addTo(self);
-                                         });
-                       }
-                   });
-
                    bus.on("change", this.update, this);
                },
 
@@ -63,6 +50,33 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
                    busDiv.style.transform = "rotate(" + rot + "rad)";
                },
 
+               showLRP: function() {
+                   var center = this.bus.getLatLng();
+                   if (this._lrp)
+                       this._lrp.setLatLng(center);
+                   else
+                       this._lrp = L.circleMarker(center, {radius: 3,
+                                                           fillOpacity: 1})
+                       .addTo(this);
+
+                   var transform = this.makeTransform(this.bus.get("heading"),
+                                                      center, this._map),
+                       arrow = [[0, 0], [16, 0], [11, 3], [16, 0], [11, -3]],
+                       lls = _.map(arrow, transform);
+
+                   this._lrh = L.polyline(lls, {opacity: 1,
+                                                weight: 3})
+                       .addTo(this);
+               },
+
+               hideLRP: function() {
+                   if (this._lrp)
+                       this.removeLayer(this._lrp);
+                   if (this._lrh)
+                       this.removeLayer(this._lrh);
+                   this._lrp = this._lrh = null;
+               },
+
                // Called by Leaflet when the marker is added to the map.
                onAdd: function(map) {
                    var bus = this.getBus();
@@ -81,20 +95,21 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
                 *
                 * NOTE: currently unused!
                 *
+                * @param {number} rads
+                * @param centerPoint
+                *
                 * @return {Function} A function that takes an array [x, y] and
                 * returns a L.LatLng instance.
                 */
-               makeTransform: function() {
-                   var cached = this._cachedTransform,
-                       rads = this._busTheta;
+               makeTransform: function(rads, center, map) {
+                   var cached = this._cachedTransform;
 
                    if (cached && rads == cached.theta) {
                        return cached.transform;
                    }
 
                    var bus = this.bus,
-                       centerPoint = this._pixelPosition,
-                       // cached valued for calculation:
+                       centerPoint = map.project(center),
                        cx = centerPoint.x,
                        cy = centerPoint.y,
                        sinRads = Math.sin(-rads),
@@ -104,7 +119,7 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
                        var x = point[0] * cosRads - point[1] * sinRads,
                            y = point[0] * sinRads + point[1] * cosRads;
 
-                       return L.CRS.EPSG3857.pointToLatLng(L.point(cx+x, cy+y), 15);
+                       return map.unproject(L.point(cx+x, cy+y));
                    };
 
                    this._cachedTransform = {
@@ -127,11 +142,18 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
                            div.style.backgroundColor = color;
                            div.style.color = "white";
                            div.style.textShadow = "0 0 1px rgba(0, 0, 0, 0.5)";
+
+                           this.showLRP();
                        } else {
                            div.style.backgroundColor = "white";
                            div.style.color = color;
                            div.style.textShadow = "none";
+
+                           this.hideLRP();
                        }
+
+                       if (bus.changed.lat || bus.changed.lon)
+                           this.showLRP();
 
                        $(this.busMarker._icon).toggleClass("selected",
                                                            bus.changed._selected);
