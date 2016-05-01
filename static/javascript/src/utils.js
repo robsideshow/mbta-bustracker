@@ -64,28 +64,13 @@ define(["jquery", "underscore"], function($, _) {
         /**
          * @param {Number} delta A time difference in seconds
          */
-        briefRelativeTime: function(delta) {
+        briefRelTime: function(delta) {
             var r = $u.relativeTime(delta),
                 pieces = r.hours ? [r.hours] : [];
             pieces.push($u.rpad(r.minutes, 2, "0"),
                         $u.rpad(r.seconds, 2, "0"));
-            var timestr = pieces.join(":");
 
-            return timestr + (r.future ? " from now" : " ago");
-        },
-
-        briefRelTime: function(delta) {
-            var r = $u.relativeTime(delta),
-                pieces = [];
-
-            if (r.hours)
-                pieces.push(r.hours + "h");
-            if (r.minutes)
-                pieces.push(r.minutes + "m");
-            if (!r.hours && r.seconds)
-                pieces.push(r.seconds + "s");
-
-            return pieces.join(", ");
+            return pieces.join(":");
         },
 
         /**

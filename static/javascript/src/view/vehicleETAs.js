@@ -90,7 +90,6 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                                                 color: routes.getRouteColor(route_id)
                                             };
                                         });
-                   console.log(this._routes);
                    this._showSubways = showSubways;
                    this._showBuses = showBuses;
                },
@@ -164,7 +163,6 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                        pred.name = routes.getRouteShortName(pred.route_id);
 
                        $u.insertSorted(groupedPreds[key], pred, cmp);
-                       $u.briefRelTime();
                    });
 
                    _.each(this._routes, function(route) {

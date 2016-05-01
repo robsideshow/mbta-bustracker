@@ -515,8 +515,7 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                        if (pred.arr_time > stamp) {
                            popup.setContent(
                                "<b>" + _.escape(pred.stop_name) + "</b><br>" +
-                               "Arriving " +
-                                   $u.briefRelativeTime(pred.arr_time - stamp));
+                                   $u.briefRelTime(pred.arr_time - stamp));
                        } else {
                            self.map.removeLayer(popup);
                            delete popups[stop_id];
