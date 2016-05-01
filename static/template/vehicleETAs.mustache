@@ -33,9 +33,11 @@
         </div>
         <table>
             {{#each preds}}
-                <tr class="vehicle-pred" data-route="{{route_id}}">
+                <tr class="vehicle-pred"
+                    data-route="{{route_id}}"
+                    data-vehicle="{{vehicle_id}}">
                     <td>
-                        <a class="swatch" style="background-color: {{color}}">&times;</a>
+                        <a class="swatch" style="background-color: {{color}}"></a>
                         {{name}} &rarr; <span class="route-name">
                             {{destination}}
                         </span>
