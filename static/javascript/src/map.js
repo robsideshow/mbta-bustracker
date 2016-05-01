@@ -479,14 +479,17 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                        stopPreds[id] = pred;
 
                        if (!popups[id]) {
+                           var $popupContent = $("<div/>");
+                           $popupContent
+                               .addClass("popup-content stop-eta")
+                               .html("xxx:xx");
                            popups[id] = L.popup({autoPan: false,
                                                  keepInView: false,
                                                  closeButton: false,
-                                                 closeOnClick: false,
-                                                 className: "stop-prediction"},
+                                                 closeOnClick: false},
                                                self.stopMarkers[id])
                                .setLatLng(stop.getLatLng())
-                               .setContent("Loading...")
+                               .setContent($popupContent[0])
                                .addTo(self.map);
                        }
                    });
@@ -513,8 +516,9 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                            pred = stopPreds[stop_id];
 
                        if (pred.arr_time > stamp) {
-                           popup.setContent(
-                               $u.briefRelTime(pred.arr_time - stamp));
+                           var el = popup.getContent();
+                           el.innerHTML =
+                               $u.briefRelTime(pred.arr_time - stamp);
                        } else {
                            self.map.removeLayer(popup);
                            delete popups[stop_id];
