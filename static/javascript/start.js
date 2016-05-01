@@ -39,6 +39,7 @@ function($, L, Animation, Map, Legend, InfoBox, config, AppState, _app, $u, Rout
                        app: app
                    });
 
+                   // Geolocation
                    $("#locate-me").click(function() {
                        map.toggleLocationWatch();
                    });
@@ -47,6 +48,12 @@ function($, L, Animation, Map, Legend, InfoBox, config, AppState, _app, $u, Rout
                        $("#locate-me").html(on ? "Stop Geolocation" :
                                            "Locate Me!");
                    });
+
+                   $(document).on("click", ".size-to-fit",
+                                  function() {
+                                      map.fitRouteBounds();
+                                      return false;
+                                  });
                }
            };
        });

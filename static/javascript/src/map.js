@@ -337,9 +337,9 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                 * Fit the map's view area to fit all currently displayed routes.
                 */
                fitRouteBounds: function() {
-                   var bounds = this.getRoutesBound();
+                   var bounds = this.getRoutesBounds();
 
-                   if (bounds) this.fitBounds(bounds);
+                   if (bounds) this.map.fitBounds(bounds);
                },
 
                /**
