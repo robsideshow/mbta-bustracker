@@ -33,14 +33,14 @@
 }
 
 .stop-marker{
-  &.bus:after{
+  &.bus.normal:after, &.bus.mini:after {
     font-family: 'Material Icons';
     content: "\e530";
     color: black;
     text-shadow: 2px 2px 0px white,
                   -2px -2px 0px white;
   }
-  &.metro:after {
+  &.metro.normal:after, &.metro.mini:after {
     display: block;
     font-family: 'Roboto';
     font-weight: 700;
