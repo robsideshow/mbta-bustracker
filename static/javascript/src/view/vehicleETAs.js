@@ -18,10 +18,8 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                    // should be no need to subscribe to route_id changes.
                    // this.listenTo(this.model, "change:route_ids",
                    // this._updateRoutes);
-                   this.listenTo(this.app, "routeSelected",
-                                 this._updateRoutes)
-                       .listenTo(this.app, "routeUnselected",
-                                 this._updateRoutes);
+                   this.listenTo(this.app, "routeSelected", this.rerender)
+                       .listenTo(this.app, "routeUnselected", this.rerender);
                    this._updateRoutes();
                },
 
@@ -92,6 +90,7 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                                                 color: routes.getRouteColor(route_id)
                                             };
                                         });
+                   console.log(this._routes);
                    this._showSubways = showSubways;
                    this._showBuses = showBuses;
                },
