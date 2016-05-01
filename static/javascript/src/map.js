@@ -96,10 +96,13 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
 
                updateZoom: function(e) {
                    this.updateStops(e);
-                   var zoom = this.map.getZoom();
+                   var zoom = this.map.getZoom(),
+                       bounds = this.map.getBounds();
+
                    _.each(this.stopMarkers,
                           function(marker) {
-                              marker.setScale(zoom);
+                              if (bounds.contains(marker.stop.getLatLng()))
+                                  marker.setScale(zoom);
                           });
                },
 
