@@ -62,13 +62,28 @@ define(["leaflet", "underscore"],
                },
 
                setScale: function(scale) {
+                   var loc = this.stop.getLatLng();
                    this.scale = scale;
                    if (this.marker) {
                        this.marker.setIcon(this.makeIcon());
                    } else {
-                       this.marker = L.marker(this.stop.getLatLng(),
-                                              {icon: this.makeIcon()})
+                       this.marker = L.marker(loc, {icon: this.makeIcon()})
                            .addTo(this);
+                   }
+
+                   if (scale == 18) {
+                       var icon = L.divIcon({
+                           className: "stop-label",
+                           iconSize: L.point(0, 0),
+                           html: "<div class='stop-label-text'>" +
+                               _.escape(this.stop.get("stop_name")) +
+                               "</div>"
+                       });
+                       this.labelMarker =
+                           L.marker(loc, {icon: icon}).addTo(this);
+                   } else if (this.labelMarker) {
+                       this.removeLayer(this.labelMarker);
+                       delete this.labelMarker;
                    }
                }
            });

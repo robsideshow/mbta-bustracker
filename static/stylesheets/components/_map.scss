@@ -68,6 +68,20 @@
   }
 }
 
+.stop-label {
+    pointer-events: none;
+    position: relative;
+    top: 20px;
+
+    .stop-label-text {
+        font-size: 1.1em;
+        font-weight: bold;
+        margin-left: -100px;
+        text-align: center;
+        width: 200px;
+    }
+}
+
 #info-overlays {
     position: absolute;
     right: 2em;
