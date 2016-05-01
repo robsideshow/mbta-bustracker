@@ -18,7 +18,6 @@ require.config({
         "alert-model": "src/model/alert",
 
         "legend": "src/view/legend",
-        "infobox": "src/view/infobox",
         "vehicle-etas-view": "src/view/vehicleETAs",
         "route-list-view": "src/view/routeList",
         "alert-view": "src/view/alert",

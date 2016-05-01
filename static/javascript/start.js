@@ -1,6 +1,6 @@
-define(["jquery", "leaflet", "animation", "map", "legend", "infobox", "config",
+define(["jquery", "leaflet", "animation", "map", "legend", "config",
         "app-state", "app", "utils", "route-list-view", "underscore"],
-function($, L, Animation, Map, Legend, InfoBox, config, AppState, _app, $u, RouteList, _) {
+function($, L, Animation, Map, Legend, config, AppState, _app, $u, RouteList, _) {
            return {
                init: function() {
                    var app = new AppState(),
