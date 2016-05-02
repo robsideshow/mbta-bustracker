@@ -344,10 +344,14 @@ def getStopsInRectangle(swlat, swlon, nelat, nelon):
     returns a list of stopinfo dictionaries for the stops in that rectangle
     '''
     stops = []
+    parent_stops = []
     for stop_id in stopinfodict:
         if (swlat < stopinfodict[stop_id]['lat'] < nelat) and  (swlon < stopinfodict[stop_id]['lon'] < nelon):
-            stops.append(stopinfodict[stop_id])
-    return stops
+            if stop_id[:5] == 'place':
+                parent_stops.append(stopinfodict[stop_id])
+            else:
+                stops.append(stopinfodict[stop_id])
+    return stops, parent_stops
 
 
         

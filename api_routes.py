@@ -149,5 +149,6 @@ def rectangle():
     except KeyError, ValueError:
         abort(401)
 
-    stops = btr.getStopsInRectangle(swlat, swlon, nelat, nelon)
-    return jsonify(stops = stops)
+    stops, parent_stops = btr.getStopsInRectangle(swlat, swlon, nelat, nelon)
+    return jsonify(stops = stops,
+                   parent_stops = parent_stops)
