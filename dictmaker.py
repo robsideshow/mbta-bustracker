@@ -256,12 +256,24 @@ def makeStopInfoDict(stoproutesdict, shapeinfodict, shapestopsdict,
                 stopinfodict[parent]['children'].append(stop_id)
                 stopinfodict[stop_id]['parent'] = parent
     for stop_id in stopinfodict:
+        stopinfodict[stop_id]['one_way'] = set()
         if stopinfodict[stop_id].get('children'):
             route_ids = []
             for child_id in stopinfodict[stop_id]['children']:
                 route_ids += stoproutesdict.get(child_id, []) 
             route_ids = sorted(list(set(route_ids)))
             stopinfodict[stop_id]['route_ids'] = route_ids
+    for shape_id in shapeinfodict:
+        direction = shapeinfodict[shape_id]['direction']
+        stoplist = shapestopsdict[shape_id]
+        for stop_id in stoplist:
+            stopinfodict[stop_id]['one_way'].add(direction)
+    for stop_id in stopinfodict:
+        one_way = list(stopinfodict[stop_id]['one_way'])
+        if (len(one_way) == 2) or (len(one_way) == 0): 
+            del stopinfodict[stop_id]['one_way']
+        else:
+            stopinfodict[stop_id]['one_way'] = one_way[0]
     return stopinfodict
     
 
