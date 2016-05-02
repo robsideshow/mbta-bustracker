@@ -6,6 +6,7 @@ define(["backbone", "jquery", "stop-model", "utils", "underscore"],
                initialize: function(models, options) {
                    B.Collection.prototype.initialize.apply(this, arguments);
                    this.app = options.app;
+                   this.parentStopNames = {};
                    // Set when the user is zoomed in to a region:
                    this.mapArea = null;
                    this.listenTo(this, "add", this.onAdd)
@@ -20,24 +21,17 @@ define(["backbone", "jquery", "stop-model", "utils", "underscore"],
                    var parent = this.get(parent_id);
 
                    if (!parent) {
-                       var inferredName = stop.get("stop_name").split("-")[0];
+                       var name =
+                               this.parentStopNames[parent_id] ||
+                               stop.get("stop_name").split("-")[0];
                        parent = new StopModel({stop_id: parent_id,
                                                lat: stop.get("lat"),
                                                lon: stop.get("lon"),
                                                is_parent: true,
-                                               stop_name: inferredName});
+                                               stop_name: name});
                        parent.children = {};
-                       // Indicates that information about the parent stop was
-                       // inferred from its child(ren);
-                       parent.inferred = true;
                        this.add(parent);
                    }
-                   // else if (parent.inferred) {
-                   //     var newName = $u.commonPrefix(parent.get("stop_name"),
-                   //                                   stop.get("stop_name"));
-
-                   //     parent.set("stop_name", newName.trim());
-                   // }
 
                    parent.addChild(stop);
                },
@@ -51,6 +45,13 @@ define(["backbone", "jquery", "stop-model", "utils", "underscore"],
                    if (parent) {
                        parent.removeChild(stop);
                    }
+               },
+
+               addParentStopNames: function(parents) {
+                   var names = this.parentStopNames;
+                   _.each(parents, function(parent) {
+                       names[parent.stop_id] = parent.stop_name;
+                   });
                },
 
                addAllFromDict: function(stops) {
@@ -75,6 +76,7 @@ define(["backbone", "jquery", "stop-model", "utils", "underscore"],
                                   nelat: bounds.getNorth(),
                                   nelon: bounds.getEast()})
                            .done(function(result) {
+                               self.addParentStopNames(result.parent_stops);
                                _.each(result.stops, function(stop_info) {
                                    self.addFromDict(stop_info);
                                    _.extend(route_ids, stop_info.route_ids);
