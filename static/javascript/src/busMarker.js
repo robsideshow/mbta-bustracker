@@ -59,8 +59,8 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
                                                            fillOpacity: 1})
                        .addTo(this);
 
-                   var transform = this.makeTransform(this.bus.get("heading"),
-                                                      center, this._map),
+                   var rads =((360-(this.bus.get("heading")-90))%360)/180 * Math.PI,
+                       transform = this.makeTransform(rads, center, this._map),
                        arrow = [[0, 0], [16, 0], [11, 3], [16, 0], [11, -3]],
                        lls = _.map(arrow, transform);
 
