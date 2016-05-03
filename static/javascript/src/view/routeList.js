@@ -1,5 +1,5 @@
-define(["backbone", "underscore", "templates"],
-       function(B, _, $t) {
+define(["backbone", "underscore", "templates", "utils"],
+       function(B, _, $t, $u) {
            var RouteListView = B.View.extend({
                initialize: function(options) {
                    if (!options.app)
@@ -15,7 +15,8 @@ define(["backbone", "underscore", "templates"],
                },
 
                events: {
-                   "change .toggle": "onChange"
+                   "change .toggle": "onChange",
+                   "click .all-on": "turnOnAllRoutes"
                },
 
                onChange: function(e) {
@@ -31,6 +32,20 @@ define(["backbone", "underscore", "templates"],
 
                onRouteUnselected: function(id, route) {
                    this.$("#check_" + id).prop("checked", false);
+               },
+
+               turnOnAllRoutes: function(e) {
+                   var app = this.app,
+                       filter = this.filter;
+                   this.app.routes.getFullList().done(function(routes) {
+                       app.addRoutes($u.keep(routes, function(pair) {
+                           if (filter(pair[0], pair[1]))
+                               return pair[0];
+                           return null;
+                       }));
+                   });
+
+                   e.preventDefault();
                },
 
                render: function() {
