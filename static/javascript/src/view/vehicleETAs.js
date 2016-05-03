@@ -111,6 +111,7 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                        preds;
 
                    var data = {
+                       showAllButton: this._routes.length > 1,
                        routes: this._routes,
                        name: stop.getName(),
                        modes: []
@@ -234,7 +235,7 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                },
 
                allOn: function(e) {
-                   var ids = $(e.target).data("routes").split(","),
+                   var ids = _.keys(this.model.get("route_ids")),
                        app = this.app;
 
                    _.each(ids, function(id) {
