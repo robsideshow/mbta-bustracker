@@ -44,6 +44,10 @@ function($, L, Animation, Map, Legend, config, AppState, _app, $u, RouteList, _)
                        map.toggleLocationWatch();
                    });
 
+                   $("#click-to-zoom").click(function() {
+                       map.captureLocation();
+                   });
+
                    app.on("geolocating", function(on) {
                        $("#locate-me").html(on ? "Stop Geolocation" :
                                            "Locate Me!");

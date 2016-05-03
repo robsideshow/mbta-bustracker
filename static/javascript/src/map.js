@@ -35,6 +35,7 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
 
                this._nextTick = Infinity;
                this._isLocating = false;
+               this._captureClickLocation = false;
 
                // Used to keep track of the path segments that have been placed:
                this._segMap = {};
@@ -84,6 +85,24 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                onClick: function(e) {
                    this.app.clearVehicles();
                    this.app.unselectStop();
+
+                   if (this._captureClickLocation) {
+                       this._userInitiated = true;
+                       this._captureClickLocation = false;
+                       this.elt.removeClass("click-to-zoom");
+                       try {
+                           this.setLocation(e.latlng);
+                       } catch (err) {
+                           if (err.message == "outside_map_area") {
+                               alert("That is outside the map area!");
+                           }
+                       }
+                   }
+               },
+
+               captureLocation: function() {
+                   this.elt.addClass("click-to-zoom");
+                   this._captureClickLocation = true;
                },
 
                updateStops: function(e) {
@@ -123,24 +142,33 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                        this.startLocationWatch();
                },
 
-               locationFound: function(e) {
+               setLocation: function(ll) {
                    if (this._userInitiated) {
-                       if (!this.boundsLimit.contains(e.latlng)) {
-                           alert("You are outside the map area!");
-                           this.stopLocationWatch();
-                           return;
+                       this._userInitiated = false;
+                       if (!this.boundsLimit.contains(ll)) {
+                           throw new Error("outside_map_area");
                        }
 
                        this._locationViewSet = true;
-                       this.map.setView(e.latlng, 17);
+                       this.map.setView(ll, 17);
                    }
-                   this._userInitiated = false;
 
                    if (this.locationMarker) {
-                       this.locationMarker.setLatLng(e.latlng);
+                       this.locationMarker.setLatLng(ll);
                    } else {
                        this.locationMarker =
-                           L.marker(e.latlng).addTo(this.map);
+                           L.marker(ll).addTo(this.map);
+                   }
+               },
+
+               locationFound: function(e) {
+                   try {
+                       this.setLocation(e.latlng);
+                   } catch (err) {
+                       if (err.message == "outside_map_area") {
+                           alert("You are outside the map area!");
+                           this.stopLocationWatch();
+                       }
                    }
                },
 
