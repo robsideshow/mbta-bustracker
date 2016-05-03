@@ -63,7 +63,8 @@ class CurrentData(object):
                             self.supplement[trip_id] = {'direction': direction.get('direction_id', '?'),
                                                            'destination' : trip.get('trip_headsign', '?'),
                                                            'preds' : trip.get('stop', []),
-                                                            'veh_info' : trip.get('vehicle', {})}
+                                                            'veh_info' : trip.get('vehicle', {}),
+                                                            'route_id':route_id}
                             veh_info = trip.get('vehicle', {})
                             if veh_info:
                                 vehicle_id = veh_info.get('vehicle_id', '')
@@ -71,6 +72,7 @@ class CurrentData(object):
                                         
                 
     def getPredsForStops(self, stopidlist):
+        green_routes = ['Green-B','Green-C','Green-D','Green-E']
         stop_preds = dict([(stop_id, []) for stop_id in stopidlist])
         check_routes = set([x for stop_id in stopidlist for x in btr.stoproutesdict.get(stop_id, [])])
         for trip in self.trips:
@@ -83,6 +85,20 @@ class CurrentData(object):
                                                     'destination' : trip.get('destination'),
                                                     'arr_time' : pred.get('arr_time'),
                                                     'vehicle_id' : trip.get('vehicle_id')})
+        green_check_routes = [r for r in green_routes if r in check_routes]
+        if green_check_routes:
+            for sup_trip_id in self.supplement:
+                if self.supplement[sup_trip_id]['route_id'] in green_check_routes:
+                    trip_info = self.supplement[sup_trip_id]
+                    preds = trip_info.get('preds', [])
+                    for pred in preds:
+                        if pred.get('stop_id') in stopidlist:
+                            veh_info = trip_info.get('veh_info', {})
+                            stop_preds[pred.get('stop_id')].append({'route_id': trip_info.get('route_id'),
+                                                        'direction' : trip_info.get('direction'),
+                                                        'destination' : trip_info.get('destination'),
+                                                        'arr_time' : pred.get('pre_dt'),
+                                                        'vehicle_id' : veh_info.get('vehicle_id')})            
         return stop_preds
                     
                 
