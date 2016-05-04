@@ -1,3 +1,5 @@
+# [MBTA.fyi](https://www.mbta.fyi)
+
 # Set up the environment
 We use Conda to manage our Python libraries. [Install conda](http://conda.pydata.org/docs/install/quick.html)
 
@@ -41,6 +43,9 @@ pip install pyScss
 conda install lxml
 ```
 
+# Get an API key
+
+Sign up for an account on the [MBTA realtime Developer Portal](http://realtime.mbta.com/portal) and create a new application. It may take a day or two to get approval. Once you get it, create a file called `ignore/mbta_api_key.txt` and paste your API key there.
 
 # Run the App
  
