@@ -28,7 +28,8 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                events: {
                    "click .toggle-route": "toggleRoute",
                    "click a.all-on": "allOn",
-                   "click a.change-dir": "changeDirection"
+                   "click a.dir-up": "directionUp",
+                   "click a.dir-down": "directionDown"
                },
 
                addAlert: function(alert) {
@@ -174,11 +175,13 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                        data.modes.push({
                            name: "Subway Routes",
                            key: "subway",
+                           upDir: dirs.subway === "1",
                            preds: groupedPreds.subway});
                    if (this._showBuses)
                        data.modes.push({
                            name: "Bus Routes",
                            key: "bus",
+                           upDir: dirs.bus === "1",
                            preds: groupedPreds.bus});
 
                    if (this.alerts.length) {
@@ -194,11 +197,18 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                    return this;
                },
 
-               changeDirection: function(e) {
-                   var mode = $(e.target).data("mode"),
-                       dir = this.modeDirections[mode];
+               directionUp: function(e) {
+                   this.changeDirection(e, "1");
+               },
 
-                   this.modeDirections[mode] = dir == "1" ? "0" : "1";
+               directionDown: function(e) {
+                   this.changeDirection(e, "0");
+               },
+
+               changeDirection: function(e, dir) {
+                   var mode = $(e.target).data("mode");
+
+                   this.modeDirections[mode] = dir;
                    this.rerender();
                    e.preventDefault();
                },

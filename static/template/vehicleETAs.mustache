@@ -28,11 +28,14 @@
 </div>
 
 <div class="popup-content">
-    {{#each modes }}
+    {{#each modes}}
         <div class="mode-head">
             {{ name }}
-            <a href="#" class="material-icons change-dir" data-mode="{{key}}">
-                swap_horiz
+            <a href="#" class="material-icons dir-down {{#unless upDir }}active{{/unless}}" data-mode="{{key}}">
+                arrow_downwards
+            </a>
+            <a href="#" class="material-icons dir-up {{#if upDir }}active{{/if}}" data-mode="{{key}}">
+                arrow_upwards
             </a>
         </div>
         <table>

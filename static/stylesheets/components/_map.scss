@@ -203,12 +203,13 @@
         letter-spacing: 2px;
         text-transform: uppercase;
 
-        .change-dir {
+        .dir-up, .dir-down {
             color: white;
             float: right;
             font-size: small;
+            text-align: center;
 
-            &:hover {
+            &:hover, &.active {
                 background-color: #222f3f;
             }
         }
