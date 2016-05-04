@@ -8,6 +8,10 @@ Note that if you choose to install Anaconda (the full version), you probably onl
 [install GTFS](https://github.com/google/gtfs-realtime-bindings/tree/master/python)
 
 ```
+pip install protobuf
+```
+
+```
 pip install --upgrade gtfs-realtime-bindings
 ```
 
@@ -37,10 +41,6 @@ pip install pyScss
 conda install lxml
 ```
 
-### matplotlib
-```
-conda install matplotlib
-```
 
 # Run the App
  
@@ -50,7 +50,7 @@ $ cd your-path-to/mbta-bustracker
 $ python flaskbus.py
 ```
 
-Open the app at `localhost:5000/map`
+Open the app at `localhost:5000/`
 
 
 # API References
