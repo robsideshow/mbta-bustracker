@@ -69,17 +69,11 @@ define(["backbone", "leaflet", "underscore", "utils", "config"],
                        type = "";
 
                    for (var route_id in routes) {
-                       if (config.subwayPattern.exec(route_id)) {
-                           if (type == "bus")
-                               return "mixed";
-                           if (!type)
-                               type = "subway";
-                       } else {
-                           if (type == "subway")
-                               return "mixed";
-                           if (!type)
-                               type = "bus";
-                       }
+                       var mode = config.getRouteMode(route_id);
+                       if (!type)
+                           type = mode;
+                       else if (type != mode)
+                           return "mixed";
                    }
 
                    return type;

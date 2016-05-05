@@ -9,7 +9,8 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                    this.lastStamp = 0;
 
                    // Map of mode -> "0"/"1"
-                   this.modeDirections = {bus: "1", subway: "1"};
+                   this.modeDirections = $u.asKeys(_.map(config.modes, "mode"),
+                                                   "1");
 
                    this.alerts = options.alerts || [];
 
@@ -71,28 +72,24 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                _updateRoutes: function() {
                    var routes =  this.app.routes,
                        self = this,
-                       showSubways = false,
-                       showBuses = false;
+                       showMode = {};
 
                    this._routes = _.map(this.model.get("route_ids"),
                                         function(__, route_id) {
-                                            var route = routes.get(route_id);
-                                            if (route) {
-                                                if (routes.isSubwayRoute(route_id))
-                                                    showSubways = true;
-                                                else
-                                                    showBuses = true;
-                                            }
+                                            var route = routes.get(route_id),
+                                                mode = config.getRouteMode(route_id);
+                                            if (route)
+                                                showMode[mode] = true;
 
                                             return {
                                                 id: route_id,
                                                 active: !!route,
+                                                mode: mode,
                                                 shortName: routes.getRouteShortName(route_id),
                                                 color: routes.getRouteColor(route_id)
                                             };
                                         });
-                   this._showSubways = showSubways;
-                   this._showBuses = showBuses;
+                   this._showModes = showMode;
                },
 
                // Redraw the view using the last stamp
@@ -108,7 +105,7 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                        dirs = this.modeDirections,
                        vehicles = this.app.vehicles,
                        routes = this.app.routes,
-                       hasPreds = {},
+                       // hasPreds = {},
                        preds;
 
                    var data = {
@@ -129,10 +126,7 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                        preds = stop.get("preds");
                    }
 
-                   var groupedPreds = {
-                       bus: [],
-                       subway: []
-                   },
+                   var groupedPreds = {},
                        // Ignore predictions more than 30 minutes in the future:
                        threshold = stamp + 1800000,
                        // Limit number of predictions shown:
@@ -149,14 +143,13 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                        if (pred.arr_time > threshold ||
                            pred.arr_time < stamp) return;
 
-                       hasPreds[route_id] = true;
+                       // hasPreds[route_id] = true;
 
                        // Ignore disabled routes:
                        if (!routes.get(route_id))
                            return;
 
-                       var subway = config.subwayPattern.exec(route_id),
-                           key = subway ? "subway" : "bus";
+                       var key = config.getRouteMode(route_id);
 
                        // Ignore vehicles traveling in the wrong direction:
                        if (dirs[key] !== pred.direction) return;
@@ -164,25 +157,25 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                        pred.briefRelTime = $u.briefRelTime(pred.arr_time - stamp);
                        pred.name = routes.getRouteShortName(pred.route_id);
 
+                       if (!groupedPreds[key])
+                           groupedPreds[key] = [];
                        $u.insertSorted(groupedPreds[key], pred, cmp);
                    });
 
-                   _.each(this._routes, function(route) {
-                       route.hasPredictions = hasPreds[route.id];
-                   });
+                   // _.each(this._routes, function(route) {
+                   //     route.hasPredictions = hasPreds[route.id];
+                   // });
 
-                   if (this._showSubways)
+                   var showMode = this._showModes;
+                   _.each(config.modes, function(mode) {
+                       if (!showMode[mode.mode]) return;
+
                        data.modes.push({
-                           name: "Subway Routes",
-                           key: "subway",
-                           upDir: dirs.subway === "1",
-                           preds: groupedPreds.subway});
-                   if (this._showBuses)
-                       data.modes.push({
-                           name: "Bus Routes",
-                           key: "bus",
-                           upDir: dirs.bus === "1",
-                           preds: groupedPreds.bus});
+                           name: mode.label,
+                           key: mode.mode,
+                           upDir: dirs[mode.mode] === "1",
+                           preds: groupedPreds[mode.mode]});
+                   });
 
                    if (this.alerts.length) {
                        data.alerts = this.alerts;

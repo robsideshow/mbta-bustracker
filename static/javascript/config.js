@@ -1,5 +1,5 @@
 define([], function() {
-    return {
+    var config = {
         defaultRoutes: [],
         defaultRouteStyle: {
             opacity: 0.5,
@@ -12,6 +12,19 @@ define([], function() {
         // If the route_id matches this pattern, the route is considered a
         // subway:
         subwayPattern: /^Red|Orange|Green-|Blue|Mattapan/,
+        isSubwayRoute: function(route_id) {
+            return !!config.subwayPattern.exec(route_id);
+        },
+        getRouteMode: function(route_id) {
+            if (config.subwayPattern.exec(route_id))
+                return "subway";
+
+            return "bus";
+        },
+        modes: [
+            {mode: "subway", label: "Subway Routes"},
+            {mode: "bus", label: "Bus Routes"}
+        ],
         routeStyles: {
             "Red": {color: "red"},
             "Orange": {color: "orange"},
@@ -195,4 +208,6 @@ define([], function() {
 			      "World Trade Center": "place-wtcst"
         }
     };
+
+    return config;
 });
