@@ -23,6 +23,7 @@ require.config({
         "alert-view": "src/view/alert",
 
         "config": "config",
+        "local-config": "localConfig",
         "animation": "src/animation",
         "bus-marker": "src/busMarker",
         "stop-marker": "src/stopMarker",

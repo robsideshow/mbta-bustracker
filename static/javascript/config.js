@@ -1,4 +1,4 @@
-define([], function() {
+define(["optional!local-config", "underscore"], function(localConfig, _) {
     var config = {
         defaultRoutes: [],
         defaultRouteStyle: {
@@ -57,7 +57,6 @@ define([], function() {
 
         alertsURL: "/api/alerts",
 
-        // mbtaNinjaAlertsURL: "http://www.mbta.ninja/api/reports",
         mbtaNinjaAlertsURL: "http://mbta-ninja-staging.herokuapp.com/api/reports",
 
         // Check MBTA.ninja for updates every 10 seconds
@@ -208,6 +207,9 @@ define([], function() {
 			      "World Trade Center": "place-wtcst"
         }
     };
+
+    if (localConfig)
+        _.extend(config, localConfig);
 
     return config;
 });
