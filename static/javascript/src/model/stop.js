@@ -33,6 +33,36 @@ define(["backbone", "leaflet", "underscore", "utils", "config"],
                    return _.keys(this.children);
                },
 
+               _stopMode: function() {
+                   var type = "",
+                       ids = this.get("route_ids");
+                   for (var k in ids) {
+                       var m = config.getRouteMode(k);
+                       if (!type)
+                           type = m;
+                       else if (m != type)
+                           return "mixed";
+                   }
+                   return type;
+               },
+
+               stopMode: function() {
+                   if (this.isParent()) {
+                       var children = this.getChildren(),
+                           mode = "";
+                       for (var i = 0, l = children.length; i < l; i++) {
+                           var stopMode = children[i]._stopMode();
+                           if (!mode)
+                               mode = stopMode;
+                           else if (mode != stopMode)
+                               return "mixed";
+                       }
+                       return mode;
+                   }
+
+                   return this._stopMode();
+               },
+
                /**
                 * @param {number} id
                 *
