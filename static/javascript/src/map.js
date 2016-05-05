@@ -50,7 +50,7 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                        zoom: 15
                    });
                    this.tileLayer = 
-                       L.tileLayer("http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png")
+                       L.tileLayer(config.tilesURL)
                        .addTo(this.map);
                    this.routesLayer = L.layerGroup().addTo(this.map);
                    this.busLayer = L.layerGroup().addTo(this.map);

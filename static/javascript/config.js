@@ -9,6 +9,7 @@ define(["optional!local-config", "underscore"], function(localConfig, _) {
             [42.10647, -71.291173],
             [42.58745957678619, -70.8439246281733]
         ],
+        tilesURL: "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png",
         // If the route_id matches this pattern, the route is considered a
         // subway:
         subwayPattern: /^Red|Orange|Green-|Blue|Mattapan/,
