@@ -22,17 +22,18 @@ function($, L, Animation, Map, Legend, config, AppState, _app, $u, RouteList, _)
                            animation.start();
                        });
 
-                   new RouteList({
-                       app: app,
-                       el: "#route-selector",
-                       filter: _.negate(app.routes.isSubwayRoute)
-                   }).render();
+                   var modeControl = {bus: "#route-selector",
+                                      subway: "#metro-selector"};
 
-                   new RouteList({
-                       app: app,
-                       el: "#metro-selector",
-                       filter: app.routes.isSubwayRoute
-                   }).render();
+                   _.each(config.modes, function(mode) {
+                       new RouteList({
+                           app: app,
+                           el: modeControl[mode.mode],
+                           filter: function(route_id) {
+                               return config.getRouteMode(route_id) == mode.mode;
+                           }
+                       }).render();
+                   });
 
                    new Legend({
                        el: "#legend",

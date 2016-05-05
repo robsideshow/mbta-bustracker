@@ -160,10 +160,6 @@ define(["jquery", "underscore", "backbone", "route-model", "stop-model", "config
                        "gray";
                },
 
-               isSubwayRoute: function(route_id) {
-                   return config.subwayPattern.exec(route_id);
-               },
-
                getAndLoadRoute: function(route_id) {
                    return this.getRoute(route_id).loadInfo();
                }
