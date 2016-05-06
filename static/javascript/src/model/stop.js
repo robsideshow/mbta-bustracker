@@ -94,6 +94,53 @@ define(["backbone", "leaflet", "underscore", "utils", "config"],
                    return !!this.get("is_parent");
                },
 
+               /**
+                * @param {String} mode
+                *
+                * @returns {String|Boolean} If the stop only has vehicles going
+                * in one direction, or if the stop's child stops for the given
+                * mode only have routes going in one direction, return that
+                * direction ("1" or "0"). Otherwise, return false.
+                */
+               oneWay: function(mode) {
+                   // Ignores the mode if the stop has its own one_way property:
+                   if (this.attributes.one_way)
+                       return this.attributes.one_way;
+
+                   if (this.isParent()) {
+                       if (this._cachedOneWay)
+                           return this._cachedOneWay[mode];
+
+                       this._cachedOneWay = {};
+
+                       // Go through all the child stops of this stop and
+                       // determine if all routes for each mode are one way in
+                       // the same direction:
+                       var modes = this._cachedOneWay;
+
+                       _.each(this.getChildren(), function(stop) {
+                           var mode = stop._stopMode(),
+                               one_way = stop.get("one_way");
+
+                           if (modes[mode] !== false) {
+                               if (one_way) {
+                                   if (modes[mode] === undefined) {
+                                       modes[mode] = one_way;
+                                   } else if (modes[mode] != one_way) {
+                                       modes[mode] = false;
+                                   }
+                               } else {
+                                   modes[mode] = false;
+                               }
+                           }
+                       });
+
+                       return modes[mode];
+                   }
+
+                   return false;
+               },
+
                type: function() {
                    var routes = this.get("route_ids"),
                        type = "";

@@ -9,8 +9,7 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                    this.lastStamp = 0;
 
                    // Map of mode -> "0"/"1"
-                   this.modeDirections = $u.asKeys(_.map(config.modes, "mode"),
-                                                   "1");
+                   this.modeDirections = this._updateModeDirs();
 
                    this.alerts = options.alerts || [];
 
@@ -65,13 +64,24 @@ define(["backbone", "underscore", "utils", "config", "templates"],
 
                },
 
+               _updateModeDirs: function() {
+                   var stop = this.model;
+                   this.modeDirections = _.reduce(
+                       config.modes,
+                       function(m, mode) {
+                           m[mode.mode] = stop.oneWay(mode.mode) || "1";
+                           return m;
+                       },
+                       {});
+                   return this.modeDirections;
+               },
+
                /**
                 * Store information about active and inactive routes every time
                 * the route selection changes.
                 */
                _updateRoutes: function() {
                    var routes =  this.app.routes,
-                       self = this,
                        showMode = {};
 
                    this._routes = _.map(this.model.get("route_ids"),
@@ -166,13 +176,16 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                    //     route.hasPredictions = hasPreds[route.id];
                    // });
 
-                   var showMode = this._showModes;
+                   var showMode = this._showModes,
+                       oneWay = stop.oneWay();
                    _.each(config.modes, function(mode) {
                        if (!showMode[mode.mode]) return;
 
                        data.modes.push({
                            name: mode.label,
                            key: mode.mode,
+                           oneWayUp: oneWay === "1",
+                           oneWayDown: oneWay === "0",
                            upDir: dirs[mode.mode] === "1",
                            preds: groupedPreds[mode.mode]});
                    });
