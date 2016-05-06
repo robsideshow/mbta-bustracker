@@ -1,6 +1,6 @@
 define(["jquery", "leaflet", "animation", "map", "legend", "config",
-        "app-state", "app", "utils", "route-list-view", "underscore"],
-function($, L, Animation, Map, Legend, config, AppState, _app, $u, RouteList, _) {
+        "app-state", "app", "utils", "route-list-view", "underscore", "ga-stub"],
+       function($, L, Animation, Map, Legend, config, AppState, _app, $u, RouteList, _, gaStub) {
            return {
                init: function() {
                    var app = new AppState(),
@@ -60,6 +60,7 @@ function($, L, Animation, Map, Legend, config, AppState, _app, $u, RouteList, _)
                                       return false;
                                   });
 
+                   window.ga = gaStub;
                    if (config.gAnalyticsID) {
                     (function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){
                         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

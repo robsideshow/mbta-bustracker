@@ -30,6 +30,7 @@ require.config({
         "utils": "src/utils",
         "path-utils": "src/util/paths",
         "templates": "src/util/templates",
+        "ga-stub": "src/util/gaStub",
 
         "app-state": "src/appState",
         "map": "src/map",
