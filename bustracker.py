@@ -644,9 +644,10 @@ def getTimepoints(vlat, vlon, veh_stamp, shape_id, preds):
         return [{'time':round(veh_stamp, 2),'lat':vlat, 'lon':vlon},
                  {'time':preds[-1]['arr_time'],'lat':path[-1][0], 'lon':path[-1][1]}]
     first_pred = future_preds[0]
-    if first_pred.get('stop_seq') == 1:
+    if first_pred.get('stop_seq') == '1':
         first_point = path[0]
-        second_i = stop_seq_ind_dict[1]
+        second_pred = future_preds[1]
+        second_i = stop_seq_ind_dict.get(second_pred.get('stop_seq'), path[1])
     else:
         nearest_point_i = findClosestPointFast(vlat, vlon, path)
         if nearest_point_i >= len(path) - 2:
@@ -675,7 +676,7 @@ def getTimepoints(vlat, vlon, veh_stamp, shape_id, preds):
     timepoints = [{'time':round(veh_stamp, 2), 
                    'lat':first_point[0], 'lon':first_point[1]}]
     path_i = second_i 
-    first_path_section = [first_point] + path[path_i:stop_seq_ind_dict[first_pred['stop_seq']]]             
+    first_path_section = [first_point] + path[path_i:stop_seq_ind_dict.get(first_pred['stop_seq'], path_i)]             
     timepoints += calcTimepointsSection(first_path_section, veh_stamp, first_pred['arr_time'])
     curr_time = first_pred['arr_time']
     curr_stop_seq = first_pred['stop_seq']
@@ -685,8 +686,8 @@ def getTimepoints(vlat, vlon, veh_stamp, shape_id, preds):
         prev_stop_seq = curr_stop_seq
         curr_stop_seq = curr_pred['stop_seq']
         if curr_stop_seq in stop_seq_ind_dict:
-            curr_path_i = stop_seq_ind_dict[curr_stop_seq] #path point index for END of the section
-            prev_path_i = stop_seq_ind_dict[prev_stop_seq] #path point index for START of the section
+            curr_path_i = stop_seq_ind_dict.get(curr_stop_seq, path_i) #path point index for END of the section
+            prev_path_i = stop_seq_ind_dict.get(prev_stop_seq, path_i) #path point index for START of the section
             curr_path_section = path[prev_path_i : curr_path_i]
             prev_time = curr_time
             curr_time = curr_pred['arr_time']
