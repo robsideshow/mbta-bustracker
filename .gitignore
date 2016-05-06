@@ -58,3 +58,4 @@ Temporary Items
 /static/javascript/.tern-port
 /static/build
 /logs/*
+/static/javascript/localConfig.js

@@ -25,8 +25,8 @@ define(["jquery", "backbone", "underscore", "config", "leaflet", "path-utils",
                        this.getName();
                },
 
-               isSubwayRoute: function() {
-                   return !!config.subwayPattern.exec(this.id);
+               getMode: function() {
+                   return config.getRouteMode(this.id);
                },
 
                getActiveShapes: function() {

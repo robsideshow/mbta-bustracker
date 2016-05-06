@@ -1,5 +1,5 @@
-define([], function() {
-    return {
+define(["optional!local-config", "underscore"], function(localConfig, _) {
+    var config = {
         defaultRoutes: [],
         defaultRouteStyle: {
             opacity: 0.5,
@@ -9,9 +9,23 @@ define([], function() {
             [42.10647, -71.291173],
             [42.58745957678619, -70.8439246281733]
         ],
+        tilesURL: "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png",
         // If the route_id matches this pattern, the route is considered a
         // subway:
         subwayPattern: /^Red|Orange|Green-|Blue|Mattapan/,
+        isSubwayRoute: function(route_id) {
+            return !!config.subwayPattern.exec(route_id);
+        },
+        getRouteMode: function(route_id) {
+            if (config.subwayPattern.exec(route_id))
+                return "subway";
+
+            return "bus";
+        },
+        modes: [
+            {mode: "subway", label: "Subway Routes"},
+            {mode: "bus", label: "Bus Routes"}
+        ],
         routeStyles: {
             "Red": {color: "red"},
             "Orange": {color: "orange"},
@@ -44,7 +58,6 @@ define([], function() {
 
         alertsURL: "/api/alerts",
 
-        // mbtaNinjaAlertsURL: "http://www.mbta.ninja/api/reports",
         mbtaNinjaAlertsURL: "http://mbta-ninja-staging.herokuapp.com/api/reports",
 
         // Check MBTA.ninja for updates every 10 seconds
@@ -195,4 +208,9 @@ define([], function() {
 			      "World Trade Center": "place-wtcst"
         }
     };
+
+    if (localConfig)
+        _.extend(config, localConfig);
+
+    return config;
 });
