@@ -1,5 +1,5 @@
-define(["underscore", "utils"],
-       function(_, $u) {
+define(["underscore", "utils", "config"],
+       function(_, $u, config) {
            var $p, paths;
            $p = paths = {
                /**
@@ -443,8 +443,8 @@ define(["underscore", "utils"],
                llNormal: function(ll1, ll2) {
                    var xUnit = 2,
                        yUnit = 0;
-                   var dx = 82600*(ll2[1] - ll1[1]),
-                       dy = 111120*(ll2[0] - ll1[0]),
+                   var dx = config.longMeters*(ll2[1] - ll1[1]),
+                       dy = config.latMeters*(ll2[0] - ll1[0]),
                        rads = Math.atan2(dy, dx)+(Math.PI/2),
                        sinRads = Math.sin(rads),
                        cosRads = Math.cos(rads),

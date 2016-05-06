@@ -10,6 +10,7 @@ define(["optional!local-config", "underscore"], function(localConfig, _) {
             [42.58745957678619, -70.8439246281733]
         ],
         tilesURL: "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png",
+
         // If the route_id matches this pattern, the route is considered a
         // subway:
         subwayPattern: /^Red|Orange|Green-|Blue|Mattapan/,
@@ -22,6 +23,8 @@ define(["optional!local-config", "underscore"], function(localConfig, _) {
 
             return "bus";
         },
+        // Controls the order in which routes are grouped and the group labels.
+        // The "mode" key should correspond to the return value of getRouteMode.
         modes: [
             {mode: "subway", label: "Subway Routes"},
             {mode: "bus", label: "Bus Routes"}
@@ -59,6 +62,11 @@ define(["optional!local-config", "underscore"], function(localConfig, _) {
         alertsURL: "/api/alerts",
 
         mbtaNinjaAlertsURL: "https://mbta-ninja-staging.herokuapp.com/api/reports",
+
+        // The number of meters per degree of longitude.
+        longMeters: 82600,
+        // The number of meters per degree of latitude (this shouldn't change)
+        latMeters: 111120,
 
         // Check MBTA.ninja for updates every 10 seconds
         ninjaPollInterval: 10000,
