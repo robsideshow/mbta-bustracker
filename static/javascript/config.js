@@ -58,7 +58,7 @@ define(["optional!local-config", "underscore"], function(localConfig, _) {
 
         alertsURL: "/api/alerts",
 
-        mbtaNinjaAlertsURL: "http://mbta-ninja-staging.herokuapp.com/api/reports",
+        mbtaNinjaAlertsURL: "https://mbta-ninja-staging.herokuapp.com/api/reports",
 
         // Check MBTA.ninja for updates every 10 seconds
         ninjaPollInterval: 10000,
