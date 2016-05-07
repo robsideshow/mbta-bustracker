@@ -56,7 +56,21 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                        stop.set({preds: preds});
                    });
 
+                   // Hack: retire vehicles when they disappear from the feed.
+                   // Remove once the backend starts sending explicit retire
+                   // messages.
+                   var vehicleIds = vehicles.reduce(function(m, v) {
+                       m[v.id] = true;
+                       return m;
+                   }, {});
+
                    _.each(updates.vehicles, function(vehicle) {
+                       delete vehicleIds[vehicle.id];
+                       if (vehicle.retire) {
+                           vehicles.remove(vehicle.id);
+                           return;
+                       }
+
                        var lastBus = vehicles.get(vehicle.id);
 
                        if (!lastBus) {
@@ -69,6 +83,8 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
 
                        lastBus.set(vehicle);
                    });
+
+                   vehicles.remove(_.keys(vehicleIds));
 
                    _.each(updates.vehicle_preds, function(preds, veh_id) {
                        var bus = vehicles.get(veh_id);
