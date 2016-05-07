@@ -1,5 +1,7 @@
 define(["leaflet", "underscore"],
        function(L, _) {
+           var LABEL_ZOOM = 18;
+
            return L.FeatureGroup.extend({
                initialize: function(stop, app, scale) {
                    L.FeatureGroup.prototype.initialize.apply(this, []);
@@ -8,6 +10,18 @@ define(["leaflet", "underscore"],
                    this.on("click", function() {
                        app.selectStop(stop.id);
                    });
+                   this.on("mouseover", _.bind(this.onMouseover, this))
+                       .on("mouseout", _.bind(this.onMouseout, this));
+               },
+
+               // TODO: Set the z-index so that the stop marker is on top.
+               onMouseover: function() {
+                   this.showLabel(this.stop.getName());
+               },
+
+               onMouseout: function() {
+                   if (this.scale < LABEL_ZOOM)
+                       this.hideLabel();
                },
 
                makeIcon: function() {
@@ -40,31 +54,42 @@ define(["leaflet", "underscore"],
                    });
                },
 
+               showLabel: function(name) {
+                   var icon = L.divIcon({
+                       className: "stop-label",
+                       iconSize: L.point(0, 0),
+                       html: "<div class='stop-label-text'>" +
+                           _.escape(name) + "</div>"
+                   });
+                   if (this.labelMarker)
+                       this.labelMarker.setIcon(icon);
+                   else
+                       this.labelMarker =
+                       L.marker(this.stop.getLatLng(),
+                                {icon: icon}).addTo(this);
+               },
+
+               hideLabel: function() {
+                   if (this.labelMarker) {
+                       this.removeLayer(this.labelMarker);
+                       delete this.labelMarker;
+                   }
+               },
+
                setScale: function(scale) {
                    if (this.scale === scale) return;
 
-                   var loc = this.stop.getLatLng();
                    this.scale = scale;
                    if (this.marker) {
                        this.marker.setIcon(this.makeIcon());
                    } else {
-                       this.marker = L.marker(loc, {icon: this.makeIcon()})
+                       this.marker = L.marker(this.stop.getLatLng(),
+                                              {icon: this.makeIcon()})
                            .addTo(this);
                    }
 
-                   if (scale == 18) {
-                       var icon = L.divIcon({
-                           className: "stop-label",
-                           iconSize: L.point(0, 0),
-                           html: "<div class='stop-label-text'>" +
-                               _.escape(this.stop.getName()) +
-                               "</div>"
-                       });
-                       if (this.labelMarker)
-                           this.labelMarker.setIcon(icon);
-                       else
-                           this.labelMarker =
-                           L.marker(loc, {icon: icon}).addTo(this);
+                   if (scale == LABEL_ZOOM) {
+                       this.showLabel(this.stop.getName());
                    } else if (this.labelMarker) {
                        this.removeLayer(this.labelMarker);
                        delete this.labelMarker;
