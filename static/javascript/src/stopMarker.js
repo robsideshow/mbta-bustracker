@@ -10,27 +10,6 @@ define(["leaflet", "underscore"],
                    });
                },
 
-               onPopup: function(e) {
-                   var html, stop = this.stop,
-                       stopAttrs = stop.attributes;
-                   if (stop.isParent()) {
-                       var childStops = stop.getChildren();
-
-                       if (childStops.length > 1) {
-                           html = ["Stops:"];
-                           _.each(childStops, function(stop) {
-                               html.push("<br/>Name: " + stop.getName());
-                           });
-                           e.popup.setContent(html.join(""));
-                           return;
-                       }
-                   }
-
-                   html = ["Stop id: ", this.stop.id,
-                           "<br/> Stop Name:", this.stop.getName()].join("");
-                   e.popup.setContent(html);
-               },
-
                makeIcon: function() {
                    var scale = this.scale,
                        w, h, typeClass, sizeClass;
