@@ -62,10 +62,7 @@ header {
   
   .logo {
     color: $accent-1;
-    font-family: 'Permanent Marker', cursive;
-    font-size: 2em;
-    text-shadow: 3px 3px 0px lighten($brand-2, 5%),
-                 4px 4px 0px $accent-5;
+    font-size: 1.2em;
   }
   .routeCtrl {
     i {font-size: 1em;}

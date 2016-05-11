@@ -9,11 +9,11 @@ define(["jquery"], function($){
 
             if (!hideCtrl) {
                 hideCtrl = true;
-                $(this).html('<i class="material-icons">vertical_align_bottom</i> Show Route Control');
+                $(this).html('<i class="material-icons">&#xE258;</i> Show Route Control');
                 $(".routeToggleControl").slideUp();
             }else{
                 hideCtrl = false;
-                $(this).html('<i class="material-icons">vertical_align_top</i> Hide Route Control');
+                $(this).html('<i class="material-icons">&#xE25A;</i> Hide Route Control');
                 $(".routeToggleControl").slideDown();
             }
         });
