@@ -69,12 +69,20 @@ define(["backbone", "jquery", "stop-model", "utils", "underscore"],
                        oldBounds = this.bounds;
                    this.bounds = bounds;
                    if (bounds) {
+                       if (this._lastRectRequest) {
+                           var stat = this._lastRectRequest.statusCode();
+                           if (stat.readyState !== 4)
+                               this._lastRectRequest.abort();
+                           delete this._lastRectRequest;
+                       }
+
                        var route_ids = {};
-                       $.getJSON("/api/rectangle",
-                                 {swlat: bounds.getSouth(),
-                                  swlon: bounds.getWest(),
-                                  nelat: bounds.getNorth(),
-                                  nelon: bounds.getEast()})
+                       this._lastRectRequest =
+                           $.getJSON("/api/rectangle",
+                                     {swlat: bounds.getSouth(),
+                                      swlon: bounds.getWest(),
+                                      nelat: bounds.getNorth(),
+                                      nelon: bounds.getEast()})
                            .done(function(result) {
                                self.addParentStopNames(result.parent_stops);
                                _.each(result.stops, function(stop_info) {
