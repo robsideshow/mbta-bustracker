@@ -210,7 +210,7 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
                 * returns the timepoint.
                 */
                _findNextTimePoint: function(bus) {
-                   var now = new Date().valueOf()/1000;
+                   var now =$u.stamp();
                    if (this._nextPoint) {
                        if (this._nextPoint.time > now)
                            return this._nextPoint;

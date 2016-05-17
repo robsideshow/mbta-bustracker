@@ -44,7 +44,7 @@ define(["jquery", "underscore"], function($, _) {
         },
 
         stamp: function() {
-            return new Date().valueOf()/1000;
+            return Date.now()/1000;
         },
 
         /**
