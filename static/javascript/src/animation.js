@@ -14,7 +14,7 @@ define(["utils", "underscore", "jquery"], function($u, _, $) {
 
         this.options = _.extend(defaultOptions, options);
         this.objects = [];
-        this.onVisibilityChange = _.bind(this.onVisibilityChange, this);
+        this.runTick = _.bind(this.runTick, this);
 
         return this;
     }
@@ -35,41 +35,24 @@ define(["utils", "underscore", "jquery"], function($u, _, $) {
         _lastRun: 0,
         _ticks: 0,
 
-        runTick: function() {
-            var now = new Date().getTime(),
+        runTick: function(_now) {
+            var now = Date.now(),
                 dt = (now - this._lastRun)/1000;
-            _.each(this.objects, function(thing) {
-                // Run tick on each object... dt = delta t, not datetime
-                thing.tick(dt, now);
-            });
-            this._lastRun = now;
-            this._ticks++;
-        },
 
-        /**
-         * Update less frequently when the application is in the background:
-         */
-        onVisibilityChange: function() {
-            clearInterval(this._interval);
-
-            if (document.visibilityState === "hidden") {
-                // Put this condition first, so that browsers that don't support
-                // the page visibility API will use the standard tick interval:
-                this._currentInterval = this.options.idleInterval;
-            } else {
-                this._currentInterval = this.options.tickInterval;
+            for (var i = 0, l = this.objects.length; i < l; i++) {
+                this.objects[i].tick(dt, now);
             }
 
-            this._interval = setInterval(_.bind(this.runTick, this),
-                                         this._currentInterval);
+            this._lastRun = now;
+            this._ticks++;
+
+            this._requestId = requestAnimationFrame(this.runTick);
         },
 
         start: function() {
             if (!this._lastRun)
-                this._lastRun = new Date().getTime();
-
-            $(document).on("visibilitychange", this.onVisibilityChange);
-            this.onVisibilityChange();
+                this._lastRun = Date.now();
+            this._requestId = requestAnimationFrame(this.runTick);
         },
 
         pause: function() {
@@ -80,8 +63,7 @@ define(["utils", "underscore", "jquery"], function($u, _, $) {
             if (!pause)
                 this._lastRun = null;
 
-            $(document).off("visibilitychange", this.onVisibilityChange);
-            return clearInterval(this._interval);
+            cancelAnimationFrame(this._requestId);
         }
     });
 
