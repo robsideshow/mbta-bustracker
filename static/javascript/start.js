@@ -43,10 +43,12 @@ define(["jquery", "leaflet", "animation", "map", "legend", "config",
                    // Geolocation
                    $("#locate-me").click(function() {
                        map.toggleLocationWatch();
+                       return false;
                    });
 
                    $("#click-to-zoom").click(function() {
                        map.captureLocation();
+                       return false;
                    });
 
                    app.on("geolocating", function(on) {
