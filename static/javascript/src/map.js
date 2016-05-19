@@ -77,7 +77,6 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
 
                    this.map.on("click", _.bind(this.onClick, this));
                    this.map.on("moveend", _.bind(this.updateStops, this));
-                   this.map.on("zoomend", _.bind(this.updateStops, this));
                    this.map.on("locationfound", _.bind(this.locationFound, this));
                    this.map.on("locationerror", _.bind(this.locationError, this));
                },
