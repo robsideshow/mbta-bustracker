@@ -65,7 +65,7 @@ def makeRouteNamesDict(filename = 'MBTA_GTFS_texts/routes.txt'):
     routenamesdict = dict()
     for l in splitlines:
         route_id = l[0].strip('"')
-        if route_id[:2] not in ('CR', 'Bo', 'Lo'):
+        if route_id[:2] not in ('CR', 'Bo', 'Lo', 'Ca'):
             if l[2].strip('"') == '':
                 routename = l[3].strip('"')
             else:
@@ -150,9 +150,9 @@ def makeStopsDicts(tripshapedict, shaperoutedict,
     tripstopsdict = dict()
     tripstopseqstopiddict = dict()
     for line in f:
-        if line[1] in '23': #only use trip_ids starting with 2 or 3: no CR, boats, shuttles
-            l = line.split(',') 
-            trip_id = l[0].strip('"')
+        l = line.split(',') 
+        trip_id = l[0].strip('"')
+        if len(trip_id) == 8: #only use trip_ids starting with 2 or 3: no CR, boats, shuttles
             stop_id = l[3].strip('"')
             stop_seq = int(l[4].strip('"'))
             if trip_id in tripstopsdict:
