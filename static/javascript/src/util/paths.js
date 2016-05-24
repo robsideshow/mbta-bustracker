@@ -473,8 +473,8 @@ define(["underscore", "utils", "config"],
                 *
                 * @returns {Number[]}
                 */
-               intersection(start1_x, start1_y, end1_x, end1_y,
-                            start2_x, start2_y, end2_x, end2_y) {
+               intersection: function(start1_x, start1_y, end1_x, end1_y,
+                                      start2_x, start2_y, end2_x, end2_y) {
                    var dy1 = end1_y - start1_y,
                        dx1 = end1_x - start1_x,
                        dx2 = end2_x - start2_x,
