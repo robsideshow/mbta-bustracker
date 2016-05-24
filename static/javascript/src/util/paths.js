@@ -207,13 +207,14 @@ define(["underscore", "utils", "config"],
                 * @param {Number} start.lon
                 * @param {Object[]} timepoints
                 *
-                * @returns {Object[]} The timepoints array, modified with new
-                * time properties
+                * @returns {Object[]} A copy of the timepoints array, with some
+                * points' time modified
                 */
                fastTimepoints: function(stamp, start, timepoints) {
-                   var idx = $u.findIndex(function(timepoint) {
-                       return timepoint.time > stamp;
-                   });
+                   var newPath = [],
+                       idx = $u.findIndex(function(timepoint) {
+                           return timepoint.time > stamp;
+                       });
 
                    // If the first timepoint is in the future, or if there is no
                    // matching timepoint, don't do anything.
@@ -235,11 +236,14 @@ define(["underscore", "utils", "config"],
                        var deltaT = target.time - stamp;
 
                        while(i < idx && (point = timepoints[i++])) {
-                           point.time = stamp + (deltaT * point.dist/totalDist);
+                           var newTime = stamp + (deltaT * point.dist/totalDist);
+                           newPath.push({lat: point.lat,
+                                         lon: point.lon,
+                                         time: newTime});
                        }
                    }
 
-                   return timepoints;
+                   return newPath.concat(timepoints.slice(idx));
                },
 
                /**
