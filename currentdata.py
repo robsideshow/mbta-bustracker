@@ -6,11 +6,17 @@ Created on Fri Feb 19 11:43:12 2016
 """
 
 import bustracker as btr
-import time, json, threading, urllib
+import time, json, threading, urllib, sys, logging
 
 veh_update_period = 20
 trip_update_period = 20
 unsch_update_period_factor = btr.green_line_slowdown_factor
+
+logging.basicConfig(filename='ignore/bustracker.log',level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+class APIException(Exception):
+   pass
 
 
 class CurrentData(object):    
@@ -51,24 +57,30 @@ class CurrentData(object):
         
     def getData4UnschedTrip(self, route_id):
         if route_id:
-            routejson = json.load(urllib.urlopen(btr.mbta_rt_url + 'predictionsbyroute?api_key=' 
-                                                + btr.api_key 
-                                                + '&route=' + str(route_id) 
-                                                + '&format=json'))
-            for direction in routejson.get('direction', []):
-                for trip in direction.get('trip', []):
-                    trip_id = trip.get('trip_id', '')
-                    if trip_id not in btr.tripshapedict:
-                        if trip_id not in self.supplement:
-                            self.supplement[trip_id] = {'direction': direction.get('direction_id', '?'),
-                                                           'destination' : trip.get('trip_headsign', '?'),
-                                                           'preds' : trip.get('stop', []),
-                                                            'veh_info' : trip.get('vehicle', {}),
-                                                            'route_id':route_id}
-                            veh_info = trip.get('vehicle', {})
-                            if veh_info:
-                                vehicle_id = veh_info.get('vehicle_id', '')
-                                self.supplement_by_veh[vehicle_id] = self.supplement[trip_id]
+            try:
+                routejson = json.load(urllib.urlopen(btr.mbta_rt_url + 'predictionsbyroute?api_key=' 
+                                                    + btr.api_key 
+                                                    + '&route=' + str(route_id) 
+                                                    + '&format=json'))
+                for direction in routejson.get('direction', []):
+                    for trip in direction.get('trip', []):
+                        trip_id = trip.get('trip_id', '')
+                        if trip_id not in btr.tripshapedict:
+                            if trip_id not in self.supplement:
+                                self.supplement[trip_id] = {'direction': direction.get('direction_id', '?'),
+                                                               'destination' : trip.get('trip_headsign', '?'),
+                                                               'preds' : trip.get('stop', []),
+                                                                'veh_info' : trip.get('vehicle', {}),
+                                                                'route_id':route_id}
+                                veh_info = trip.get('vehicle', {})
+                                if veh_info:
+                                    vehicle_id = veh_info.get('vehicle_id', '')
+                                    self.supplement_by_veh[vehicle_id] = self.supplement[trip_id]
+            except:
+                er = sys.exc_info()
+                logger.error(er)
+                raise APIException("The API is currently unavailable (apparently???)")
+
                                         
                 
     def getPredsForStops(self, stopidlist):

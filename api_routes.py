@@ -3,6 +3,11 @@ from datetime import datetime
 
 import bustracker as btr
 import currentdata
+import logging
+
+logging.basicConfig(filename='ignore/bustracker.log',level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 
 api_routes = Blueprint("api", __name__)
 
@@ -26,6 +31,7 @@ def updates():
     active_shapes = []
     if route_ids:
         route_idlist = route_ids.split(',')
+        logger.info('routes: ' + route_ids)
         vehicles = currentdata.current_data.getVehiclesOnRoutes(route_idlist)
         for veh in vehicles:
             shape_id = btr.tripshapedict.get(veh.get('trip_id'), '')
@@ -45,8 +51,6 @@ def updates():
                     veh['timepoints'] = btr.getTimepoints(veh.get('lat'),veh.get('lon'), 
                                                         veh.get('timestamp'), shape_id,
                                                         veh_preds)
-                #veh['timepoints'] = btr.getAnimationPoints(path, veh.get('lat'),
-                #                        veh.get('lon'), veh.get('timestamp'), 6)
             else:
                 veh['timepoints'] = [{'lat' : veh.get('lat'),
                                         'lon' : veh.get('lon'), 

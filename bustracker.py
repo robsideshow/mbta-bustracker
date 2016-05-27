@@ -4,15 +4,19 @@ Created on Wed Mar 04 18:50:03 2015
 
 @author: Rob
 """
-import math
 from lxml import etree as et
 import time
 from google.transit import gtfs_realtime_pb2
+import logging
 import requests
 import json
 import socket
+import sys
 import errno  
 import google.protobuf.message
+
+logging.basicConfig(filename='ignore/bustracker.log',level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 green_line_slowdown_factor = 10 #BIGGER number means we hit the api LESS OFTEN
 
@@ -86,7 +90,9 @@ with open('data/shapestopseqdict.json', 'r') as f:
 #dict of shape_id : {Dict of stop_seq : stop_point_index} 
  
   
-            
+class APIException(Exception):
+   pass
+           
     
 def getAllRoutes():
     '''
@@ -195,18 +201,22 @@ def getAllVehiclesGTFS_Raw():
         if response.ok:
             feed.ParseFromString(response.content)       
             return feed.entity
-    except socket.error as error:
-        if error.errno == errno.WSAECONNRESET:
-            return []
-    except socket.error as error:
-        if error.errno == errno.ECONNRESET:
-            return []
-    except (google.protobuf.message.DecodeError, requests.exceptions.ChunkedEncodingError,
-            UnicodeDecodeError):
-        return []
-    except requests.exceptions.RequestException as e:    
-        print e
-        return []
+    except:
+        er = sys.exc_info()
+        logger.error(er)
+        raise APIException("The API is currently unavailable (apparently???)")
+#    except socket.error as error:
+#        if error.errno == errno.WSAECONNRESET:
+#            return []
+#    except socket.error as error:
+#        if error.errno == errno.ECONNRESET:
+#            return []
+#    except (google.protobuf.message.DecodeError, requests.exceptions.ChunkedEncodingError,
+#            UnicodeDecodeError):
+#        return []
+#    except requests.exceptions.RequestException as e:    
+#        print e
+#        return []
 
 
 def getAllTripsGTFS_Raw():
@@ -221,18 +231,22 @@ def getAllTripsGTFS_Raw():
         if response.ok:
             feed.ParseFromString(response.content)       
             return feed.entity
-    except socket.error as error:
-        if error.errno == errno.WSAECONNRESET:
-            return []
-    except socket.error as error:
-        if error.errno == errno.ECONNRESET:
-            return []
-    except (google.protobuf.message.DecodeError, requests.exceptions.ChunkedEncodingError,
-            UnicodeDecodeError):
-        return []
-    except requests.exceptions.RequestException as e:   
-        print e
-        return []
+    except:
+        er = sys.exc_info()
+        logger.error(er)
+        raise APIException("The API is currently unavailable (apparently???)")
+#    except socket.error as error:
+#        if error.errno == errno.WSAECONNRESET:
+#            return []
+#    except socket.error as error:
+#        if error.errno == errno.ECONNRESET:
+#            return []
+#    except (google.protobuf.message.DecodeError, requests.exceptions.ChunkedEncodingError,
+#            UnicodeDecodeError):
+#        return []
+#    except requests.exceptions.RequestException as e:   
+#        print e
+#        return []
 
 
 def getAllAlertsGTFS_Raw():
@@ -247,18 +261,22 @@ def getAllAlertsGTFS_Raw():
         if response.ok:
             feed.ParseFromString(response.content)       
             return feed.entity
-    except socket.error as error:
-        if error.errno == errno.WSAECONNRESET:
-            return []
-    except socket.error as error:
-        if error.errno == errno.ECONNRESET:
-            return []
-    except (google.protobuf.message.DecodeError, requests.exceptions.ChunkedEncodingError,
-            UnicodeDecodeError):
-        return []
-    except requests.exceptions.RequestException as e:   
-        print e
-        return []
+    except:
+        er = sys.exc_info()
+        logger.error(er)
+        raise APIException("The API is currently unavailable (apparently???)")
+#    except socket.error as error:
+#        if error.errno == errno.WSAECONNRESET:
+#            return []
+#    except socket.error as error:
+#        if error.errno == errno.ECONNRESET:
+#            return []
+#    except (google.protobuf.message.DecodeError, requests.exceptions.ChunkedEncodingError,
+#            UnicodeDecodeError):
+#        return []
+#    except requests.exceptions.RequestException as e:   
+#        print e
+#        return []
 
 
 def getAllVehiclesGTFS():
@@ -270,6 +288,7 @@ def getAllVehiclesGTFS():
     for v in getAllVehiclesGTFS_Raw():
         if v.vehicle.trip.route_id in routenamesdict:
             parsed_vehicles.append(parseVehEntity(v))
+    logger.info('Got vehicles!  Number of vehicles: {0}'.format(len(parsed_vehicles)))
     return parsed_vehicles
 
 
@@ -283,6 +302,7 @@ def getAllTripsGTFS():
     for t in getAllTripsGTFS_Raw():
         if t.trip_update.trip.route_id in routenamesdict:
             parsed_trips.append(parseTripEntity(t))
+    logger.info('Got trips!  Number of trips: {0}'.format(len(parsed_trips)))    
     return parsed_trips
  
  
@@ -294,6 +314,7 @@ def getAllAlertsGTFS():
     parsed_alerts = []
     for a in getAllAlertsGTFS_Raw():
         parsed_alerts.append(parseAlertEntity(a))
+    logger.info('Got Alerts!  Number of alerts: {0}'.format(len(parsed_alerts)))    
     return parsed_alerts
    
 
