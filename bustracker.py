@@ -10,10 +10,7 @@ from google.transit import gtfs_realtime_pb2
 import logging
 import requests
 import json
-import socket
 import sys
-import errno  
-import google.protobuf.message
 
 logging.basicConfig(filename='ignore/bustracker.log',level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -27,11 +24,7 @@ mbta_rt_url = 'http://realtime.mbta.com/developer/api/v2/'
 
 #AG Mednet stopid:234 LatLon:(42.3639399, -71.0511499)   xyCoords:(3423, 749)
 #Mass Ave @ Hollis{'lat': '42.39434', 'stopId': '2297', 'tag': '2297', 'lon': '-71.12703', 'title': 'Massachusetts Ave @ Hollis St'}
-#UL corner of LM:(42.562689, -71.363924) LR corner:(42.204517,-70.831752)
-#largemap 775 X 708
 
-#UL corner of CM:(42.400886, -71.145444) LR corner:(42.331188, -71.044320)
-#Centralmap 751 X 699
 MassAveMemDrLatLon = (42.3572, -71.0926)
 KendallLatLon =  (42.362392, -71.084301)
 DTXLatLon = (42.355741, -71.060537)
@@ -204,19 +197,7 @@ def getAllVehiclesGTFS_Raw():
     except:
         er = sys.exc_info()
         logger.error(er)
-        raise APIException("The API is currently unavailable (apparently???)")
-#    except socket.error as error:
-#        if error.errno == errno.WSAECONNRESET:
-#            return []
-#    except socket.error as error:
-#        if error.errno == errno.ECONNRESET:
-#            return []
-#    except (google.protobuf.message.DecodeError, requests.exceptions.ChunkedEncodingError,
-#            UnicodeDecodeError):
-#        return []
-#    except requests.exceptions.RequestException as e:    
-#        print e
-#        return []
+        return []
 
 
 def getAllTripsGTFS_Raw():
@@ -234,19 +215,7 @@ def getAllTripsGTFS_Raw():
     except:
         er = sys.exc_info()
         logger.error(er)
-        raise APIException("The API is currently unavailable (apparently???)")
-#    except socket.error as error:
-#        if error.errno == errno.WSAECONNRESET:
-#            return []
-#    except socket.error as error:
-#        if error.errno == errno.ECONNRESET:
-#            return []
-#    except (google.protobuf.message.DecodeError, requests.exceptions.ChunkedEncodingError,
-#            UnicodeDecodeError):
-#        return []
-#    except requests.exceptions.RequestException as e:   
-#        print e
-#        return []
+        return []
 
 
 def getAllAlertsGTFS_Raw():
@@ -264,19 +233,7 @@ def getAllAlertsGTFS_Raw():
     except:
         er = sys.exc_info()
         logger.error(er)
-        raise APIException("The API is currently unavailable (apparently???)")
-#    except socket.error as error:
-#        if error.errno == errno.WSAECONNRESET:
-#            return []
-#    except socket.error as error:
-#        if error.errno == errno.ECONNRESET:
-#            return []
-#    except (google.protobuf.message.DecodeError, requests.exceptions.ChunkedEncodingError,
-#            UnicodeDecodeError):
-#        return []
-#    except requests.exceptions.RequestException as e:   
-#        print e
-#        return []
+        return []
 
 
 def getAllVehiclesGTFS():
@@ -552,21 +509,6 @@ def buildAnimationDicts(path, first_i, start_lat, start_lon, start_time, speed):
         i += 1
     return timepoints
             
-   
-def getAnimationPoints(path, veh_lat, veh_lon, veh_timestamp, speed = 6):
-    '''
-    takes a path, the lat and lon of a vehicle, and speed in m/s
-    returns a list of dictionaries {time, lat, lon} which give the 
-    future points and their arrival times
-    '''
-    numpoints = len(path)
-    closest_i = findClosestPoint(veh_lat, veh_lon, path)
-    if closest_i == numpoints - 1:
-        first_i = closest_i
-    else:
-        first_i = closest_i +1
-    return buildAnimationDicts(path, first_i, veh_lat, veh_lon, veh_timestamp, speed)
-
 
 def getStopPointIndices(shape_id):
     '''
@@ -645,8 +587,6 @@ def calcTimepointsSection(path, start_time, finish_time):
         curr_time += dt
     return timepoints
 
-    
-    
       
 
 def getTimepoints(vlat, vlon, veh_stamp, shape_id, preds):
@@ -658,7 +598,6 @@ def getTimepoints(vlat, vlon, veh_stamp, shape_id, preds):
     '''
     path = shapepathdict[shape_id]
     time_now = int(time.time())
-    #stop_pt_inds = getStopPointIndices(shape_id)
     stop_seq_ind_dict = shapestopseqdict[shape_id]
     future_preds = [p for p in preds if p['arr_time'] > time_now]
     if len(future_preds) == 0:
@@ -826,35 +765,9 @@ def routeAnalyzer(route_id, longseg = 100):
     
 
 '''
-The next five functions are semi-obsolete.  They are for plotting on two static 
-google screenshot maps, before use of google JS API.
+The next five function is semi-obsolete.  It gets path points from NextBus.
 '''
    
-def getPixTripPath(shape_id, map_id):
-    if map_id == 'largemap':
-        pixelcoords = [convertll2largemap(latlon) for latlon in shapepathdict[shape_id]] 
-    if map_id == 'centralmap':
-        pixelcoords = [convertll2centralmap(latlon) for latlon in shapepathdict[shape_id]] 
-    return pixelcoords
-
-
-def getPixRoutePaths(rtnum, map_id):
-    if map_id == 'largemap':
-        pixelcoords = [[convertll2largemap(latlon) for latlon in path] for path in getLatLonPathsByRoute(rtnum)[0]] 
-    if map_id == 'centralmap':
-        pixelcoords = [[convertll2centralmap(latlon) for latlon in path] for path in getLatLonPathsByRoute(rtnum)[0]]  
-    return pixelcoords
-
-
-def convertll2largemap(latlon):
-    lat, lon = latlon
-    return (int((lon +71.363224)*775/.532172), int((42.562689 - lat)*708/.358172))
-
-
-def convertll2centralmap(latlon):
-    lat, lon = latlon
-    return (int((lon +71.145644)*751/.101124), int((42.400886 - lat)*699/.069698))
-
     
 
 def getLatLonPathsByRoute(rtnum):

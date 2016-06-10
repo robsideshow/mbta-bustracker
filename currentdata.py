@@ -79,10 +79,9 @@ class CurrentData(object):
             except:
                 er = sys.exc_info()
                 logger.error(er)
-                raise APIException("The API is currently unavailable (apparently???)")
+                #raise APIException("The API is currently unavailable (apparently???)")
 
-                                        
-                
+                                                       
     def getPredsForStops(self, stopidlist):
         green_routes = ['Green-B','Green-C','Green-D','Green-E']
         stop_preds = dict([(stop_id, []) for stop_id in stopidlist])

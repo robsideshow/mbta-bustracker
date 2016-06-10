@@ -3,7 +3,7 @@ from datetime import datetime
 
 import bustracker as btr
 import currentdata
-import logging
+import logging, sys
 
 logging.basicConfig(filename='ignore/bustracker.log',level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -111,6 +111,8 @@ def route_info():
                 "parent_stops": parent_stops
             }
         except KeyError:
+            er = sys.exc_info()
+            logger.error(er)
             response[route_id] = None
 
     return jsonify(routes=response)
@@ -151,6 +153,8 @@ def rectangle():
         nelat = float(request.args["nelat"])
         nelon = float(request.args["nelon"])
     except KeyError, ValueError:
+        er = sys.exc_info()
+        logger.error(er)
         abort(401)
 
     stops, parent_stops = btr.getStopsInRectangle(swlat, swlon, nelat, nelon)
