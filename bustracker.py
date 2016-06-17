@@ -18,8 +18,11 @@ logger = logging.getLogger(__name__)
 green_line_slowdown_factor = 10 #BIGGER number means we hit the api LESS OFTEN
 
 api_key = 'wX9NwuHnZU2ToO7GmGR9uw' #open public development key
-with open('ignore/mbta_api_key.txt', 'r') as f:
-	api_key = f.readline().rstrip("\n")
+try:
+    with open('ignore/mbta_api_key.txt', 'r') as f:
+        api_key = f.readline().rstrip("\n")
+except IOError:
+    pass
 mbta_rt_url = 'http://realtime.mbta.com/developer/api/v2/'
 
 #AG Mednet stopid:234 LatLon:(42.3639399, -71.0511499)   xyCoords:(3423, 749)
