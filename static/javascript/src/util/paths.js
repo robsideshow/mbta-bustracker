@@ -1,5 +1,5 @@
-define(["underscore", "utils", "config"],
-       function(_, $u, config) {
+define(["underscore", "leaflet", "utils", "config"],
+       function(_, L, $u, config) {
            var $p, paths;
            $p = paths = {
                /**
@@ -253,6 +253,8 @@ define(["underscore", "utils", "config"],
                 *
                 * @param {Object[]} timepoints
                 * @param {number} [stamp]
+                *
+                * @returns {L.LatLng|null}
                 */
                calculateTimepointPosition: function(timepoints, stamp) {
                    // We can't calculate a meaningful position without the
@@ -261,8 +263,8 @@ define(["underscore", "utils", "config"],
 
                    if (!stamp) stamp = $u.stamp();
 
-                   var timepoint, lastTimepoint, i = 0;
-                   while ((timepoint = timepoints[i++])) {
+                   var timepoint, lastTimepoint, i = -1;
+                   while ((timepoint = timepoints[++i])) {
                        if (timepoint.time > stamp)
                            break;
                        else
@@ -270,22 +272,33 @@ define(["underscore", "utils", "config"],
                    }
 
                    if (lastTimepoint) {
+                       var rads, dLat, dLng;
                        if (timepoint) {
                            // Calculate the progress along the segment between
                            // lastTimepoint and timepoint:
                            var progress = (stamp - lastTimepoint.time)/
-                                   (timepoint.time - lastTimepoint.time),
-                               dLat = timepoint.lat - lastTimepoint.lat,
-                               dLng = timepoint.lon - lastTimepoint.lon;
+                                   (timepoint.time - lastTimepoint.time);
+                           dLat = timepoint.lat - lastTimepoint.lat;
+                           dLng = timepoint.lon - lastTimepoint.lon;
 
-                           return L.latLng(
-                               lastTimepoint.lat + dLat*progress,
-                               lastTimepoint.lon + dLng*progress);
+                           return [L.latLng(lastTimepoint.lat + dLat*progress,
+                                            lastTimepoint.lon + dLng*progress),
+                                   $p.llRads(dLat, dLng)];
                        } else {
                            // We don't have any more information about the vehicle's
                            // next position, so use the coordinates of its last
-                           // timepoint.
-                           return L.latLng(lastTimepoint.lat, lastTimepoint.lon);
+                           // timepoint and the heading from the penultimate
+                           // timepoint to the last timepoint.
+                           var penTimepoint = timepoints[i-2];
+
+                           if (penTimepoint) {
+                               dLat = lastTimepoint.lat - penTimepoint.lat;
+                               dLng = lastTimepoint.lon - penTimepoint.lon;
+                               rads = $p.llRads(dLat, dLng);
+                           }
+
+                           return [L.latLng(lastTimepoint.lat,
+                                            lastTimepoint.lon), rads];
                        }
                    }
 
@@ -445,11 +458,9 @@ define(["underscore", "utils", "config"],
                 *
                 */
                llNormal: function(ll1, ll2) {
-                   var xUnit = 2,
-                       yUnit = 0;
-                   var dx = config.longMeters*(ll2[1] - ll1[1]),
-                       dy = config.latMeters*(ll2[0] - ll1[0]),
-                       rads = Math.atan2(dy, dx)+(Math.PI/2),
+                   var xUnit = 2, yUnit = 0;
+
+                   var rads = $p.llRads(ll2[1] - ll1[1], ll2[0] - ll1[0]) + Math.PI/2,
                        sinRads = Math.sin(rads),
                        cosRads = Math.cos(rads),
                        dxNorm = xUnit * cosRads - yUnit * sinRads,
@@ -460,13 +471,20 @@ define(["underscore", "utils", "config"],
                    return [dlatNorm, dlongNorm];
                },
 
+               llRads: function(dLat, dLng) {
+                   var dx = config.longMeters*dLat,
+                       dy = config.latMeters*dLng;
+
+                   return Math.atan2(dy, dx);
+               },
+
                /**
-                * Finds an intersection point for two line segments, if one
-                * exists that lies "in bounds". If the line segments lie on
-                * parallel lines, there is no intersection. The intersection is
+                * finds an intersection point for two line segments, if one
+                * exists that lies "in bounds". if the line segments lie on
+                * parallel lines, there is no intersection. the intersection is
                 * considered "in bounds" if the vector from the start point of
                 * seg1 to the intersection is a positive scalar multiple of the
-                * vector from the start to end point of seg1 AND the vector from
+                * vector from the start to end point of seg1 and the vector from
                 * the end point of seg2 to the intersection is a positive scalar
                 * multiple of the vector from the end point of seg2 to the start
                 * point.

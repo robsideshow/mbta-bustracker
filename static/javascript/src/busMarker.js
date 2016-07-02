@@ -50,6 +50,21 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
                    busDiv.style.transform = "rotate(" + rot + "rad)";
                },
 
+               // Called by Leaflet when the marker is added to the map.
+               onAdd: function(map) {
+                   var pos = this.bus.getCurrentPosition();
+
+                   this._map = map;
+                   // this._update(bus);
+                   this.busMarker = L.marker(
+                       pos[0],
+                       {
+                           icon: this.makeIcon(this.getBus(), pos[1] - Math.PI/2)
+                       });
+                   this.busMarker.addTo(this);
+               },
+
+
                showLRP: function() {
                    var center = this.bus.getLatLng();
                    if (this._lrp)
@@ -75,18 +90,6 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
                    if (this._lrh)
                        this.removeLayer(this._lrh);
                    this._lrp = this._lrh = null;
-               },
-
-               // Called by Leaflet when the marker is added to the map.
-               onAdd: function(map) {
-                   var bus = this.getBus();
-                   this._map = map;
-                   this._update(bus);
-                   this.busMarker = L.marker(
-                       this._position,
-                       {
-                           icon: this.makeIcon(bus, -this._busTheta)
-                       }).addTo(this);
                },
 
                /**
@@ -134,6 +137,9 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
                    return this._position;
                },
 
+               /**
+                * Called when the Bus model changes.
+                */
                update: function(bus) {
                    if (bus.changed.hasOwnProperty("_selected")) {
                        var color = this.bus.getRoute().getColor(),
@@ -167,7 +173,11 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
                    this._update(bus.attributes);
                },
 
+               /**
+                * Called with the bus's attributes when the LRP has changed.
+                */
                _update: function(bus) {
+                   return;
                    this._lastTimestamp = bus.timestamp;
                    if (!this._position) {
                        this._position =
@@ -243,6 +253,21 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
                },
 
                tick: function(dt, now) {
+                   var pos = this.bus.getCurrentPosition();
+                   this.busMarker.setLatLng(pos[0]);
+                   this.updateIcon(this.bus.attributes, pos[1] - Math.PI/2);
+                   return;
+
+                   this._position = $p.calculateTimepointPosition(
+                       bus.timepoints, $u.stamp()) || L.latLng(bus.lat, bus.long);
+
+                   var degs = (360-(bus.heading-90))%360;
+                   this._busTheta = degs/180 * Math.PI;
+
+                   this.busMarker.setLatLng(this._position);
+                   this.updateIcon(bus, -this._busTheta);
+                   return;
+
                    if (!this._wantsUpdate) return;
 
                    var bus = this.getBus(),

@@ -13,6 +13,11 @@ define(["jquery", "underscore"], function($, _) {
             return this.directionsShort[Math.round(heading%360/45)];
         },
 
+        headingToRads: function(heading) {
+            var degs = (360 - (heading-90)) % 360;
+            return degs/180 * Math.PI;
+        },
+
         log: console ? console.log : _.noop,
 
         makeTransformFn: null,
@@ -289,7 +294,7 @@ define(["jquery", "underscore"], function($, _) {
             l.splice(cursor, 0, val);
 
             return l;
-        },
+        }
     };
 
     return $u;

@@ -1,5 +1,5 @@
-define(["backbone", "utils", "leaflet"],
-       function(B, $u, L) {
+define(["backbone", "utils", "leaflet", "path-utils"],
+       function(B, $u, L, $p) {
            var VehicleModel = B.Model.extend({
                defaults: {
                    _selected: false
@@ -26,6 +26,21 @@ define(["backbone", "utils", "leaflet"],
                            "toward",
                            vehicle.destination
                           ].join(" ");
+               },
+
+               /**
+                * Calculates the vehicle's current position and rotation (in
+                * radians) based on the vehicle's timepoints array.
+                */
+               getCurrentPosition: function(stamp) {
+                   if (!stamp) stamp = $u.stamp();
+
+                   var attrs = this.attributes,
+                       pos = $p.calculateTimepointPosition(attrs.timepoints, stamp);
+
+                   return [pos[0] || L.latLng(attrs.lat, attrs.lon),
+                           pos[1] || $u.headingToRads(attrs.heading)];
+
                }
            });
 
