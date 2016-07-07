@@ -59,4 +59,5 @@ Temporary Items
 /static/build
 /logs/*
 /static/javascript/localConfig.js
+/data
 *.log
