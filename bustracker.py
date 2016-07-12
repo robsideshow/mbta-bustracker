@@ -23,6 +23,7 @@ try:
         api_key = f.readline().rstrip("\n")
 except IOError:
     pass
+
 mbta_rt_url = 'http://realtime.mbta.com/developer/api/v2/'
 
 #AG Mednet stopid:234 LatLon:(42.3639399, -71.0511499)   xyCoords:(3423, 749)
@@ -92,7 +93,7 @@ class APIException(Exception):
     
 def getAllRoutes():
     '''
-    This is run once by flaskbus.py to get a list of all the bus and subway route_ids 
+    This is run once to get a list of all the bus and subway route_ids 
     in a good order (subway first, then CTs and SLs, then numerical order), 
     suitable for display on the landing page.
     '''
@@ -108,8 +109,10 @@ def getAllRoutes():
             bus_routes = mode.getchildren()
     allroutes = trolley_routes + subway_routes + bus_routes
     sortedRoute_ids = [x.attrib['route_id'] for x in allroutes]
-    routes = dict([(x.attrib['route_id'], x.attrib['route_name']) for x in allroutes])
-    return sortedRoute_ids, routes
+    #routes = dict([(x.attrib['route_id'], x.attrib['route_name']) for x in allroutes])
+    return sortedRoute_ids 
+    
+sortedRoute_ids = getAllRoutes()
         
 def parseVehEntity(vent):     
     '''
