@@ -60,4 +60,9 @@ Temporary Items
 /logs/*
 /static/javascript/localConfig.js
 /data
+
 *.log
+
+# text-based version we might want to revisit someday
+old_routes.*
+
