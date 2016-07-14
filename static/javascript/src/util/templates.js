@@ -1,5 +1,5 @@
-define(["jquery", "handlebars", "underscore"],
-       function($, H, _) {
+define(["jquery", "handlebars", "underscore", "utils"],
+       function($, H, _, $u) {
            var loaded = {},
                htmlPromises = {},
                idCounter = 0,
@@ -22,7 +22,7 @@ define(["jquery", "handlebars", "underscore"],
                        if (fn) {
                            promise.resolve(fn);
                        } else {
-                           $.get("/static/template/" + name + ".mustache")
+                           $.get($u.rl("/static/template/" + name + ".mustache"))
                                .done(function(html) {
                                    fn = H.compile(html, options);
                                    loaded[name] = fn;

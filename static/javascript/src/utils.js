@@ -1,5 +1,9 @@
-define(["jquery", "underscore"], function($, _) {
+define(["jquery", "underscore", "config"], function($, _, config) {
     var $u = {
+        rl: function(path) {
+            return config.host + path;
+        },
+
         directions: ["north", "northeast", "east", "southeast",
                      "south", "southwest", "west", "northwest",
                      "north"],

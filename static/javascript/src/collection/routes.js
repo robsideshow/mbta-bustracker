@@ -37,7 +37,7 @@ define(["jquery", "underscore", "backbone", "route-model", "stop-model", "config
                    }
 
                    var self = this;
-                   return $.getJSON("/api/routes")
+                   return $.getJSON($u.rl("/api/routes"))
                        .then(function(response) {
                            self._routeNames = response.route_names;
                            self._routeOrder = response.route_ids;
@@ -57,7 +57,7 @@ define(["jquery", "underscore", "backbone", "route-model", "stop-model", "config
                        return !r || r.get("_loaded");
                    });
 
-                   return $.get("/api/routeinfo", {routes: ids.join(",")})
+                   return $.get($u.rl("/api/routeinfo"), {routes: ids.join(",")})
                        .then(function(resp) {
                            var routes = resp.routes,
                                models = [];

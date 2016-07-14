@@ -275,7 +275,7 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                        return;
                    }
 
-                   $.get("/api/updates", params).
+                   $.get($u.rl("/api/updates"), params).
                        then(function(update) {
                            self.mergeUpdates(update);
                            self._updateFailures = 0;

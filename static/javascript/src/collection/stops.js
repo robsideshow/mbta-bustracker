@@ -78,7 +78,7 @@ define(["backbone", "jquery", "stop-model", "utils", "underscore"],
 
                        var route_ids = {};
                        this._lastRectRequest =
-                           $.getJSON("/api/rectangle",
+                           $.getJSON($u.rl("/api/rectangle"),
                                      {swlat: bounds.getSouth(),
                                       swlon: bounds.getWest(),
                                       nelat: bounds.getNorth(),
