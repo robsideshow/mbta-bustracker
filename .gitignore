@@ -59,10 +59,12 @@ Temporary Items
 /static/build
 /logs/*
 /static/javascript/localConfig.js
-/data
 
 *.log
 
 # text-based version we might want to revisit someday
 old_routes.*
 
+# text files used to make static json dictionaries
+/data
+/MBTA_GTFS_texts
