@@ -4,7 +4,7 @@ Created on Fri Jan 22 03:34:59 2016
 
 @author: Rob
 """
-import json
+import json, os
 
 alldicts = ['shapepathdict', 'routenamesdict', 'tripshapedict', 
             'shaperoutedict', 'routeshapedict', 'shapestopsdict',
@@ -301,7 +301,9 @@ def makeShapeStopSeqDict(shapepathdict, shapestopseqstopiddict, stopinfodict):
 
 
 
-def makeAllDicts():
+def makeAllDicts(folder = 'data'):
+    if not os.path.exists(folder):
+        os.mkdir(folder)
     routenamesdict = makeRouteNamesDict()
     tripshapedict = makeTripShapeDict()
     shaperoutedict = makeShapeRouteDict(routenamesdict)
@@ -313,7 +315,7 @@ def makeAllDicts():
     stopinfodict = makeStopInfoDict(stoproutesdict, shapeinfodict, shapestopsdict)
     shapestopseqdict = makeShapeStopSeqDict(shapepathdict, shapestopseqstopiddict, stopinfodict)
     for dic in alldicts:
-        f = open(dic + '.json', 'w')
+        f = open(folder + '/' + dic + '.json', 'w')
         json.dump(eval(dic), f)
         f.close()
  

@@ -9,7 +9,6 @@ from flask import Flask, render_template, url_for, request, redirect, session
 from flask.ext.assets import Environment, Bundle
 import bustracker as btr
 from api_routes import api_routes
-#from old_routes import old_routes
 import os
 
 app = Flask(__name__)
@@ -23,7 +22,6 @@ scss = Bundle('stylesheets/all.scss',
 assets.register('scss_all', scss)
 
 app.register_blueprint(api_routes, url_prefix="/api")
-#app.register_blueprint(old_routes, url_prefix="/old")
 
 app.secret_key = 'F12Zr47j\3yX R~X@H!jmM]Lwf/,?KT'
 

@@ -11,6 +11,7 @@ import logging
 import requests
 import json
 import sys
+import dictChecker
 
 logging.basicConfig(filename='ignore/bustracker.log',level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -26,21 +27,20 @@ except IOError:
 
 mbta_rt_url = 'http://realtime.mbta.com/developer/api/v2/'
 
-#AG Mednet stopid:234 LatLon:(42.3639399, -71.0511499)   xyCoords:(3423, 749)
-#Mass Ave @ Hollis{'lat': '42.39434', 'stopId': '2297', 'tag': '2297', 'lon': '-71.12703', 'title': 'Massachusetts Ave @ Hollis St'}
-
-MassAveMemDrLatLon = (42.3572, -71.0926)
-KendallLatLon =  (42.362392, -71.084301)
-DTXLatLon = (42.355741, -71.060537)
-
 '''
-First, load several dictionaries from json files.  These dictionaries are made 
+First, update/create the static json files which are made 
 (and saved) using functions in dictmaker.py with the text files from 
-MBTA_GTFS_texts, a folder which can be downloaded from 
-http://www.mbta.com/uploadedfiles/MBTA_GTFS.zip Note that these files change 
-slightly about once every 3 months, due to schedule and route changes.
+MBTA_GTFS_texts.  These text files can be downloaded from 
+http://www.mbta.com/uploadedfiles/MBTA_GTFS.zip 
+Note that these files change slightly about once every 3 months,
+due to schedule and route changes.
 '''
+dictChecker.updateJson()
 
+
+'''
+Next, load the json files into dictionaries.
+'''
 with open('data/shapepathdict.json', 'r') as f:
 	shapepathdict = json.load(f)
 #dict of shape_id : [list of [lat,lon] for that shape]
@@ -768,10 +768,17 @@ def routeAnalyzer(route_id, longseg = 100):
     for shape_id in routeshapedict.get(route_id):
         print shape_id, pathAnalyzer(shapepathdict.get(shape_id), longseg)
     
+
+
+
+# some lat/lon points for testing purposes
+MassAveMemDrLatLon = (42.3572, -71.0926)
+KendallLatLon =  (42.362392, -71.084301)
+DTXLatLon = (42.355741, -71.060537)
     
 
 '''
-The next five function is semi-obsolete.  It gets path points from NextBus.
+The next function is semi-obsolete.  It gets path points from NextBus.
 '''
    
     
