@@ -1,0 +1,9 @@
+version: "2"
+
+services:
+  flask:
+    build: .
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: python flaskbus.py
