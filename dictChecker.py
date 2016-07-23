@@ -17,7 +17,8 @@ This module contains functions that are used to:
 4) combine the above functions to update the static json files in /data directory
 '''
 
-import requests, zipfile, os, StringIO, dictmaker, shutil, logging, sys
+import requests, zipfile, os, dictmaker, shutil, logging, sys
+from io import BytesIO
 
 logging.basicConfig(filename='ignore/bustracker.log',level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -65,12 +66,22 @@ def getZipFile():
     print 'downloading and extracting static GTFS text files from MBTA...'
     try:
         r = requests.get(gtfs_zip_url, stream=True)
-        z = zipfile.ZipFile(StringIO.StringIO(r.content))
+        byte_length = float(r.headers['content-length'])
+        perc_notify = 10
+        byte_buffer = BytesIO()
+        for chunk in r.iter_content():
+            byte_buffer.write(chunk)
+            percent = byte_buffer.tell()/byte_length*100
+            if percent >= perc_notify:
+                logger.info("{percent:0.1f}% downloaded".format(percent=percent))
+                perc_notify += 10
+        logger.info("Download complete.")
+        z = zipfile.ZipFile(byte_buffer)
         z.extractall('MBTA_GTFS_texts')
     except:
-        er = sys.exc_info()
-        logger.error(er)
-        raise ZipDownloadException('There was a problem getting the files.')
+       er = sys.exc_info()
+       logger.error(er)
+       raise
     
 def updateJson():
     '''
