@@ -69,7 +69,7 @@ def getZipFile():
         byte_length = float(r.headers['content-length'])
         perc_notify = 10
         byte_buffer = BytesIO()
-        for chunk in r.iter_content():
+        for chunk in r.iter_content(chunk_size=1024):
             byte_buffer.write(chunk)
             percent = byte_buffer.tell()/byte_length*100
             if percent >= perc_notify:
