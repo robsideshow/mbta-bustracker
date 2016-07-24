@@ -37,7 +37,7 @@ def updates():
             shape_id = btr.tripshapedict.get(veh.get('trip_id'), '')
             if shape_id == '': #Unscheduled trip. Try to get shape_id by matching direction and destination
                 shape_id = btr.getShapeForUnschedTrip(veh.get('route_id', ''),
-                                                      veh.get('direction', ''), 
+                                                      veh.get('direction', ''),
                                                       veh.get('destination', ''))
             if shape_id:
                 active_shapes.append(shape_id)
@@ -45,15 +45,15 @@ def updates():
                 veh_preds = currentdata.current_data.getPredsForOneVehicle(veh.get('id'))
                 if len(veh_preds) == 0:
                     veh['timepoints'] = [{'lat' : veh.get('lat'),
-                                        'lon' : veh.get('lon'), 
+                                        'lon' : veh.get('lon'),
                                         'time' :veh.get('timestamp')}]
                 else:
-                    veh['timepoints'] = btr.getTimepoints(veh.get('lat'),veh.get('lon'), 
+                    veh['timepoints'] = btr.getTimepoints(veh.get('lat'),veh.get('lon'),
                                                         veh.get('timestamp'), shape_id,
                                                         veh_preds)
             else:
                 veh['timepoints'] = [{'lat' : veh.get('lat'),
-                                        'lon' : veh.get('lon'), 
+                                        'lon' : veh.get('lon'),
                                         'time' :veh.get('timestamp')}]
     else:
         vehicles = []
@@ -66,7 +66,7 @@ def updates():
     now_stamp = long(btr.time.time())
 
     return jsonify(vehicles = vehicles,
-                   active_shapes = active_shapes, 
+                   active_shapes = active_shapes,
                    stamp = now_stamp,
                    stops = stops,
                    vehicle_preds = vehicle_preds)
@@ -76,7 +76,7 @@ def bus_routes():
     #the route_ids are in a reasonable order for a user to choose from
     sortedRoute_ids = btr.sortedRoute_ids
     #route_names = dict([(route_id, btr.routenamesdict[route_id]) for route_id in route_ids])
-    return jsonify(route_ids = sortedRoute_ids, 
+    return jsonify(route_ids = sortedRoute_ids,
                    route_names = btr.routenamesdict)
 
 
@@ -131,7 +131,7 @@ def location_info():
     routeidlist = btr.getRoutesForStops([stop.get('stop_id') for stop in nearby_stops])
     parent_stops = btr.getParentsAmongStops([s['stop_id'] for s in nearby_stops])
     return jsonify(stops = nearby_stops,
-                   route_ids = routeidlist, 
+                   route_ids = routeidlist,
                    parent_stops = parent_stops)
 
 

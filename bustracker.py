@@ -28,10 +28,10 @@ except IOError:
 mbta_rt_url = 'http://realtime.mbta.com/developer/api/v2/'
 
 '''
-First, update/create the static json files which are made 
-(and saved) using functions in dictmaker.py with the text files from 
-MBTA_GTFS_texts.  These text files can be downloaded from 
-http://www.mbta.com/uploadedfiles/MBTA_GTFS.zip 
+First, update/create the static json files which are made
+(and saved) using functions in dictmaker.py with the text files from
+MBTA_GTFS_texts.  These text files can be downloaded from
+http://www.mbta.com/uploadedfiles/MBTA_GTFS.zip
 Note that these files change slightly about once every 3 months,
 due to schedule and route changes.
 '''
@@ -75,26 +75,26 @@ with open('data/shaperoutedict.json', 'r') as f:
 
 with open('data/stopinfodict.json', 'r') as f:
 	stopinfodict = json.load(f)
-#dict of stop_id : {Dict of 'stop_id', 'stop_name', 'lat', 'lon', 
+#dict of stop_id : {Dict of 'stop_id', 'stop_name', 'lat', 'lon',
 # 'parent' (if a child), 'children' (if a parent)}
- 
+
 with open('data/shapeinfodict.json', 'r') as f:
 	shapeinfodict = json.load(f)
 #dict of shape_id : {Dict of 'destination', 'direction', 'route_id'}
- 
+
 with open('data/shapestopseqdict.json', 'r') as f:
 	shapestopseqdict = json.load(f)
-#dict of shape_id : {Dict of stop_seq : stop_point_index} 
- 
-  
+#dict of shape_id : {Dict of stop_seq : stop_point_index}
+
+
 class APIException(Exception):
    pass
-           
-    
+
+
 def getAllRoutes():
     '''
-    This is run once to get a list of all the bus and subway route_ids 
-    in a good order (subway first, then CTs and SLs, then numerical order), 
+    This is run once to get a list of all the bus and subway route_ids
+    in a good order (subway first, then CTs and SLs, then numerical order),
     suitable for display on the landing page.
     '''
     tree = et.parse('http://realtime.mbta.com/developer/api/v2/routes?api_key=' + api_key + '&format=xml')
@@ -110,11 +110,11 @@ def getAllRoutes():
     allroutes = trolley_routes + subway_routes + bus_routes
     sortedRoute_ids = [x.attrib['route_id'] for x in allroutes]
     #routes = dict([(x.attrib['route_id'], x.attrib['route_name']) for x in allroutes])
-    return sortedRoute_ids 
-    
+    return sortedRoute_ids
+
 sortedRoute_ids = getAllRoutes()
-        
-def parseVehEntity(vent):     
+
+def parseVehEntity(vent):
     '''
     Takes a GTFS vehicle entity and returns a dictionary of info about the vehicle
     '''
@@ -143,11 +143,11 @@ def parseVehEntity(vent):
     else:
         vdict['type'] = 'subway'
     return vdict
-    
-    
-def parseTripEntity(tent):  
+
+
+def parseTripEntity(tent):
     '''
-    takes a GTFS trip entity and returns a dictionary of info about the trip  
+    takes a GTFS trip entity and returns a dictionary of info about the trip
     '''
     tdict = dict()
     tdict['route_id'] = tent.trip_update.trip.route_id
@@ -163,17 +163,17 @@ def parseTripEntity(tent):
     stu = tent.trip_update.stop_time_update
     tdict['preds'] = [{'stop_seq' : str(x.stop_sequence),
                        'arr_time' : x.arrival.time,
-                       'stop_id' : x.stop_id} for x in stu] 
+                       'stop_id' : x.stop_id} for x in stu]
     if tdict['route_id'][0] == 'C':
         tdict['type'] = 'CR'
     elif tdict['route_id'][0] in '123456789':
         tdict['type'] = 'bus'
     else:
         tdict['type'] = 'subway'
-    return tdict    
- 
+    return tdict
 
-def parseAlertEntity(aent):     
+
+def parseAlertEntity(aent):
     '''
     Takes a GTFS alert entity and returns a dictionary of info about the alert
     '''
@@ -183,14 +183,14 @@ def parseAlertEntity(aent):
     alerts['end_time'] = aent.alert.active_period[0].end
     alerts['route_ids'] = sorted(list(set([x.route_id for x in aent.alert.informed_entity if x.route_id])))
     alerts['stop_ids'] = sorted(list(set([x.stop_id for x in aent.alert.informed_entity if x.stop_id])))
-    alerts['header'] = [x.text for x in aent.alert.header_text.translation]   
-    alerts['description'] = [x.text for x in aent.alert.description_text.translation]   
+    alerts['header'] = [x.text for x in aent.alert.header_text.translation]
+    alerts['description'] = [x.text for x in aent.alert.description_text.translation]
     return alerts
 
-       
+
 def getAllVehiclesGTFS_Raw():
     '''
-    downloads the GTFS protobuffer Vehicles feed from mbta.com. 
+    downloads the GTFS protobuffer Vehicles feed from mbta.com.
     Returns a list of unparsed GTFS vehicle entities
     '''
     feed = gtfs_realtime_pb2.FeedMessage()
@@ -198,7 +198,7 @@ def getAllVehiclesGTFS_Raw():
         url = 'http://developer.mbta.com/lib/GTRTFS/Alerts/VehiclePositions.pb'
         response = requests.get(url, timeout = 10)
         if response.ok:
-            feed.ParseFromString(response.content)       
+            feed.ParseFromString(response.content)
             return feed.entity
     except:
         er = sys.exc_info()
@@ -208,7 +208,7 @@ def getAllVehiclesGTFS_Raw():
 
 def getAllTripsGTFS_Raw():
     '''
-    downloads the GTFS protobuffer Trips feed from mbta.com.  
+    downloads the GTFS protobuffer Trips feed from mbta.com.
     Returns a list of unparsed GTFS trip entities
     '''
     feed = gtfs_realtime_pb2.FeedMessage()
@@ -216,7 +216,7 @@ def getAllTripsGTFS_Raw():
         url = 'http://developer.mbta.com/lib/GTRTFS/Alerts/TripUpdates.pb'
         response = requests.get(url, timeout = 10)
         if response.ok:
-            feed.ParseFromString(response.content)       
+            feed.ParseFromString(response.content)
             return feed.entity
     except:
         er = sys.exc_info()
@@ -226,7 +226,7 @@ def getAllTripsGTFS_Raw():
 
 def getAllAlertsGTFS_Raw():
     '''
-    downloads the GTFS protobuffer Alerts feed from mbta.com.  
+    downloads the GTFS protobuffer Alerts feed from mbta.com.
     Returns a list of unparsed GTFS alert entities
     '''
     feed = gtfs_realtime_pb2.FeedMessage()
@@ -234,7 +234,7 @@ def getAllAlertsGTFS_Raw():
         url = 'http://developer.mbta.com/lib/GTRTFS/Alerts/Alerts.pb'
         response = requests.get(url, timeout = 10)
         if response.ok:
-            feed.ParseFromString(response.content)       
+            feed.ParseFromString(response.content)
             return feed.entity
     except:
         er = sys.exc_info()
@@ -244,7 +244,7 @@ def getAllAlertsGTFS_Raw():
 
 def getAllVehiclesGTFS():
     '''
-    downloads the most recent protobuffer Vehicles feed and returns a list of 
+    downloads the most recent protobuffer Vehicles feed and returns a list of
     dictionaries with info for each vehicle
     '''
     parsed_vehicles = []
@@ -257,58 +257,58 @@ def getAllVehiclesGTFS():
 
 def getAllTripsGTFS():
     '''
-    downloads the most recent protobuffer Trips feed and returns a list of 
-    dictionaries with info for each trip. Trips that are underway already or 
+    downloads the most recent protobuffer Trips feed and returns a list of
+    dictionaries with info for each trip. Trips that are underway already or
     about to depart have a specific vehicle, but trips further in the future don't
     '''
     parsed_trips = []
     for t in getAllTripsGTFS_Raw():
         if t.trip_update.trip.route_id in routenamesdict:
             parsed_trips.append(parseTripEntity(t))
-    logger.info('Got trips!  Number of trips: {0}'.format(len(parsed_trips)))    
+    logger.info('Got trips!  Number of trips: {0}'.format(len(parsed_trips)))
     return parsed_trips
- 
- 
+
+
 def getAllAlertsGTFS():
     '''
-    downloads the most recent protobuffer Vehicles feed and returns a list of 
+    downloads the most recent protobuffer Vehicles feed and returns a list of
     dictionaries with info for each vehicle
     '''
     parsed_alerts = []
     for a in getAllAlertsGTFS_Raw():
         parsed_alerts.append(parseAlertEntity(a))
-    logger.info('Got Alerts!  Number of alerts: {0}'.format(len(parsed_alerts)))    
+    logger.info('Got Alerts!  Number of alerts: {0}'.format(len(parsed_alerts)))
     return parsed_alerts
-   
+
 
 def getAllStops():
     '''
-    returns a list of dictionaries, one for each stop 
+    returns a list of dictionaries, one for each stop
     minus any generic subway "parent" stations
     '''
     stops = [stopinfodict[s] for s in stopinfodict if s[0] != 'p']
     for stop in stops:
         routenames = filter(lambda x : x!= '', [routenamesdict[route_id] for route_id in stoproutesdict.get(stop['stop_id'], '') ])
-        stop['routes'] = ', '.join(routenames)            
+        stop['routes'] = ', '.join(routenames)
     return stops
-   
-   
+
+
 def getNearbyStops(lat, lon, numstops = 15, radius = 800):
     '''
-    returns a list of dictionaries, one for each of the stops nearest the 
+    returns a list of dictionaries, one for each of the stops nearest the
     given (lat, lon). It will return the GREATER number of stops from:
     1) the nearest (numstops) stops, regardless of distance, or
-    2) all stops withing (radius) METERS 
-    
-    That is, if you are in a sparse area and/or (radius) is very small, you will 
+    2) all stops withing (radius) METERS
+
+    That is, if you are in a sparse area and/or (radius) is very small, you will
     get (numstops) stops.  If you are in a congested area and/or (radius) is large,
     you will get all stops within (radius) meters.
     '''
-    asradius = convertDist2ASD(radius)  
+    asradius = convertDist2ASD(radius)
     asdistlist = []
     for stop_id in stopinfodict:
-        asdist = angularSquaredDist(lat, lon, 
-                                    stopinfodict[stop_id]['lat'], 
+        asdist = angularSquaredDist(lat, lon,
+                                    stopinfodict[stop_id]['lat'],
                                     stopinfodict[stop_id]['lon'])
         asdistlist.append((stop_id, asdist))
     nearstops = filter(lambda x : x[1] < asradius, asdistlist)
@@ -318,13 +318,13 @@ def getNearbyStops(lat, lon, numstops = 15, radius = 800):
     stops = [stopinfodict[x[0]] for x in nearstops]
     for stop in stops:
         routenames = filter(lambda x : x!= '', [routenamesdict[route_id] for route_id in stoproutesdict.get(stop['stop_id'], '') ])
-        stop['routes'] = ', '.join(routenames)  
+        stop['routes'] = ', '.join(routenames)
     return stops
-      
-      
+
+
 def getStopsInRectangle(swlat, swlon, nelat, nelon):
     '''
-    takes lat/lon for the southwest and northeast corners of a rectangle and 
+    takes lat/lon for the southwest and northeast corners of a rectangle and
     returns a list of stopinfo dictionaries for the stops in that rectangle
     '''
     stops = []
@@ -338,19 +338,19 @@ def getStopsInRectangle(swlat, swlon, nelat, nelon):
     return stops, parent_stops
 
 
-        
+
 def getBusesOnRoutes(routelist):
     '''
     Takes a list of route_ids and returns a list of dictionaries, one for each
     vehicle currently on those routes
     '''
     vehicles = getAllVehiclesGTFS()
-    return [veh for veh in vehicles if veh['route_id'] in routelist]   
+    return [veh for veh in vehicles if veh['route_id'] in routelist]
 
 
 def getRoutesForStops(stopidlist):
     '''
-    takes a list of stop_ids and returns a list of route_ids for all routes 
+    takes a list of stop_ids and returns a list of route_ids for all routes
     which go through those stops
     '''
     routeidlist = []
@@ -362,7 +362,7 @@ def getRoutesForStops(stopidlist):
 
 def getParentsAmongStops(stopidlist):
     '''
-    takes a list of stop_ids and returns a list of dictionaries, one for each 
+    takes a list of stop_ids and returns a list of dictionaries, one for each
     of the parent stops that is in the list stopidlist
     '''
     parents = []
@@ -372,14 +372,14 @@ def getParentsAmongStops(stopidlist):
             route_ids = stopinfo.get('route_ids')
             routenames = filter(lambda x : x!= '', [routenamesdict.get(route_id, '') for route_id in route_ids])
             routenames = sorted(list(set(routenames)))
-            stopinfo['routes'] = ', '.join(routenames)  
+            stopinfo['routes'] = ', '.join(routenames)
             parents.append(stopinfo)
     return parents
-    
+
 
 def getParentsForStops(stopidlist):
     '''
-    takes a list of stop_ids and returns a list of dictionaries, one for each 
+    takes a list of stop_ids and returns a list of dictionaries, one for each
     parent stop that has children in the list stopidlist
     '''
     parent_ids = []
@@ -391,17 +391,17 @@ def getParentsForStops(stopidlist):
     parents = [stopinfodict[parent_id] for parent_id in parent_ids]
     return parents
 
-        
- 
+
+
 def angularSquaredDist(lat1, lon1, lat2, lon2):
     '''
-    calculates a number proportional to the squared distance, computationally 
+    calculates a number proportional to the squared distance, computationally
     much more efficient than calculating the distance
     '''
     dlon = lon1 - lon2
     dlat = lat1 - lat2
     return dlat**2 + (.742*dlon)**2
-    
+
 def convertASD2Dist(asdist):
     '''converts the "angular squared distance" to distance in meters'''
     return 111120*((asdist)**.5)
@@ -409,8 +409,8 @@ def convertASD2Dist(asdist):
 def convertDist2ASD(dist_meters):
     '''converts distance in meters to "angular squared distance" '''
     return (dist_meters/float(111120))**2
-       
-    
+
+
 def convertll2xy(latlon):
     '''
     converts a (lat, lon) to x, y coordinates in meters
@@ -419,8 +419,8 @@ def convertll2xy(latlon):
     '''
     lat, lon = latlon
     return (int((lon +71.0926)*82600), int((lat - 42.3572)*111120))
-    
-    
+
+
 def convertxy2latlon(xy):
     '''
     converts x, y coordinates in meters to (lat, lon)
@@ -434,19 +434,19 @@ def convertxy2latlon(xy):
 def distxy(xy1, xy2):
     dx = xy1[0] - xy2[0]
     dy = xy1[1] - xy2[1]
-    return (dx**2 + dy**2)**.5    
-    
-    
+    return (dx**2 + dy**2)**.5
+
+
 def distll(lat1, lon1, lat2, lon2):
     return ((111120*(lat1 - lat2))**2 + (82600*(lon1 - lon2))**2)**.5
-    
+
 
 def trip2route(trip_id):
     '''
     takes a trip_id and returns the shape_id for that trip
     '''
     return shaperoutedict.get(tripshapedict.get(trip_id), '')
-    
+
 def trip2stops(trip_id):
     '''
     takes a trip_id and returns a list of stop_ids, in order, for that trip
@@ -456,7 +456,7 @@ def trip2stops(trip_id):
 
 def findClosestPoint(lat, lon, path):
     '''
-    takes a (vehicle) lat and lon and a path (list of (lat, lon)) and returns 
+    takes a (vehicle) lat and lon and a path (list of (lat, lon)) and returns
     the INDEX of the path point closest to the given location
     '''
     closest_i = 0
@@ -469,11 +469,11 @@ def findClosestPoint(lat, lon, path):
             closest_i = i
             min_asdist = asdist
     return closest_i
- 
-   
+
+
 def findClosestPointFast(lat, lon, path):
     '''
-    takes a (vehicle) lat and lon and a path (list of (lat, lon)) and returns 
+    takes a (vehicle) lat and lon and a path (list of (lat, lon)) and returns
     the INDEX of the path point closest to the given location
     '''
     cs = 10
@@ -489,12 +489,12 @@ def findClosestPointFast(lat, lon, path):
     else:
         refined_path = path[k - cs: k + cs]
         return k - cs + findClosestPoint(lat, lon, refined_path)
-          
-        
-    
+
+
+
 def buildAnimationDicts(path, first_i, start_lat, start_lon, start_time, speed):
     '''
-    takes a path, a starting lat and lon not on the path, the index of the 
+    takes a path, a starting lat and lon not on the path, the index of the
     first path point to go to, the starting timestamp, and the speed in m/s
     returns a list of {time, lat, lon} dicts
     '''
@@ -508,13 +508,13 @@ def buildAnimationDicts(path, first_i, start_lat, start_lon, start_time, speed):
         dx = distll(curr_lat, curr_lon, next_lat, next_lon)
         dt = dx/float(speed)
         if dx > 1:
-            timepoints.append({'time':round(curr_time + dt, 2), 
+            timepoints.append({'time':round(curr_time + dt, 2),
                                'lat':next_lat, 'lon':next_lon})
         curr_lat, curr_lon = next_lat, next_lon
         curr_time += dt
         i += 1
     return timepoints
-            
+
 
 def getStopPointIndices(shape_id):
     '''
@@ -528,13 +528,13 @@ def getStopPointIndices(shape_id):
         stopinfo = stopinfodict[stop_id]
         stop_point_indices.append(findClosestPoint(stopinfo['lat'], stopinfo['lon'], path))
     return stop_point_indices
- 
-   
+
+
 def calcAlpha(plat1, plon1, plat2, plon2, vlat, vlon):
     '''
-    takes the endpoints of a path segment from p1 to p2, and the position of a vehicle 
-    v, and calculates the proportion from p1 to p2 where the projection of v onto 
-    the line through p1 and p2 would be.  e.g. alpha = 0 corresponds to p1, 
+    takes the endpoints of a path segment from p1 to p2, and the position of a vehicle
+    v, and calculates the proportion from p1 to p2 where the projection of v onto
+    the line through p1 and p2 would be.  e.g. alpha = 0 corresponds to p1,
     alpha = .8 is 80% of the way from p1 to p2, alpha < 0 means v projects onto
     a point behind p1, and alpha > 1 means v projects past p2.
     '''
@@ -547,11 +547,11 @@ def calcAlpha(plat1, plon1, plat2, plon2, vlat, vlon):
     alpha = (rx*px + ry*py)/(px**2 + py**2)
     return alpha
 
-    
+
 def projectVehOnSeg(plat1, plon1, plat2, plon2, vlat, vlon):
     '''
-    takes the endpoints of a path segment from p1 to p2, and the position of a vehicle 
-    v, and calculates the point on the segment closest to v 
+    takes the endpoints of a path segment from p1 to p2, and the position of a vehicle
+    v, and calculates the point on the segment closest to v
     '''
     alpha = calcAlpha(plat1, plon1, plat2, plon2, vlat, vlon)
     if alpha < 0:
@@ -587,13 +587,13 @@ def calcTimepointsSection(path, start_time, finish_time):
         dx = distll(curr_lat, curr_lon, next_lat, next_lon)
         dt = dx/speed
         if dx > 1:
-            timepoints.append({'time':round(curr_time + dt, 2), 
+            timepoints.append({'time':round(curr_time + dt, 2),
                                'lat':next_lat, 'lon':next_lon})
         curr_lat, curr_lon = next_lat, next_lon
         curr_time += dt
     return timepoints
 
-      
+
 
 def getTimepoints(vlat, vlon, veh_stamp, shape_id, preds):
     '''
@@ -637,16 +637,16 @@ def getTimepoints(vlat, vlon, veh_stamp, shape_id, preds):
         else:
             first_point = projectVehOnSeg(next_seg[0][0], next_seg[0][1], next_seg[1][0], next_seg[1][1], vlat, vlon)
             second_i = next_end_i
-    
-    
-    timepoints = [{'time':round(veh_stamp, 2), 
+
+
+    timepoints = [{'time':round(veh_stamp, 2),
                    'lat':first_point[0], 'lon':first_point[1]}]
-    path_i = second_i 
-    first_path_section = [first_point] + path[path_i:stop_seq_ind_dict.get(first_pred['stop_seq'], path_i)]             
+    path_i = second_i
+    first_path_section = [first_point] + path[path_i:stop_seq_ind_dict.get(first_pred['stop_seq'], path_i)]
     timepoints += calcTimepointsSection(first_path_section, veh_stamp, first_pred['arr_time'])
     curr_time = first_pred['arr_time']
     curr_stop_seq = first_pred['stop_seq']
-    pred_i = 1 #keep track of the pred to use for the END of the NEXT section 
+    pred_i = 1 #keep track of the pred to use for the END of the NEXT section
     while (curr_time < time_now + 180) and (pred_i <= len(future_preds) - 1):
         curr_pred = future_preds[pred_i] #the pred for the END of the section
         prev_stop_seq = curr_stop_seq
@@ -664,13 +664,13 @@ def getTimepoints(vlat, vlon, veh_stamp, shape_id, preds):
             break
     return timepoints
 
-    
+
 
 
 
 def getShapeForUnschedTrip(route_id, direction, destination):
     '''
-    For unscheduled trip with trip_id not in static GTFS dictionaries, try to 
+    For unscheduled trip with trip_id not in static GTFS dictionaries, try to
     find a shape_id with the same direction and destination
     '''
     shape_ids = routeshapedict[route_id]
@@ -700,7 +700,7 @@ def seglist2Pathlist(seglist):
         else:
             if len(curr_path) > 1: pathlist.append(curr_path)
             curr_path = [seg[0], seg[1]]
-    pathlist.append(curr_path)        
+    pathlist.append(curr_path)
     return pathlist
 
 def stopPointEliminator(path):
@@ -741,11 +741,11 @@ def pathReducer(pathlist):
             newpaths = [path]
         else:
             newpaths = seglist2Pathlist(curr_reduced_path_segs)
-        reduced_pathlist.extend(newpaths)   
+        reduced_pathlist.extend(newpaths)
         pathnum += 1
     return reduced_pathlist
-    
-    
+
+
 def pathAnalyzer(path, longseg = 100):
     '''
     takes a path and returns: number of segments, total length of path, avg segment length
@@ -762,12 +762,12 @@ def pathAnalyzer(path, longseg = 100):
         totlen += seglength
     avglen = totlen/numsegs
     return numsegs, round(totlen), round(avglen, 1), sorted(longsegs)
- 
-   
+
+
 def routeAnalyzer(route_id, longseg = 100):
     for shape_id in routeshapedict.get(route_id):
         print shape_id, pathAnalyzer(shapepathdict.get(shape_id), longseg)
-    
+
 
 
 
@@ -775,13 +775,13 @@ def routeAnalyzer(route_id, longseg = 100):
 MassAveMemDrLatLon = (42.3572, -71.0926)
 KendallLatLon =  (42.362392, -71.084301)
 DTXLatLon = (42.355741, -71.060537)
-    
+
 
 '''
 The next function is semi-obsolete.  It gets path points from NextBus.
 '''
-   
-    
+
+
 
 def getLatLonPathsByRoute(rtnum):
     rttree = et.parse('http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta&r=' + str(rtnum))
@@ -793,7 +793,3 @@ def getLatLonPathsByRoute(rtnum):
     allpaths = [[(float(pt.attrib['lat']),float(pt.attrib['lon'])) for pt in pa.getchildren()] for pa in allElements if pa.tag == 'path']
     centerLatLon = (.5*(latMin + latMax), .5*(lonMin + lonMax))
     return allpaths, centerLatLon
-
-   
-        
-        

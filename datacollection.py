@@ -15,23 +15,23 @@ pl = btr.pl
 
 
 class TripData(object):
-    
+
     def __init__(self, trip_id):
         self.trip_id = trip_id
         self.route_id = btr.trip2route(trip_id)
         self.stoplist = btr.trip2stops(trip_id)
-        self.data = DF([0] + self.stoplist, 
-                       index = ['veh_timestamp'] + range(1, len(self.stoplist) + 1), 
+        self.data = DF([0] + self.stoplist,
+                       index = ['veh_timestamp'] + range(1, len(self.stoplist) + 1),
                         columns = ['stop_id'])
         veh_stamp, init_preds = self.getOneTripPreds()
         init_time = tm()
-        self.sch_dep_tm = init_preds[0]['sch_dep_dt']  
+        self.sch_dep_tm = init_preds[0]['sch_dep_dt']
         self.data['schedule'] = [0] + [int(x['sch_dep_dt']) for x in init_preds]
         self.data[init_time] = [veh_stamp]+[int(x['pre_dt']) for x in init_preds]
-        
-    
+
+
     def getOneTripPreds(self):
-        preds = btr.json.load(btr.urllib.urlopen('http://realtime.mbta.com/developer/api/v2/predictionsbytrip?api_key=' 
+        preds = btr.json.load(btr.urllib.urlopen('http://realtime.mbta.com/developer/api/v2/predictionsbytrip?api_key='
                     + btr.api_key + '&trip=' + self.trip_id +'&format=json'))
         if 'vehicle' in preds:
             veh_stamp = int(preds['vehicle']['vehicle_timestamp'])
@@ -41,7 +41,7 @@ class TripData(object):
             return veh_stamp, 'finished'
         else:
             return veh_stamp, preds['stop']
-        
+
     def collectDataOneTrip(self, numsteps = 200):
         for n in range(numsteps):
             btr.time.sleep(60)
@@ -55,9 +55,9 @@ class TripData(object):
                 self.data[curr_time] = [veh_stamp]+[int(x['pre_dt']) for x in preds]
             else:
                 self.data[curr_time] = [veh_stamp]+ (current_stop - 1)*[0] + [int(x['pre_dt']) for x in preds]
-                
-            
-            
+
+
+
 def getQtimesAndPreds(df, stop_seq):
     qtimes = list(df.columns[2:])
     tmp = df[stop_seq:stop_seq + 1]
@@ -66,6 +66,3 @@ def getQtimesAndPreds(df, stop_seq):
     preds = [x-sched for x in preds if x != 0]
     qtimes = [x - sched for x in qtimes[:len(preds)]]
     return qtimes, preds
-    
-           
-        

@@ -15,9 +15,9 @@ app = Flask(__name__)
 
 assets = Environment(app)
 assets.url = app.static_url_path
-scss = Bundle('stylesheets/all.scss', 
-                filters='pyscss', 
-                output='build/css/all.css', 
+scss = Bundle('stylesheets/all.scss',
+                filters='pyscss',
+                output='build/css/all.css',
                 depends=('stylesheets/**/*.scss'))
 assets.register('scss_all', scss)
 
@@ -30,7 +30,7 @@ sortedRoute_ids = btr.sortedRoute_ids
 
 @app.route("/")
 def live_map():
-    return render_template('liveMap.html', 
+    return render_template('liveMap.html',
                           routeTitles = btr.routenamesdict,
                           rnums = sortedRoute_ids);
 

@@ -9,7 +9,7 @@ Created on Tue Jul 12 19:33:53 2016
 This module contains functions that are used to:
 1) get the info.txt file from MBTA and parse the current version info
 
-2) check whether the local MBTA_GTFS_texts/feed_info.txt file exists and if 
+2) check whether the local MBTA_GTFS_texts/feed_info.txt file exists and if
     so what version it is
 
 3) download the zip archive from MBTA, unzip the text files to /MBTA_GTFS_texts
@@ -45,12 +45,12 @@ def getMBTAGtfsInfo():
         er = sys.exc_info()
         logger.error(er)
         return 'trouble getting MBTA version info'
-        
+
 def getLocalGtfsInfo():
     '''
     get the GTFS version info from the local disk
     '''
-    if os.path.exists('MBTA_GTFS_texts/feed_info.txt'):       
+    if os.path.exists('MBTA_GTFS_texts/feed_info.txt'):
         try:
             f = open('MBTA_GTFS_texts/feed_info.txt', 'r')
             info = f.read().split('",')[-1].strip()
@@ -82,30 +82,27 @@ def getZipFile():
        er = sys.exc_info()
        logger.error(er)
        raise
-    
+
 def updateJson():
     '''
     1) checks whether the \MBTA_GTFS_texts folder exists
-    
-    2) if so, checks whether the version of the feed_info.txt matches the 
-    current version at MBTA website.  If not, download new GTFS text files and 
+
+    2) if so, checks whether the version of the feed_info.txt matches the
+    current version at MBTA website.  If not, download new GTFS text files and
     create new json files in \data folder.
-    
-    3) even if local MBTA file version matches current version at MBTA website, still 
+
+    3) even if local MBTA file version matches current version at MBTA website, still
     check to make sure \data folder exists.  If not, create it and json files.
-    
+
     '''
-    if not (os.path.exists('MBTA_GTFS_texts/feed_info.txt') and 
+    if not (os.path.exists('MBTA_GTFS_texts/feed_info.txt') and
                     getLocalGtfsInfo() == getMBTAGtfsInfo()):
         getZipFile()
         if os.path.exists('data'):
             shutil.rmtree('data')
         os.mkdir('data')
         dictmaker.makeAllDicts()
-        
+
     if not os.path.exists('data'):
         os.mkdir('data')
         dictmaker.makeAllDicts()
-
-        
-        
