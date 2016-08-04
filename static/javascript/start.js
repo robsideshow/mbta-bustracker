@@ -22,6 +22,8 @@ define(["jquery", "leaflet", "animation", "map", "legend", "config",
                            animation.start();
                        });
 
+                   map.showStartView();
+
                    var modeControl = {bus: "#route-selector",
                                       subway: "#metro-selector"};
 
@@ -46,14 +48,16 @@ define(["jquery", "leaflet", "animation", "map", "legend", "config",
                        return false;
                    });
 
+                   // A slapdash feature, never meant to be around this long (at
+                   // least not in this form!)  Captures the user's next click
+                   // and zooms to that point.
                    $("#click-to-zoom").click(function() {
                        map.captureLocation();
                        return false;
                    });
 
                    app.on("geolocating", function(on) {
-                       $("#locate-me").html(on ? "Stop Geolocation" :
-                                           "Locate Me!");
+                       $("#locate-me").html(on ? "Stop Geolocation" : "Locate Me!");
                    });
 
                    $(document).on("click", ".size-to-fit",
@@ -62,6 +66,7 @@ define(["jquery", "leaflet", "animation", "map", "legend", "config",
                                       return false;
                                   });
 
+                   // If a Google Analytics ID is configured, set that up:
                    window.ga = gaStub;
                    if (config.gAnalyticsID) {
                     (function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){

@@ -156,7 +156,7 @@ define(["jquery", "underscore", "config"], function($, _, config) {
          * subarray at each step
          * @param {Object} ctx
          *
-         * @returns {Array} An array 
+         * @returns {Array} An array
          */
         step: function(list, fn, size, step, ctx) {
             var out = [];
@@ -240,6 +240,20 @@ define(["jquery", "underscore", "config"], function($, _, config) {
             }
 
             return false;
+        },
+
+        canLocate: function() {
+            var deferred = $.Deferred();
+
+            if (navigator.permissions) {
+                navigator.permissions.query({name: "geolocation"}).then(function(result) {
+                    deferred.resolve(result.state == "granted");
+                });
+            } else {
+                deferred.resolve(false);
+            }
+
+            return deferred;
         },
 
         /**

@@ -1,6 +1,6 @@
 define(["optional!local-config", "underscore"], function(localConfig, _) {
     var config = {
-        defaultRoutes: [],
+        defaultRoutes: ["Red", "Orange", "Blue"],
         defaultRouteStyle: {
             opacity: 0.5,
             weight: 4

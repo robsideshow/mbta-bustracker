@@ -99,6 +99,18 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                    }
                },
 
+               showStartView: function() {
+                   //debugger;
+                   var map = this;
+                   $u.canLocate().then(function(canLocate) {
+                       if (canLocate) {
+                           map.toggleLocationWatch();
+                       } else {
+                           app.addRoutes(config.defaultRoutes);
+                       }
+                   });
+               },
+
                captureLocation: function() {
                    this.elt.addClass("click-to-zoom");
                    this._captureClickLocation = true;
