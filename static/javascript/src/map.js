@@ -100,13 +100,12 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                },
 
                showStartView: function() {
-                   //debugger;
                    var map = this;
                    $u.canLocate().then(function(canLocate) {
                        if (canLocate) {
                            map.toggleLocationWatch();
                        } else {
-                           app.addRoutes(config.defaultRoutes);
+                           map.app.addRoutes(config.defaultRoutes);
                        }
                    });
                },
@@ -412,6 +411,7 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
 
                // Displaying stop predictions:
                onVehicleSelected: function(id, vehicle) {
+                   this._selectedId = id;
                    this.listenTo(vehicle, "change:preds",
                                  this.onVehiclePredsUpdate)
                        .listenTo(vehicle, "remove", function() {
@@ -422,6 +422,8 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                },
 
                onVehicleUnselected: function(id, vehicle) {
+                   if (this._selectedId == id)
+                       this._selectedId = null;
                    this.stopListening(vehicle);
                    var preds = vehicle.get("preds");
 
