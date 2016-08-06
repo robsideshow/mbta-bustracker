@@ -418,6 +418,9 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                            // Cleanup and hide predictions if the vehicle is removed:
                            this.onVehicleUnselected(id, vehicle);
                        });
+                   if (vehicle.get("preds")) {
+                       this.onVehiclePredsUpdate(vehicle, vehicle.get("preds"));
+                   }
                    this._nextTick = 0;
                },
 
