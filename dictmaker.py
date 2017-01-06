@@ -249,12 +249,16 @@ def makeStopInfoDict(stoproutesdict, shapeinfodict, shapestopsdict,
                                          ('lon', lon),
                                          ('route_ids', stoproutesdict.get(stop_id))])
             if stop_id[0] == 'p':
-                #the parent stops are the first stops in the file
                 stopinfodict[stop_id]['children'] = []
             if parent:
                 #i.e. if you HAVE a parent
-                stopinfodict[parent]['children'].append(stop_id)
                 stopinfodict[stop_id]['parent'] = parent
+    
+    for stop_id in stopinfodict:
+        parent = stopinfodict[stop_id].get('parent')
+        if parent:
+            stopinfodict[parent]['children'].append(stop_id)
+    
     for stop_id in stopinfodict:
         stopinfodict[stop_id]['one_way'] = set()
         if stopinfodict[stop_id].get('children'):
