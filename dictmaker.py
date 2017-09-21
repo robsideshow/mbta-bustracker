@@ -84,7 +84,7 @@ def makeTripShapeDict(filename = 'MBTA_GTFS_texts/trips.txt'):
     rawlines = f.readlines()
     f.close()
     splitlines = [l.split(',') for l in rawlines]
-    tripshapedict = dict([(l[2].strip('"'), l[-2].strip('"')) for l in splitlines])
+    tripshapedict = dict([(l[2].strip('"'), l[-3].strip('"')) for l in splitlines])
     return tripshapedict
     
     
@@ -100,7 +100,7 @@ def makeShapeRouteDict(routenamesdict, filename = 'MBTA_GTFS_texts/trips.txt'):
     for l in splitlines:
         route_id = l[0].strip('"')
         if route_id in routenamesdict:
-            shape_id = l[-2].strip('"')
+            shape_id = l[-3].strip('"')
             shaperoutedict[shape_id] = route_id
     return shaperoutedict
 
@@ -211,11 +211,12 @@ def makeShapeInfoDict(shaperoutedict, filename = 'MBTA_GTFS_texts/trips.txt'):
     shapeinfodict = dict()
     splitlines = [l.split(',') for l in rawlines]
     for l in splitlines:
-        shape_id = l[-2].strip('"')
+        shape_id = l[-3].strip('"')
+        print shape_id
         if shape_id in shaperoutedict:
             route_id = l[0].strip('"')
             destination = l[3].strip('"')
-            direction = l[-4].strip('"')
+            direction = l[-5].strip('"')
             shapeinfodict[shape_id] = {'route_id' : route_id, 
                                         'destination' : destination,
                                         'direction' : direction}
