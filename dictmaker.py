@@ -4,6 +4,7 @@ Created on Fri Jan 22 03:34:59 2016
 
 @author: Rob
 """
+import csv
 import json, os
 
 alldicts = ['shapepathdict', 'routenamesdict', 'tripshapedict', 
@@ -76,17 +77,16 @@ def makeRouteNamesDict(filename = 'MBTA_GTFS_texts/routes.txt'):
     return routenamesdict
     
     
+def file_to_dict(filename, keyfn, valfn):
+    with open(filename) as f:
+        return {keyfn(d): valfn(d) for d in csv.DictReader(f)}
+
+
 def makeTripShapeDict(filename = 'MBTA_GTFS_texts/trips.txt'):
     #reads the 'trips.txt' file and returns a dictionary of 
     # trip_id : shape_id 
-    f = open(filename, 'r')
-    f.readline()
-    rawlines = f.readlines()
-    f.close()
-    splitlines = [l.split(',') for l in rawlines]
-    tripshapedict = dict([(l[2].strip('"'), l[-3].strip('"')) for l in splitlines])
-    return tripshapedict
-    
+    return file_to_dict(filename, lambda d: d["trip_id"], lambda d: d["shape_id"])
+
     
 def makeShapeRouteDict(routenamesdict, filename = 'MBTA_GTFS_texts/trips.txt'):
     #reads the 'trips.txt' file and returns a dictionary of 
