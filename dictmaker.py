@@ -212,7 +212,7 @@ def makeShapeInfoDict(shaperoutedict, filename = 'MBTA_GTFS_texts/trips.txt'):
     splitlines = [l.split(',') for l in rawlines]
     for l in splitlines:
         shape_id = l[-3].strip('"')
-        print shape_id
+        #print shape_id
         if shape_id in shaperoutedict:
             route_id = l[0].strip('"')
             destination = l[3].strip('"')
@@ -270,7 +270,7 @@ def makeStopInfoDict(stoproutesdict, shapeinfodict, shapestopsdict,
             stopinfodict[stop_id]['route_ids'] = route_ids
     for shape_id in shapeinfodict:
         direction = shapeinfodict[shape_id]['direction']
-        stoplist = shapestopsdict[shape_id]
+        stoplist = shapestopsdict.get(shape_id, [])
         for stop_id in stoplist:
             stopinfodict[stop_id]['one_way'].add(direction)
     for stop_id in stopinfodict:
@@ -294,7 +294,7 @@ def makeShapeStopSeqDict(shapepathdict, shapestopseqstopiddict, stopinfodict):
     shapestopseqdict = dict()
     for shape_id in shapepathdict:
         path = shapepathdict[shape_id]
-        stopseq_stopid_list = shapestopseqstopiddict[shape_id]
+        stopseq_stopid_list = shapestopseqstopiddict.get(shape_id, [])
         stopseqdict = dict()
         for stopseq_stopid in stopseq_stopid_list:
             stopseq, stop_id = stopseq_stopid
