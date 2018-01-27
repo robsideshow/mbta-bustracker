@@ -1,0 +1,7 @@
+$information-phone: "only screen and (max-width : 450px)";
+
+@media #{$information-phone} {
+    header nav {
+        display: none;
+    }
+}

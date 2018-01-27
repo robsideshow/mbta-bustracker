@@ -1,3 +1,5 @@
+$information-phone: "only screen and (max-width : 420px)";
+
 #map.click-to-zoom {
     cursor: crosshair;
 }
@@ -217,6 +219,14 @@
             &:hover, &.active {
                 background-color: #222f3f;
             }
+
+            @media #{$information-phone} {
+                font-size: 1.3em;
+            }
+        }
+
+        @media #{$information-phone} {
+            font-size: 1em;
         }
     }
 
@@ -246,6 +256,10 @@
             &:hover {
                 background: $accent-3;
                 color: white;
+            }
+
+            @media #{$information-phone} {
+                font-size-adjust: 1.25;
             }
         }
 
