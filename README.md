@@ -1,4 +1,4 @@
-# [MBTA.fyi](https://www.mbta.fyi)
+# Public instance running at [MBTA.fyi](https://mbta.fyi/)
 
 # Set up the environment
 We use Conda to manage our Python libraries. [Install conda](http://conda.pydata.org/docs/install/quick.html)
