@@ -102,6 +102,11 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                    this._showModes = showMode;
                },
 
+               allSelected: function() {
+                   return _.reduce(this._routes,
+                                   function(s, r) { return s && r.active; });
+               },
+
                // Redraw the view using the last stamp
                rerender: function() {
                    this._updateRoutes();
@@ -120,6 +125,7 @@ define(["backbone", "underscore", "utils", "config", "templates"],
 
                    var data = {
                        showAllButton: this._routes.length > 1,
+                       allSelected: this.allSelected(),
                        routes: this._routes,
                        name: stop.getName(),
                        stop_id: stop.id,
@@ -255,9 +261,16 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                    var ids = _.keys(this.model.get("route_ids")),
                        app = this.app;
 
-                   _.each(ids, function(id) {
-                       app.addRoute(id);
-                   });
+                   if (this.allSelected()) {
+                       _.each(ids, function(id) {
+                           app.removeRoute(id);
+                       });
+                       this.rerender();
+                   } else {
+                       _.each(ids, function(id) {
+                           app.addRoute(id);
+                       });
+                   }
                    e.preventDefault();
                }
            });
