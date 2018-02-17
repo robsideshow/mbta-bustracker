@@ -58,19 +58,14 @@ def makeRouteNamesDict(filename = 'MBTA_GTFS_texts/routes.txt'):
     #reads the 'routes.txt' file and returns a dictionary of 
     # route_id : route_name
     # WARNING: MUST MANUALLY ADJUST ENTRY FOR SL WATERLINE in txt file
-    f = open(filename, 'r')
-    f.readline()
-    rawlines = f.readlines()
-    f.close()
-    splitlines = [l.split(',') for l in rawlines]
     routenamesdict = dict()
-    for l in splitlines:
-        route_id = l[0].strip('"')
-        if route_id[:2] not in ('CR', 'Bo', 'Lo', 'Ca'):
-            if l[2].strip('"') == '':
-                routename = l[3].strip('"')
+    with open(filename) as f:
+        for d in csv.DictReader(f):
+            route_id = d["route_id"]
+            if d["route_short_name"] == '':
+                routename = d["route_long_name"]
             else:
-                routename = l[2].strip('"')
+                routename = d["route_short_name"]
             if routename in 'BCDE':
                 routename = route_id
             routenamesdict[route_id] = routename       
@@ -152,7 +147,7 @@ def makeStopsDicts(tripshapedict, shaperoutedict,
     for line in f:
         l = line.split(',') 
         trip_id = l[0].strip('"')
-        if len(trip_id) == 8: #only use trip_ids starting with 2 or 3: no CR, boats, shuttles
+        if len(trip_id):# == 8: #only use trip_ids starting with 2 or 3: no CR, boats, shuttles
             stop_id = l[3].strip('"')
             stop_seq = int(l[4].strip('"'))
             if trip_id in tripstopsdict:
