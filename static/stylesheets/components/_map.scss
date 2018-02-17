@@ -116,6 +116,12 @@ $information-phone: "only screen and (max-width : 420px)";
     .stop-name {
         font-weight: 500;
     }
+
+    @media #{$information-phone} {
+        .stop-id {
+            display: none;
+        }
+    }
 }
 
 #legend {

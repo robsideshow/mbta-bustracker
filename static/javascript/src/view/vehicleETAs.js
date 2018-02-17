@@ -122,6 +122,7 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                        showAllButton: this._routes.length > 1,
                        routes: this._routes,
                        name: stop.getName(),
+                       stop_id: stop.id,
                        modes: []
                    };
                    this.lastStamp = stamp;
