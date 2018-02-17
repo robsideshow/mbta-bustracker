@@ -210,13 +210,12 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
 
                removeRoute: function(route_id) {
                    route_id = ""+route_id;
+                   this.trigger("routeUnselected", route_id, this.routes.get(route_id));
                    this.removeItem(this.route_ids, route_id);
                    this.vehicles.remove(
                        this.vehicles.where({route_id: route_id}));
                    this.stops.cleanupStops(this.route_ids);
                    this.routes.remove(route_id);
-
-                   this.trigger("routeUnselected", route_id);
                },
 
                toggleRoute: function(route_id, on) {
