@@ -305,6 +305,31 @@ define(["underscore", "leaflet", "utils", "config"],
                    return null;
                },
 
+               normalMaker: function(pair, normal) {
+                   var a = pair[0],
+                       b = pair[1],
+                       vec = (normal || paths.normal)(a, b),
+                       xnorm = vec[0],
+                       ynorm = vec[1],
+                       xa = a[0],
+                       ya = a[1],
+                       xb = b[0],
+                       yb = b[1],
+                       adjustedPair = pair;
+
+                   return function(i) {
+                       // The normal vector vec * scale is added to the
+                       // last adjustedPair to give the next adjusted
+                       // pair.
+                       var scale = Math.pow(-1, i)*i;
+                       // calculate the adjusted pair:
+                       return [[xa+(xnorm*scale),
+                                ya+(ynorm*scale)],
+                               [xb+(xnorm*scale),
+                                yb+(ynorm*scale)]];
+                   };
+               },
+
                /**
                 * Calculate a new path from the given path that will eliminate
                 * overlaps with existing paths. For each line segment in the
@@ -342,32 +367,15 @@ define(["underscore", "leaflet", "utils", "config"],
                            segMap[k].push(id);
 
                            // a vector normal to the segment
-                           var a = pair[0],
-                               b = pair[1],
-                               vec = normal(a, b),
-                               xnorm = vec[0],
-                               ynorm = vec[1],
-                               xa = a[0],
-                               ya = a[1],
-                               xb = b[0],
-                               yb = b[1],
-                               j = 1;        // the loop counter
+                           var offsetPair = paths.normalMaker(pair, normal);
+                           var j = 1;        // the loop counter
                            // (I used a do-while here to avoid computing the
                            // normal vector when it isn't going to be used.)
+
                            do {
-                               // The normal vector vec * scale is added to the
-                               // last adjustedPair to give the next adjusted
-                               // pair.
-                               var scale = Math.pow(-1, j)*j;
-                               //var scale = -j;
-                               // calculate the adjusted pair:
-                               adjustedPair = [[xa+(xnorm*scale),
-                                                ya+(ynorm*scale)],
-                                               [xb+(xnorm*scale),
-                                                yb+(ynorm*scale)]];
+                               adjustedPair = offsetPair(j++);
                                k = paths.pairString(adjustedPair[0],
                                                     adjustedPair[1]);
-                               ++j;
                            } while(segMap[k]);
 
                            // We should now have an unused segment!
