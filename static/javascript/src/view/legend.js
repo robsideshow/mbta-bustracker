@@ -69,6 +69,7 @@ define(["backbone", "jquery"],
                                "</td>" +
                                "<td>" + info.inbound + "</td>" +
                                "<td>" + info.outbound + "</td>" +
+                               "<td a class='close-route'><a href='#'>&times;</a></td>" +
                                "</tr>"
                        );
                    });
@@ -80,8 +81,13 @@ define(["backbone", "jquery"],
 
                onClick: function(e) {
                    var route_id = $(e.target).closest("tr").data("route-id");
+
                    if (route_id) {
-                       this.app.trigger("focusRoute", route_id);
+                       if ($(e.target).closest("td.close-route").length) {
+                           this.app.removeRoute(route_id);
+                       } else {
+                           this.app.trigger("focusRoute", route_id);
+                       }
                        return false;
                    }
 
