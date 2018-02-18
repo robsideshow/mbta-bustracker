@@ -75,7 +75,7 @@ def makeRouteNamesDict(filename = 'MBTA_GTFS_texts/routes.txt'):
 def file_to_dict(filename, keyfn, valfn):
     with open(filename) as f:
         return {keyfn(d): valfn(d) for d in csv.DictReader(f)}
-
+        
 
 def makeTripShapeDict(filename = 'MBTA_GTFS_texts/trips.txt'):
     #reads the 'trips.txt' file and returns a dictionary of 
@@ -86,21 +86,10 @@ def makeTripShapeDict(filename = 'MBTA_GTFS_texts/trips.txt'):
 def makeShapeRouteDict(routenamesdict, filename = 'MBTA_GTFS_texts/trips.txt'):
     #reads the 'trips.txt' file and returns a dictionary of 
     # shape_id : route_id 
-    f = open(filename, 'r')
-    f.readline()
-    rawlines = f.readlines()
-    f.close()
-    splitlines = [l.split(',') for l in rawlines]
-    shaperoutedict = dict()
-    for l in splitlines:
-        route_id = l[0].strip('"')
-        if route_id in routenamesdict:
-            shape_id = l[-3].strip('"')
-            shaperoutedict[shape_id] = route_id
-    return shaperoutedict
+    return file_to_dict(filename, lambda d: d["shape_id"], lambda d: d["route_id"])
 
     
-def makeRouteShapeDict(shaperoutedict, filename = 'MBTA_GTFS_texts/shapes.txt'):
+def makeRouteShapeDict(shaperoutedict):
     #inverts the shaperoutedict and returns a dictionary of 
     # route_id : [List of shape_ids]
     routeshapedict = dict()
