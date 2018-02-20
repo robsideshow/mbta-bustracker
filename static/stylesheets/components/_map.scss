@@ -46,12 +46,20 @@ $information-phone: "only screen and (max-width : 420px)";
     height: 100%;
 }
 
+.lrp-info {
+    padding: 0.25em;
+}
+
 .lrp-arrow-container {
     text-align: center;
     z-index: 1000;
     margin-left: -50%;
     margin-top: -50%;
     line-height: 100%;
+}
+
+.lrp-arrow-container:hover .lrp-arrow-details {
+    display: block;
 }
 
 .stop-marker{

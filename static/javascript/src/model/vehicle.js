@@ -17,6 +17,14 @@ define(["backbone", "utils", "leaflet", "path-utils"],
                    return L.latLng(this.get("lat"), this.get("lon"));
                },
 
+               /**
+                * Returns a Date for the last definitive vehicle update,
+                * meaning, the last time there was a record of its position.
+                */
+               getLastUpdate: function() {
+                   return new Date(this.get("timestamp")*1000);
+               },
+
                summary: function() {
                    var vehicle = this.attributes;
 

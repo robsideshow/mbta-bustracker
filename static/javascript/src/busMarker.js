@@ -66,27 +66,35 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
 
 
                showLRP: function() {
-                   var rot = this.bus.get("heading") - 90;
-                   console.log(rot);
+                   var bus = this.bus,
+                       rot = bus.get("heading") - 90;
 
-                   var center = this.bus.getLatLng();
+                   var center = bus.getLatLng();
                    if (this._lrp) {
                        this._lrp.setLatLng(center);
-                       this._lrp._icon.firstElementChild.style.transform = "rotate(" + rot + "deg)";
                    } else {
-                       var html = [
-                           "<div class='lrp-arrow' style='transform: rotate(", rot, "deg);'>",
-                           "\u2192</div>"
-                       ].join("");
+                       var html = "<div class='lrp-arrow'>\u2192</div>";
                        var icon = L.divIcon({
                            className: "lrp-arrow-container",
                            iconSize: L.point(36, 24),
                            html: html
                        });
 
-                       this._lrp = L.marker(center, {icon: icon});
-                       this._lrp.addTo(this);
+                       this._lrp = L.marker(center, {icon: icon})
+                           .addTo(this);
                    }
+
+                   this._lrp._icon.firstElementChild.style.transform = "rotate(" + rot + "deg)";
+
+                   var updated = bus.getLastUpdate();
+                   this._lrp.bindPopup(
+                       "<div class='lrp-info'>" +
+                           "Last updated: " +
+                           (updated.getHours()%12 || 12) + ":" +
+                           (updated.getMinutes()) +
+                           (updated.getHours() < 12 ? "am" : "pm") +
+                           "</div>",
+                       {closeOnClick: false, closeButton: false});
                },
 
                hideLRP: function() {
