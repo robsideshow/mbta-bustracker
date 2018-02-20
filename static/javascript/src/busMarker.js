@@ -66,30 +66,33 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
 
 
                showLRP: function() {
+                   var rot = this.bus.get("heading") - 90;
+                   console.log(rot);
+
                    var center = this.bus.getLatLng();
-                   if (this._lrp)
+                   if (this._lrp) {
                        this._lrp.setLatLng(center);
-                   else
-                       this._lrp = L.circleMarker(center, {radius: 3,
-                                                           fillOpacity: 1})
-                       .addTo(this);
+                       this._lrp._icon.firstElementChild.style.transform = "rotate(" + rot + "deg)";
+                   } else {
+                       var html = [
+                           "<div class='lrp-arrow' style='transform: rotate(", rot, "deg);'>",
+                           "\u2192</div>"
+                       ].join("");
+                       var icon = L.divIcon({
+                           className: "lrp-arrow-container",
+                           iconSize: L.point(36, 24),
+                           html: html
+                       });
 
-                   var rads =((360-(this.bus.get("heading")-90))%360)/180 * Math.PI,
-                       transform = this.makeTransform(rads, center, this._map),
-                       arrow = [[0, 0], [16, 0], [11, 3], [16, 0], [11, -3]],
-                       lls = _.map(arrow, transform);
-
-                   this._lrh = L.polyline(lls, {opacity: 1,
-                                                weight: 3})
-                       .addTo(this);
+                       this._lrp = L.marker(center, {icon: icon});
+                       this._lrp.addTo(this);
+                   }
                },
 
                hideLRP: function() {
                    if (this._lrp)
                        this.removeLayer(this._lrp);
-                   if (this._lrh)
-                       this.removeLayer(this._lrh);
-                   this._lrp = this._lrh = null;
+                   this._lrp = null;
                },
 
                /**

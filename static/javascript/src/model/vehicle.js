@@ -10,6 +10,9 @@ define(["backbone", "utils", "leaflet", "path-utils"],
                    return this.collection.app.routes.get(route_id);
                },
 
+               /**
+                * Returns the last recorded position of the vehicle.
+                */
                getLatLng: function() {
                    return L.latLng(this.get("lat"), this.get("lon"));
                },

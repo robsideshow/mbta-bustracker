@@ -38,6 +38,22 @@ $information-phone: "only screen and (max-width : 420px)";
     }
 }
 
+.lrp-arrow {
+    font-size: 24pt;
+    color:  blue;
+    font-weight: 900;
+    width: 100%;
+    height: 100%;
+}
+
+.lrp-arrow-container {
+    text-align: center;
+    z-index: 1000;
+    margin-left: -50%;
+    margin-top: -50%;
+    line-height: 100%;
+}
+
 .stop-marker{
   &.bus.normal:after, &.bus.mini:after {
     font-family: 'Material Icons';
