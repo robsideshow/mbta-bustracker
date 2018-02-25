@@ -511,7 +511,8 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                        popups = this.stopPopups,
                        stopPreds = {},
                        stamp = $u.stamp(),
-                       self = this;
+                       self = this,
+                       selectedStop = stops.get(this.selectedStop);
 
                    _.each(preds, function(pred) {
                        var id = pred.stop_id,
@@ -520,11 +521,8 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                        if (!stop || pred.arr_time <= stamp)
                            return;
 
-                       if (self.selectedStop) {
-                           var selectedStop = stops.get(self.selectedStop);
-                           if (selectedStop && selectedStop.hasId(id))
-                               return;
-                       }
+                       if (selectedStop && selectedStop.hasId(id))
+                           return;
 
                        stopPreds[id] = pred;
 

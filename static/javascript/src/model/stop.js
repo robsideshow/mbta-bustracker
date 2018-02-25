@@ -70,7 +70,7 @@ define(["backbone", "leaflet", "underscore", "utils", "config"],
                 * children's id is id
                 */
                hasId: function(id) {
-                   return this.id == id || !!this.children[id];
+                   return this.id == id || _.has(this.children, id);
                },
 
                getChildren: function() {
