@@ -53,14 +53,9 @@ define(["backbone", "underscore", "templates", "utils"],
                        routes = this.app.routes,
                        filter = this.filter;
 
-                   routes.getFullList().done(function(names) {
-                       var routes = [];
-                       _.each(names, function(pair) {
-                           var route_id = pair[0],
-                               name = pair[1];
-                           if (filter(route_id, name))
-                               routes.push({id: route_id, name: name});
-                       });
+                   routes.getFullList().done(function(routesInfo) {
+                       var routes = _.filter(routesInfo,
+                                             function(info) { return filter(info.id, info.name); });
 
                        $t.templateHtml($el, "routeList", {routes: routes});
                    });

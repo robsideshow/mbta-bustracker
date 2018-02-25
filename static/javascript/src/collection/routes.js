@@ -23,25 +23,27 @@ define(["jquery", "underscore", "backbone", "route-model", "stop-model", "config
                    this._segMap = {};
                },
 
-               _makeRouteList: function() {
-                   var names = this._routeNames;
-                   return _.map(this._routeOrder,
-                                function(id) {
-                                    return [id, names[id]];
-                                });
-               },
-
                getFullList: function() {
-                   if (this._routeNames) {
-                       return $.Deferred().resolve(this._makeRouteList());
+                   if (this._routeInfo) {
+                       return $.Deferred().resolve(this._routeInfo);
                    }
 
                    var self = this;
                    return $.getJSON($u.rl("/api/routes"))
                        .then(function(response) {
-                           self._routeNames = response.route_names;
-                           self._routeOrder = response.route_ids;
-                           return self._makeRouteList();
+                           self._routeInfo = response.data;
+
+                           if (!self._routeInfo) {
+                               var routeNames = response.route_names;
+                               self._routeInfo = _.reduce(
+                                   response.route_ids,
+                                   function(rinfo, rid) {
+                                       rinfo[rid] = {id: rid, name: routeNames[rid]};
+                                       return rinfo;
+                                   }, {});
+                           }
+
+                           return self._routeInfo;
                        });
                },
 
