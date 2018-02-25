@@ -7,7 +7,7 @@ Created on Fri Jan 22 03:34:59 2016
 import csv
 import json, os
 
-alldicts = ['shapepathdict', 'routenamesdict', 'tripshapedict', 
+alldicts = ['shapepathdict', 'routenamesdict', 'routeinfodict', 'tripshapedict', 
             'shaperoutedict', 'routeshapedict', 'shapestopsdict',
                 'routestopsdict', 'stoproutesdict', 'stopinfodict',
                 'shapeinfodict', 'shapestopseqdict'] 
@@ -70,6 +70,31 @@ def makeRouteNamesDict(filename = 'MBTA_GTFS_texts/routes.txt'):
                 routename = route_id
             routenamesdict[route_id] = routename       
     return routenamesdict
+    
+def makeRouteInfoDict(filename = 'MBTA_GTFS_texts/routes.txt'):
+    #reads the 'routes.txt' file and returns a dictionary of 
+    # route_id : {}
+    # WARNING: MUST MANUALLY ADJUST ENTRY FOR SL WATERLINE in txt file
+    routeinfodict = dict()
+    type_dict = {"0":"trolley", "1":"subway", "2":"CR", "3":"bus", "4":"ferry"}
+    with open(filename) as f:
+        for d in csv.DictReader(f):
+            route_dict = dict()
+            route_id = d["route_id"]
+            route_dict["id"] = route_id
+            if d["route_short_name"] == '':
+                routename = d["route_long_name"]
+            else:
+                routename = d["route_short_name"]
+            if routename in 'BCDE':
+                routename = route_id
+            route_dict["name"] = routename
+            route_dict["activity"] = 0
+            route_dict["sort_order"] = int(d["route_sort_order"])
+            route_dict["key"] = d["route_desc"][:3] == "Key"
+            route_dict["type"] = type_dict.get(d["route_type"], "other")            
+            routeinfodict[route_id] = route_dict     
+    return routeinfodict
     
     
 def file_to_dict(filename, keyfn, valfn):
@@ -294,6 +319,7 @@ def makeAllDicts(folder = 'data'):
     if not os.path.exists(folder):
         os.mkdir(folder)
     routenamesdict = makeRouteNamesDict()
+    routeinfodict = makeRouteInfoDict()
     tripshapedict = makeTripShapeDict()
     shaperoutedict = makeShapeRouteDict(routenamesdict)
     routeshapedict = makeRouteShapeDict(shaperoutedict)

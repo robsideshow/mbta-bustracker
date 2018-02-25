@@ -68,6 +68,10 @@ with open('data/stoproutesdict.json', 'r') as f:
 with open('data/routenamesdict.json', 'r') as f:
 	routenamesdict = json.load(f)
 #dict of route_id : route_name
+ 
+with open('data/routeinfodict.json', 'r') as f:
+	routeinfodict = json.load(f)
+#dict of route_id : {Dict of 'id', 'key', 'name', 'activity', 'type', 'sort_order'}
 
 with open('data/shaperoutedict.json', 'r') as f:
 	shaperoutedict = json.load(f)

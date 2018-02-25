@@ -71,13 +71,14 @@ def updates():
                    stops = stops,
                    vehicle_preds = vehicle_preds)
 
+
 @api_routes.route("/routes")
-def bus_routes():
+def all_routes():
     #the route_ids are in a reasonable order for a user to choose from
-    sortedRoute_ids = btr.sortedRoute_ids
+    routes = btr.routeinfodict.values()
+    routes.sort(key = lambda x : x['sort_order'])
     #route_names = dict([(route_id, btr.routenamesdict[route_id]) for route_id in route_ids])
-    return jsonify(route_ids = sortedRoute_ids,
-                   route_names = btr.routenamesdict)
+    return jsonify({'data': routes})
 
 
 @api_routes.route("/routeinfo")
