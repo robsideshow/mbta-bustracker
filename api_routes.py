@@ -4,14 +4,41 @@ from datetime import datetime
 import bustracker as btr
 import currentdata
 import logging, sys
+import os
+import inspect
+import pprint
 
-logging.basicConfig(filename='ignore/bustracker.log',level=logging.DEBUG)
+logging.basicConfig(filename='ignore/bustracker.log', level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
 api_routes = Blueprint("api", __name__)
 
+def wrap_exceptions(fn):
+    def wrapped_fn():
+        traceback = None
+        try:
+            return fn()
+        except Exception as exc:
+            (_, __, traceback) = sys.exc_info()
+            frame_info = inspect.getinnerframes(traceback)[-1]
+            frame = frame_info.frame
+            frame_locals = frame.f_locals
+            logger.exception("", exc_info=exc)
+
+            pprint.pprint(frame_locals)
+        finally:
+            del locals()["traceback"]
+
+    if os.environ.get("MODE") == "prod":
+        return fn
+
+    wrapped_fn.__name__ = fn.__name__
+
+    return wrapped_fn
+
 @api_routes.route("/updates")
+@wrap_exceptions
 def updates():
     vehicle_ids = request.args.get("vehicles", "")
     vehicle_idlist = vehicle_ids.split(',')
@@ -73,6 +100,7 @@ def updates():
 
 
 @api_routes.route("/routes")
+@wrap_exceptions
 def all_routes():
     #the route_ids are in a reasonable order for a user to choose from
     routes = btr.routeinfodict.values()
@@ -82,6 +110,7 @@ def all_routes():
 
 
 @api_routes.route("/routeinfo")
+@wrap_exceptions
 def route_info():
     if "routes" not in request.args:
         abort(404)
@@ -119,6 +148,7 @@ def route_info():
     return jsonify(routes=response)
 
 @api_routes.route("/locationinfo")
+@wrap_exceptions
 def location_info():
     if "lat" not in request.args or "lon" not in request.args:
         abort(401)
@@ -137,6 +167,7 @@ def location_info():
 
 
 @api_routes.route("/alerts")
+@wrap_exceptions
 def alerts():
     alerts = btr.getAllAlertsGTFS()
     return jsonify(alerts = alerts)
@@ -144,6 +175,7 @@ def alerts():
 
 
 @api_routes.route("/rectangle")
+@wrap_exceptions
 def rectangle():
     '''
     get all stops inside a rectangle with given SW and NE corners
