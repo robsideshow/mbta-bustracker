@@ -138,7 +138,7 @@ class CurrentData(object):
         return veh_preds
 
 
-    def getPredsForOneVehicle(self, vehicle_id):
+    def getPredsForOneVehicle(self, vehicle_id, trip_id = ''):
         preds = []
         if vehicle_id in self.supplement_by_veh:
             sup_preds = self.supplement_by_veh[vehicle_id].get('preds', [])
@@ -150,6 +150,9 @@ class CurrentData(object):
             return preds
         for trip in self.trips:
             if trip.get('vehicle_id') == vehicle_id:
+                preds = trip.get('preds', [])
+                break
+            if trip.get('trip_id') == trip_id:
                 preds = trip.get('preds', [])
                 break
         return preds

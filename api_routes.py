@@ -69,7 +69,7 @@ def updates():
             if shape_id:
                 active_shapes.append(shape_id)
                 #path  = btr.shapepathdict.get(shape_id, [])
-                veh_preds = currentdata.current_data.getPredsForOneVehicle(veh.get('id'))
+                veh_preds = currentdata.current_data.getPredsForOneVehicle(veh.get('id'), veh.get('trip_id'))
                 if len(veh_preds) == 0:
                     veh['timepoints'] = [{'lat' : veh.get('lat'),
                                         'lon' : veh.get('lon'),
