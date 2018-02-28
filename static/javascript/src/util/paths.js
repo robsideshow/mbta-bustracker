@@ -305,7 +305,7 @@ define(["underscore", "leaflet", "utils", "config"],
                    return null;
                },
 
-               normalMaker: function(pair, normal) {
+               normalMaker: function(pair, normal, scaler) {
                    var a = pair[0],
                        b = pair[1],
                        vec = (normal || paths.normal)(a, b),
@@ -317,16 +317,20 @@ define(["underscore", "leaflet", "utils", "config"],
                        yb = b[1],
                        adjustedPair = pair;
 
+                   if (!scaler)
+                       scaler = function(i) { return Math.pow(-1, i)*i; };
+
                    return function(i) {
                        // The normal vector vec * scale is added to the
                        // last adjustedPair to give the next adjusted
                        // pair.
-                       var scale = Math.pow(-1, i)*i;
+                       var scale = scaler(i);
                        // calculate the adjusted pair:
                        return [[xa+(xnorm*scale),
                                 ya+(ynorm*scale)],
                                [xb+(xnorm*scale),
-                                yb+(ynorm*scale)]];
+                                yb+(ynorm*scale)],
+                              scale];
                    };
                },
 
@@ -353,7 +357,8 @@ define(["underscore", "leaflet", "utils", "config"],
                    var segments = $u.partition(path, 2, 1),
                        outPath = [],
                        lastPair = null,
-                       lastPoint = null;
+                       lastPoint = null,
+                       scaler = null;
 
                    _.each(segments, function(pair, i) {
                        // For each pair of points...
@@ -367,16 +372,19 @@ define(["underscore", "leaflet", "utils", "config"],
                            segMap[k].push(id);
 
                            // a vector normal to the segment
-                           var offsetPair = paths.normalMaker(pair, normal);
-                           var j = 1;        // the loop counter
-                           // (I used a do-while here to avoid computing the
-                           // normal vector when it isn't going to be used.)
+                           var offsetPair = paths.normalMaker(pair, normal, scaler),
+                               j = 1;        // the loop counter
 
                            do {
                                adjustedPair = offsetPair(j++);
                                k = paths.pairString(adjustedPair[0],
                                                     adjustedPair[1]);
                            } while(segMap[k]);
+
+                           if (!scaler) {
+                               scaler = adjustedPair[2] > 0 ?
+                                   function(i) { return i; } : function(i) { return -i; };
+                           }
 
                            // We should now have an unused segment!
                        }
