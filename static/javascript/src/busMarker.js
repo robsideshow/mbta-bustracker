@@ -169,12 +169,12 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
                            this.hideLRP();
                        }
 
-                       if (bus.changed.lat || bus.changed.lon)
-                           this.showLRP();
-
                        $(this.busMarker._icon).toggleClass("selected",
                                                            bus.changed._selected);
                    }
+
+                   if (this._lrp && (bus.changed.lat || bus.changed.lon))
+                       this.showLRP();
 
                    // Check if the new bus's LRP is newer than the old bus's
                    // LRP; if not, ignore it.
