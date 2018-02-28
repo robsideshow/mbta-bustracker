@@ -86,21 +86,28 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
 
                    this._lrp._icon.firstElementChild.style.transform = "rotate(" + rot + "deg)";
 
-                   var updated = bus.getLastUpdate();
-                   this._lrp.bindPopup(
-                       "<div class='lrp-info'>" +
-                           "Last updated: " +
-                           (updated.getHours()%12 || 12) + ":" +
-                           (updated.getMinutes()) +
-                           (updated.getHours() < 12 ? "am" : "pm") +
-                           "</div>",
-                       {closeOnClick: false, closeButton: false});
+                   this._lrp.bindPopup("", {autoPan: false,
+                                            closeOnClick: false,
+                                            closeButton: false,
+                                            keepInView: false})
+                       .openPopup();
+                   this.updateLRPText();
                },
 
                hideLRP: function() {
                    if (this._lrp)
                        this.removeLayer(this._lrp);
                    this._lrp = null;
+               },
+
+               updateLRPText: function() {
+                   var timeSince = new Date().getTime() - this.bus.getLastUpdate().getTime();
+
+                   this._lrp._popup.setContent(
+                       ["<div class='lrp-info'>" +
+                        "Last updated ", $u.relTime(timeSince/1000),
+                        " ago",
+                        "</div>"].join(""));
                },
 
                /**
@@ -267,6 +274,7 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
                    var pos = this.bus.getCurrentPosition();
                    this.busMarker.setLatLng(pos[0]);
                    this.updateIcon(this.bus.attributes, pos[1] - Math.PI/2);
+                   if (this._lrp) this.updateLRPText();
                    return;
 
                    this._position = $p.calculateTimepointPosition(

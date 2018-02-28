@@ -82,6 +82,16 @@ define(["jquery", "underscore", "config"], function($, _, config) {
             return pieces.join(":");
         },
 
+        relTime: function(delta) {
+            var m = Math.floor(delta/60),
+                s = Math.floor(delta % 60),
+                pieces = [];
+
+            if (m) pieces.push(m + " min");
+            if (s) pieces.push(s + " sec");
+            return pieces.join(", ");
+        },
+
         /**
          * Pad string s to a length of n by prepending the character c.
          */
