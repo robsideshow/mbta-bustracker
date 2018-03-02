@@ -21,8 +21,7 @@ def wrap_exceptions(fn):
             return fn()
         except Exception as exc:
             (_, __, traceback) = sys.exc_info()
-            frame_info = inspect.getinnerframes(traceback)[-1]
-            frame = frame_info.frame
+            frame = inspect.getinnerframes(traceback)[-1][0]
             frame_locals = frame.f_locals
             logger.exception("", exc_info=exc)
 
