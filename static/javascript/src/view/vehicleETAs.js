@@ -282,9 +282,15 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                },
 
                selectVehicle: function(e) {
-                   var vehicle_id = $(e.target).closest(".vehicle-pred").data("vehicle");
+                   var vehicle_id = $(e.target).closest(".vehicle-pred").data("vehicle"),
+                       vehicle = this.app.vehicles.get(vehicle_id);
 
-                   this.app.selectVehicle(vehicle_id);
+                   if (vehicle) {
+                       if (vehicle.isSelected())
+                           this.app.trigger("focusVehicle", vehicle_id);
+                       else
+                           this.app.selectVehicle(vehicle_id);
+                   }
                    this.render(this.lastStamp);
                }
            });

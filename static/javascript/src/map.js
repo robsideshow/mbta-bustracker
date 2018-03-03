@@ -64,6 +64,7 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                        .listenTo(app, "stopSelected", this.onStopSelected)
                        .listenTo(app, "stopUnselected", this.onStopUnselected)
                        .listenTo(app, "focusRoute", this.onRouteFocused)
+                       .listenTo(app, "focusVehicle", this.onVehicleFocused)
                        .listenTo(app, "locationSet", this.onLocationSet)
                    // Vehicles:
                        .listenTo(app.vehicles, "add", this.onVehicleAdded)
@@ -350,6 +351,13 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                    this.fitRoute(route_id);
                },
 
+               onVehicleFocused: function(vehicle_id) {
+                   var vehicle = this.app.vehicles.get(vehicle_id);
+
+                   if (vehicle)
+                       this.panTo(vehicle);
+               },
+
                /**
                 * Calculates and returns the bounds of all the current visible
                 * route paths.  If there are no routes displayed, returns null.
@@ -390,6 +398,11 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                        bounds = route.getActiveBounds() || route.getBounds();
 
                    this.map.fitBounds(bounds);
+               },
+
+               panTo: function(target, options) {
+                   this.map.panTo(target.getLatLng ? target.getLatLng() : target,
+                                  options);
                },
 
                /**
