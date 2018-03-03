@@ -17,8 +17,15 @@ define(["backbone", "utils", "leaflet", "path-utils"],
                /**
                 * Returns the last recorded position of the vehicle.
                 */
-               getLatLng: function() {
+               getLRP: function() {
                    return L.latLng(this.get("lat"), this.get("lon"));
+               },
+
+               /**
+                * Returns the last calculated position of the vehicle.
+                */
+               getLatLng: function() {
+                   return (this._lastCalculatedPosition || this.getCurrentPosition())[0];
                },
 
                /**
@@ -53,8 +60,9 @@ define(["backbone", "utils", "leaflet", "path-utils"],
                    var attrs = this.attributes,
                        pos = $p.calculateTimepointPosition(attrs.timepoints, stamp);
 
-                   return [pos[0] || L.latLng(attrs.lat, attrs.lon),
-                           pos[1] || $u.headingToRads(attrs.heading)];
+                   return this._lastCalculatedPosition =
+                       [pos[0] || L.latLng(attrs.lat, attrs.lon),
+                        pos[1] || $u.headingToRads(attrs.heading)];
 
                }
            });

@@ -69,7 +69,7 @@ define(["leaflet", "jquery", "underscore", "utils", "path-utils"],
                    var bus = this.bus,
                        rot = bus.get("heading") - 90;
 
-                   var center = bus.getLatLng();
+                   var center = bus.getLRP();
                    if (this._lrp) {
                        this._lrp.setLatLng(center);
                    } else {
