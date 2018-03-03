@@ -171,18 +171,32 @@ define(["jquery", "underscore", "utils", "backbone", "routes-collection",
                    vehicle.set("_selected", false);
                },
 
-               clearVehicles: function() {
+               selectVehicle: function(vehicle_id) {
                    var ids = this.vehicle_ids,
-                       self = this;
+                       self = this,
+                       shouldSelect = !!vehicle_id;
+
                    this.vehicle_ids = [];
 
                    _.each(ids, function(id) {
+                       if (vehicle_id === id) {
+                           shouldSelect = true;
+                           return;
+                       }
                        var vehicle = self.vehicles.get(id);
                        if (vehicle) {
                            self.trigger("vehicleUnselected", id, vehicle);
                            vehicle.set("_selected", false);
                        }
                    });
+
+                   if (shouldSelect) {
+                       this.addVehicle(vehicle_id);
+                   }
+               },
+
+               clearVehicles: function() {
+                   this.selectVehicle();
                },
 
                addRoutes: function(ids) {

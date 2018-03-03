@@ -29,7 +29,8 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                    "click .toggle-route": "toggleRoute",
                    "click a.all-on": "allOn",
                    "click a.dir-up": "directionUp",
-                   "click a.dir-down": "directionDown"
+                   "click a.dir-down": "directionDown",
+                   "click .vehicle-pred": "selectVehicle"
                },
 
                addAlert: function(alert) {
@@ -152,7 +153,11 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                            var diff = predA.arr_time - predB.arr_time;
 
                            return diff < 0 ? -1 : diff > 0 ? 1 : 0;
-                       };
+                       },
+                       selected_vehicles = _.reduce(app.vehicle_ids, function(idmap, id) {
+                           idmap[id] = true;
+                           return idmap;
+                       }, {});
 
                    _.each(preds, function(pred) {
                        var route_id = pred.route_id;
@@ -173,6 +178,8 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                        pred.color = routes.getRouteColor(pred.route_id);
                        pred.briefRelTime = $u.briefRelTime(pred.arr_time - stamp);
                        pred.name = routes.getRouteShortName(pred.route_id);
+
+                       pred.isSelected = selected_vehicles[pred.vehicle_id];
 
                        if (!groupedPreds[key])
                            groupedPreds[key] = [];
@@ -272,6 +279,13 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                        });
                    }
                    e.preventDefault();
+               },
+
+               selectVehicle: function(e) {
+                   var vehicle_id = $(e.target).closest(".vehicle-pred").data("vehicle");
+
+                   this.app.selectVehicle(vehicle_id);
+                   this.render(this.lastStamp);
                }
            });
 

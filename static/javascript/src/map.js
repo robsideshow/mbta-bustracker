@@ -210,7 +210,6 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                        }
 
                        self.app.addVehicle(vehId);
-                       self._selectedId = vehId;
                    });
                },
 
@@ -521,10 +520,10 @@ define(["jquery", "leaflet", "backbone", "stop-marker",
                        if (!stop || pred.arr_time <= stamp)
                            return;
 
+                       stopPreds[id] = pred;
+
                        if (selectedStop && selectedStop.hasId(id))
                            return;
-
-                       stopPreds[id] = pred;
 
                        if (!popups[id]) {
                            var $popupContent = $("<div/>");

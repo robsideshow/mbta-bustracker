@@ -5,6 +5,10 @@ define(["backbone", "utils", "leaflet", "path-utils"],
                    _selected: false
                },
 
+               isSelected: function() {
+                   return this.attributes._selected;
+               },
+
                getRoute: function() {
                    var route_id = this.get("route_id");
                    return this.collection.app.routes.get(route_id);

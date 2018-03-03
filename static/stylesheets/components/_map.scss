@@ -179,6 +179,7 @@ $information-phone: "only screen and (max-width : 420px)";
 }
 
 .vehicle-pred {
+    cursor: pointer;
     font-size: smaller;
     line-height: 1.5em;
     .pred-time {
@@ -187,6 +188,14 @@ $information-phone: "only screen and (max-width : 420px)";
 
     .route-name {
         font-weight: 400;
+    }
+
+    &.selected {
+        background-color: #ddd;
+    }
+
+    &:hover[data-vehicle] {
+        background-color: #eee;
     }
 }
 
