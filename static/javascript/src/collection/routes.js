@@ -162,6 +162,10 @@ define(["jquery", "underscore", "backbone", "route-model", "stop-model", "config
                        "gray";
                },
 
+               getRouteMode: function(route_id) {
+                   return config.getRouteMode(route_id);
+               },
+
                getAndLoadRoute: function(route_id) {
                    return this.getRoute(route_id).loadInfo();
                }

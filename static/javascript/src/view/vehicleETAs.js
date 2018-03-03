@@ -171,7 +171,7 @@ define(["backbone", "underscore", "utils", "config", "templates"],
                        if (!routes.get(route_id))
                            return;
 
-                       var key = config.getRouteMode(route_id);
+                       var key = routes.getRouteMode(route_id);
 
                        // Ignore vehicles traveling in the wrong direction:
                        if (dirs[key] !== pred.direction) return;

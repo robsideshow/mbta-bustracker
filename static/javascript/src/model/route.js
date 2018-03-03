@@ -26,7 +26,7 @@ define(["jquery", "backbone", "underscore", "config", "leaflet", "path-utils",
                },
 
                getMode: function() {
-                   return config.getRouteMode(this.id);
+                   return this.collection.getRouteMode(this.id);
                },
 
                getActiveShapes: function() {
