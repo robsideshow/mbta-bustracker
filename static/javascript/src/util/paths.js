@@ -391,25 +391,25 @@ define(["underscore", "leaflet", "utils", "config"],
 
                        segMap[k] = [id];
 
-                       if (lastPair) {
-                           // var point = paths.intersection(
-                           //     lastPair[0][1], lastPair[0][0],
-                           //     lastPair[1][1], lastPair[1][0],
-                           //     adjustedPair[0][1], adjustedPair[0][0],
-                           //     adjustedPair[1][1], adjustedPair[1][0]);
-                           // if (point) {
-                           //     outPath.pop();
-                           //     outPath.push([point[1], point[0]], adjustedPair[1]);
-                           // } else {
-                           //     outPath.push(adjustedPair[0],
-                           //                  adjustedPair[1]);
-                           // }
+                       if (lastPair && (lastPair[2] || adjustedPair[2])) {
+                           var point = paths.intersection(
+                               lastPair[0][1], lastPair[0][0],
+                               lastPair[1][1], lastPair[1][0],
+                               adjustedPair[0][1], adjustedPair[0][0],
+                               adjustedPair[1][1], adjustedPair[1][0]);
+                           if (point) {
+                               outPath.pop();
+                               outPath.push([point[1], point[0]], adjustedPair[1]);
+                           } else {
+                               outPath.push(adjustedPair[0],
+                                            adjustedPair[1]);
+                           }
+                       } else {
+                           // Don't push duplicate points.
+                           if (!_.isEqual(lastPoint, adjustedPair[0]))
+                               outPath.push(adjustedPair[0]);
+                           outPath.push(adjustedPair[1]);
                        }
-
-                       // Don't push duplicate points.
-                       if (!_.isEqual(lastPoint, adjustedPair[0]))
-                           outPath.push(adjustedPair[0]);
-                       outPath.push(adjustedPair[1]);
 
                        lastPair = adjustedPair;
                    });
@@ -422,36 +422,48 @@ define(["underscore", "leaflet", "utils", "config"],
                 *
                 * @param {Object} segMap - See paths.placePath
                 * @param {Number[][]} path - an array of points
+                * @param id - an identifier used to determine if the path placed
+                *    in a certain position 'matches'
                 *
                 * @returns {Object} a map of ids to counts, where the count is the number
                 * of line segments belonging to an id that can be replaced now
                 * that path is removed
                 */
-               removePath: function(segMap, path) {
+               removePath: function(segMap, path, id) {
                    var segments = $u.partition(path, 2, 1),
                        replacePaths = {};
 
                    _.each(segments, function(pair, i) {
                        var k = paths.pairString(pair[0], pair[1]),
-                           ids = segments[k];
+                           ids = segments[k],
+                           adjustedPair = pair;
 
-                       if (ids.length === 1)
-                           delete segments[k];
-                       else {
-                           // Remove the first id; it's the one that "won" and
-                           // got the segment.
-                           ids.shift();
-                           // Record the ids of the paths that can be
-                           // recalculated now:
-                           _.each(ids, function(id) {
-                               if (replacePaths[id])
-                                   replacePaths[id]++;
-                               else
-                                   replacePaths[id] = 1;
-                           });
-                           // It would be nice just to move the segments that
-                           // have changed, but that will probably require some
-                           // extra bookkeeping.
+                       if (!ids) return;
+
+                       if (ids[0] !== id) {
+                           var offsetPair = paths.normalMaker(pair,
+                                                              paths.llNormal),
+                               j = 1;
+
+                           do {
+                               adjustedPair = offsetPair(j++);
+                               k = paths.pairString(adjustedPair[0],
+                                                    adjustedPair[1]);
+                               ids = segments[k];
+                           } while (ids && ids[0] !== id);
+
+                           // A matching segment was not found in the segMap
+                           if (!ids) return;
+                       }
+
+                       if (ids.length === 1) {
+                           delete segMap[k];
+                       } else {
+                           // Since we're not (yet) moving the other
+                           // segments when a segment is removed, null out
+                           // the position that this segment previously
+                           // occupied.
+                           ids[0] = null;
                        }
                    });
 
