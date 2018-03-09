@@ -367,7 +367,7 @@ define(["underscore", "leaflet", "utils", "config"],
                        var k = paths.pairString(pair[0], pair[1]),
                            adjustedPair = pair;
 
-                       if (segMap[k]) {
+                       if (segMap[k] && segMap[k][0] !== id) {
                            // The pair has already been used! Find a new one.
                            segMap[k].push(id);
 
@@ -379,7 +379,7 @@ define(["underscore", "leaflet", "utils", "config"],
                                adjustedPair = offsetPair(j++);
                                k = paths.pairString(adjustedPair[0],
                                                     adjustedPair[1]);
-                           } while(segMap[k]);
+                           } while(segMap[k] && segMap[k][0] !== id);
 
                            if (!scaler) {
                                scaler = adjustedPair[2] > 0 ?
