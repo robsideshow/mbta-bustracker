@@ -384,3 +384,8 @@ $information-phone: "only screen and (max-width : 420px)";
     font-weight: bold;
     text-align: center;
 }
+
+path:hover {
+    stroke-opacity: 1;
+    stroke-width: 4;
+}
