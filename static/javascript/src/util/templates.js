@@ -42,7 +42,8 @@ define(["jquery", "handlebars", "underscore", "utils"],
                            .then(function(fn) {
                                if (fn) {
                                    try {
-                                       return fn(data, execOptions);
+                                       return fn(_.isFunction(data) ? data() : data,
+                                                 execOptions);
                                    } catch(err) {
                                        return $.Deferred().reject(err);
                                    }

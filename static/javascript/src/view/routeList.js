@@ -54,10 +54,16 @@ define(["backbone", "underscore", "templates", "utils"],
                        filter = this.filter;
 
                    routes.getFullList().done(function(routesInfo) {
-                       var routes = _.filter(routesInfo,
-                                             function(info) { return filter(info.id, info.name); });
-
-                       $t.templateHtml($el, "routeList", {routes: routes});
+                       $t.templateHtml($el, "routeList", function() {
+                           return {
+                               routes: $u.keep(routesInfo,
+                                               function(info) {
+                                                   return (filter(info.id, info.name)) ?
+                                                       _.extend(info, {selected: !!routes.get(info.id)}) :
+                                                       null;
+                                               })
+                           };
+                       });
                    });
 
                    return this;

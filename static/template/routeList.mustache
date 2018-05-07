@@ -1,6 +1,6 @@
 {{#each routes}}
     <input type="checkbox" id="check_{{id}}" class="toggle left"
-           value="{{id}}"/>
+           value="{{id}}" {{#if selected}}checked{{/if}}/>
     <label for="check_{{id}}">{{ name }}</label>
 {{/each}}
 
