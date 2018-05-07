@@ -60,11 +60,12 @@ def updates():
         logger.info('routes: ' + route_ids)
         vehicles = currentdata.current_data.getVehiclesOnRoutes(route_idlist)
         for veh in vehicles:
-            shape_id = btr.tripshapedict.get(veh.get('trip_id'), '')
-            if shape_id == '': #Unscheduled trip. Try to get shape_id by matching direction and destination
-                shape_id = btr.getShapeForUnschedTrip(veh.get('route_id', ''),
-                                                      veh.get('direction', ''),
-                                                      veh.get('destination', ''))
+            #shape_id = btr.tripshapedict.get(veh.get('trip_id'), '')
+            shape_id = veh.get('shape_id','')
+#            if shape_id == '': #Unscheduled trip. Try to get shape_id by matching direction and destination
+#                shape_id = btr.getShapeForUnschedTrip(veh.get('route_id', ''),
+#                                                      veh.get('direction', ''),
+#                                                      veh.get('destination', ''))
             if shape_id:
                 active_shapes.append(shape_id)
                 #path  = btr.shapepathdict.get(shape_id, [])

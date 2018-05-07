@@ -16,16 +16,14 @@ import dictChecker
 logging.basicConfig(filename='ignore/bustracker.log',level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-green_line_slowdown_factor = 10 #BIGGER number means we hit the api LESS OFTEN
 
-api_key = 'wX9NwuHnZU2ToO7GmGR9uw' #open public development key
 try:
     with open('ignore/mbta_api_key.txt', 'r') as f:
         api_key = f.readline().rstrip("\n")
 except IOError:
     pass
 
-mbta_rt_url = 'http://realtime.mbta.com/developer/api/v2/'
+mbta_rt_v3_url = 'https://api-v3.mbta.com/'
 
 '''
 First, update/create the static json files which are made
@@ -89,6 +87,10 @@ with open('data/shapeinfodict.json', 'r') as f:
 with open('data/shapestopseqdict.json', 'r') as f:
 	shapestopseqdict = json.load(f)
 #dict of shape_id : {Dict of stop_seq : stop_point_index}
+ 
+with open('data/shapefinderdict.json', 'r') as f:
+	shapefinderdict = json.load(f)
+#dict of (route_id, direction) : {Dict of destination : shape_id}
 
 
 class APIException(Exception):
@@ -101,20 +103,9 @@ def getAllRoutes():
     in a good order (subway first, then CTs and SLs, then numerical order),
     suitable for display on the landing page.
     '''
-    tree = et.parse('http://realtime.mbta.com/developer/api/v2/routes?api_key=' + api_key + '&format=xml')
-    root = tree.getroot()
-    modes = root.getchildren()
-    for mode in modes:
-        if mode.attrib['route_type'] == '0':
-            trolley_routes = mode.getchildren()
-        if mode.attrib['route_type'] == '1':
-            subway_routes = mode.getchildren()
-        if mode.attrib['route_type'] == '3':
-            bus_routes = mode.getchildren()
-    allroutes = trolley_routes + subway_routes + bus_routes
-    sortedRoute_ids = [x.attrib['route_id'] for x in allroutes]
-    #routes = dict([(x.attrib['route_id'], x.attrib['route_name']) for x in allroutes])
-    return sortedRoute_ids
+    routes = routeinfodict.values()
+    routes.sort(key = lambda x : x['sort_order'])
+    return [r['id'] for r in routes]
 
 sortedRoute_ids = getAllRoutes()
 
@@ -135,9 +126,11 @@ def parseVehEntity(vent):
     if shape_id == '':
         vdict['destination'] = '?'
         vdict['direction'] = '?'
+        vdict['shape_id'] = ''
     else:
         vdict['destination'] = shapeinfodict[shape_id]['destination']
         vdict['direction'] = shapeinfodict[shape_id]['direction']
+        vdict['shape_id'] = shape_id
     if vdict['route_id'] == '':
         vdict['type'] = 'unknown'
     elif vdict['route_id'][0] == 'C':
@@ -159,9 +152,11 @@ def parseTripEntity(tent):
     if shape_id == '':
         tdict['destination'] = '?'
         tdict['direction'] = '?'
+        tdict['shape_id'] = ''
     else:
         tdict['destination'] = shapeinfodict[shape_id]['destination']
         tdict['direction'] = shapeinfodict[shape_id]['direction']
+        tdict['shape_id'] = shape_id
     tdict['trip_id'] = tent.trip_update.trip.trip_id
     tdict['vehicle_id'] = tent.trip_update.vehicle.id
     stu = tent.trip_update.stop_time_update
@@ -199,7 +194,7 @@ def getAllVehiclesGTFS_Raw():
     '''
     feed = gtfs_realtime_pb2.FeedMessage()
     try:
-        url = 'http://developer.mbta.com/lib/GTRTFS/Alerts/VehiclePositions.pb'
+        url = 'https://cdn.mbta.com/realtime/VehiclePositions.pb'
         response = requests.get(url, timeout = 10)
         if response.ok:
             feed.ParseFromString(response.content)
@@ -217,7 +212,7 @@ def getAllTripsGTFS_Raw():
     '''
     feed = gtfs_realtime_pb2.FeedMessage()
     try:
-        url = 'http://developer.mbta.com/lib/GTRTFS/Alerts/TripUpdates.pb'
+        url = 'https://cdn.mbta.com/realtime/TripUpdates.pb'
         response = requests.get(url, timeout = 10)
         if response.ok:
             feed.ParseFromString(response.content)
@@ -235,7 +230,7 @@ def getAllAlertsGTFS_Raw():
     '''
     feed = gtfs_realtime_pb2.FeedMessage()
     try:
-        url = 'http://developer.mbta.com/lib/GTRTFS/Alerts/Alerts.pb'
+        url = 'https://cdn.mbta.com/realtime/Alerts.pb'
         response = requests.get(url, timeout = 10)
         if response.ok:
             feed.ParseFromString(response.content)
@@ -252,10 +247,14 @@ def getAllVehiclesGTFS():
     dictionaries with info for each vehicle
     '''
     parsed_vehicles = []
-    for v in getAllVehiclesGTFS_Raw():
-        if v.vehicle.trip.route_id in routenamesdict:
-            parsed_vehicles.append(parseVehEntity(v))
-    logger.info('Got vehicles!  Number of vehicles: {0}'.format(len(parsed_vehicles)))
+    raw_vehicles = getAllVehiclesGTFS_Raw()
+    if raw_vehicles:
+        for v in raw_vehicles:
+            if v.vehicle.trip.route_id in routenamesdict:
+                parsed_vehicles.append(parseVehEntity(v))
+        logger.info('Got vehicles!  Number of vehicles: {0}'.format(len(parsed_vehicles)))
+    else:
+        logger.info('UH OH! Number of vehicles: {0}'.format(len(parsed_vehicles)))
     return parsed_vehicles
 
 
@@ -266,10 +265,14 @@ def getAllTripsGTFS():
     about to depart have a specific vehicle, but trips further in the future don't
     '''
     parsed_trips = []
-    for t in getAllTripsGTFS_Raw():
-        if t.trip_update.trip.route_id in routenamesdict:
-            parsed_trips.append(parseTripEntity(t))
-    logger.info('Got trips!  Number of trips: {0}'.format(len(parsed_trips)))
+    raw_trips = getAllTripsGTFS_Raw()
+    if raw_trips:
+        for t in raw_trips:
+            if t.trip_update.trip.route_id in routenamesdict:
+                parsed_trips.append(parseTripEntity(t))
+        logger.info('Got trips!  Number of trips: {0}'.format(len(parsed_trips)))
+    else:
+        logger.info('UH OH!  Number of trips: {0}'.format(len(parsed_trips)))
     return parsed_trips
 
 
@@ -667,6 +670,30 @@ def getTimepoints(vlat, vlon, veh_stamp, shape_id, preds):
         else:
             break
     return timepoints
+
+
+
+def getUnschedTripInfoV3(trip_id_list):
+    response = requests.get(mbta_rt_v3_url + 'trips?filter[id]=' + ','.join(trip_id_list))
+    data = response.json()['data']
+    infodict = dict()
+    for datum in data:
+        trip_id = datum['id']
+        attributes = datum['attributes']
+        dest = attributes['headsign']
+        info = {'destination' : dest,
+                'direction' : str(attributes['direction_id']),
+                'route_id': datum['relationships']['route']['data']['id']}
+        shape_key = info['route_id'] + '_' + info['direction']
+        if shape_key in shapefinderdict:
+            shapes_by_dest = shapefinderdict[shape_key]
+            if dest in shapes_by_dest:
+                info['shape_id'] = shapes_by_dest[dest]
+            else:
+                info['shape_id'] = shapes_by_dest['default']
+        infodict[trip_id] = info
+    return infodict
+    
 
 
 
