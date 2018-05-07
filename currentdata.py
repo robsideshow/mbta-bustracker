@@ -45,6 +45,18 @@ class CurrentDataV3(object):
 
     def addDestDirShape(self):
         unknown_trip_ids = []
+        for trip in self.trips:
+            if trip.get('destination', '?') == '?':
+                trip_id = trip.get('trip_id', '')
+                if trip_id in self.supplement_by_trip:
+                    trip['destination'] = self.supplement_by_trip[trip_id].get('destination', '?')
+                    trip['direction'] = self.supplement_by_trip[trip_id].get('direction', '?')
+                    trip['shape_id'] = self.supplement_by_trip[trip_id].get('shape_id', '')
+                else:
+                    unknown_trip_ids.append(trip_id)
+        unsched_trip_info = btr.getUnschedTripInfoV3(unknown_trip_ids)
+        for trip_id in unsched_trip_info:
+            self.supplement_by_trip[trip_id] = unsched_trip_info[trip_id]
         for veh in self.vehicles:
             if veh.get('destination', '?') == '?':
                 trip_id = veh.get('trip_id', '')
@@ -52,19 +64,13 @@ class CurrentDataV3(object):
                     veh['destination'] = self.supplement_by_trip[trip_id].get('destination', '?')
                     veh['direction'] = self.supplement_by_trip[trip_id].get('direction', '?')
                     veh['shape_id'] = self.supplement_by_trip[trip_id].get('shape_id', '')
-                else:
-                    unknown_trip_ids.append(trip_id)
-        unsched_trip_info = btr.getUnschedTripInfoV3(unknown_trip_ids)
-        for trip_id in unsched_trip_info:
-            self.supplement_by_trip[trip_id] = unsched_trip_info[trip_id]
-        if len(unsched_trip_info) > 1:
-            for veh in self.vehicles:
-                if veh.get('destination', '?') == '?':
-                    trip_id = veh.get('trip_id', '')
-                    if trip_id in self.supplement_by_trip:
-                        veh['destination'] = self.supplement_by_trip[trip_id].get('destination', '?')
-                        veh['direction'] = self.supplement_by_trip[trip_id].get('direction', '?')
-                        veh['shape_id'] = self.supplement_by_trip[trip_id].get('shape_id', '')
+        for trip in self.trips:
+            if trip.get('destination', '?') == '?':
+                trip_id = trip.get('trip_id', '')
+                if trip_id in self.supplement_by_trip:
+                    trip['destination'] = self.supplement_by_trip[trip_id].get('destination', '?')
+                    trip['direction'] = self.supplement_by_trip[trip_id].get('direction', '?')
+                    trip['shape_id'] = self.supplement_by_trip[trip_id].get('shape_id', '')
                 
                                                               
     def getPredsForStops(self, stopidlist):
