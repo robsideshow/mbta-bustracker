@@ -674,9 +674,16 @@ def getTimepoints(vlat, vlon, veh_stamp, shape_id, preds):
 
 
 def getUnschedTripInfoV3(trip_id_list):
-    response = requests.get(mbta_rt_v3_url + 'trips?filter[id]=' + ','.join(trip_id_list))
-    data = response.json()['data']
     infodict = dict()
+    try: 
+        response = requests.get(mbta_rt_v3_url + 'trips?filter[id]=' + ','.join(trip_id_list))
+        if response.ok:
+            data = response.json()['data']
+    except:
+        er = sys.exc_info()
+        logger.error(er)
+        return infodict
+
     for datum in data:
         trip_id = datum['id']
         attributes = datum['attributes']
@@ -694,10 +701,6 @@ def getUnschedTripInfoV3(trip_id_list):
         infodict[trip_id] = info
     return infodict
     
-
-
-
-
 
 def getShapeForUnschedTrip(route_id, direction, destination):
     '''
