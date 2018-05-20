@@ -48,16 +48,16 @@ define(["jquery", "leaflet", "animation", "map", "legend", "config",
                        return false;
                    });
 
+                   app.on("geolocating", function(isOn) {
+                       $(document.body).toggleClass("geolocating");
+                   });
+
                    // A slapdash feature, never meant to be around this long (at
                    // least not in this form!)  Captures the user's next click
                    // and zooms to that point.
                    $("#click-to-zoom").click(function() {
                        map.captureLocation();
                        return false;
-                   });
-
-                   app.on("geolocating", function(on) {
-                       $("#locate-me").html(on ? "Stop Geolocation" : "Locate Me!");
                    });
 
                    $(document).on("click", ".size-to-fit",
