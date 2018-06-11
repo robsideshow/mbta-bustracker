@@ -675,6 +675,7 @@ def getTimepoints(vlat, vlon, veh_stamp, shape_id, preds):
 
 def getUnschedTripInfoV3(trip_id_list):
     infodict = dict()
+    data = []
     try: 
         response = requests.get(mbta_rt_v3_url + 'trips?filter[id]=' + ','.join(trip_id_list))
         if response.ok:
