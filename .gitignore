@@ -68,3 +68,4 @@ old_routes.*
 # text files used to make static json dictionaries
 /data
 /MBTA_GTFS_texts
+/cache

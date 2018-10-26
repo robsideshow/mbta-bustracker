@@ -35,7 +35,8 @@ class ZipDownloadException(Exception):
 
 def download_response_body(response, filename):
     try:
-        byte_length = float(response.headers['content-length'])
+        byte_length = float(response.headers.get('Content-Length', 16*10**6))
+        # typical size of the zip file is ~ 15 MB
         perc_notify = 10
         byte_buffer = BytesIO()
         for chunk in response.iter_content(chunk_size=1024):
@@ -54,30 +55,32 @@ def download_response_body(response, filename):
 
 
 def updateJson():
-   headers = {}
-   try:
-      with open("cache/last_modified.txt") as lmfile:
-         headers["If-Modified-Since"] = lmfile.read().strip()
-   except IOError:
-      headers["If-Modified-Since"] = None
+    headers = {}
+    try:
+        with open("cache/last_modified.txt") as lmfile:
+            headers["If-Modified-Since"] = lmfile.read().strip()
+    except IOError:
+        headers["If-Modified-Since"] = None
 
-   response = requests.get(gtfs_zip_url, headers=headers, stream=True)
+    response = requests.get(gtfs_zip_url, headers=headers, stream=True)
 
-   if response.status_code == 304:
-      return
+    if response.status_code == 304:
+        return
 
-   if response.status_code != 200:
+    if response.status_code != 200:
       # Report the error (or whatever)
-      pass
+        pass
 
-   try:
-      os.mkdir("cache")
-   except:
-      pass
+    try:
+        os.mkdir("cache")
+    except:
+        pass
 
-   download_response_body(response, "MBTA_GTFS_texts")
-   with open("cache/last_modified.txt", "w") as lmfile:
-      lmfile.write(response.headers["Last-Modified"])
-
-   shutil.rmtree("data")
-   dictmaker.makeAllDicts()
+    download_response_body(response, "MBTA_GTFS_texts")
+    with open("cache/last_modified.txt", "w") as lmfile:
+        lmfile.write(response.headers["Last-Modified"])
+    
+    if os.path.exists('data'):
+        shutil.rmtree('data')
+        
+    dictmaker.makeAllDicts()
